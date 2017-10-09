@@ -4,11 +4,13 @@
 
 We want the library to be portable, stateless, and easy to use.
 
-We use a binary protocol, and load the protocol as following
+We use a binary protocol, and load the protocol as following (w/o whitespace):
 
-`preample header messageID payloadLen payload checksum`
+`SOH header messageID STX payloadLen payload ETX checksum EOT`
 
-The preamble is a one-byte identifier that indicates that a message should belong to eUI (and we can start parsing data after this point)
+We use the non-printable ascii control characters for start of header, start of text, end of text, end of transmission (my oscilloscope and logic analysers can catch these nicely, amongst actual relevance in this usecase).
+
+By using these control characters, the messageID can (in theory) be indeterminate length as the STX would trigger the end of the header.
 
 ## Header Byte
 
@@ -37,7 +39,7 @@ typedef struct
 
 ## messageID
 
-This is the identifier used for the message. 3 bytes are allocated for the use of this identifier.
+This is the identifier used for the message. Typically 3 bytes are allocated for the use of this identifier.
 
 While the protocol is binary in design, the developer will see these as a 3-char string which can be used as a human readable define.
 
@@ -45,7 +47,7 @@ While the protocol is binary in design, the developer will see these as a 3-char
 
 In theory, the developer could truncate this to a single int that references the index in the eUI variable structure, but we get around this by simplifying things a bit. This might change down the track depending on tooling and user feedback.
 
-As the header provides a internal/developer bit, we will likely just incrementally start building the internal messages and build sequentially.
+As the header provides a internal/developer bit, we don't need to worry about collisions with userspace messages.
 
 ## Payload Length
 
@@ -59,11 +61,11 @@ Any messages longer than 255 bytes should be handled through a custom type or li
 
 Payload is the variable contents. Ints, Floats, strings, structures of data, whatever the developer feels like...
 
-We assume the length of this is known as part of the length sent earlier, and we terminate based on length.
+We assume the length of this is known as part of the length sent earlier, and the C implementation would likely terminate based on length as allocating more memory as message data is ingested is nasty.
 
 ## Checksum
 
-The checksum is (for now) the XOR'ed contents of the entire message (not including preamble). At this point, a single byte is likely sufficient for error detection, but each end should be designed in a manner which can be later increased to support n-byte checksum information.
+The checksum is (for now) the XOR'ed contents of the entire message (from SOH to ETX). At this point, a single byte is likely sufficient for error detection, but each end should be designed in a manner which can be later increased to support n-byte checksum information.
 
 # Handling Types
 
