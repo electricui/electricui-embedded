@@ -26,6 +26,38 @@ uint8_t generateHeader(uint8_t internalmsg, uint8_t reqack, uint8_t reservedbit,
   return *(uint8_t*)&genHeader;
 }
 
+euiMessage_t * findMessageObject(const char * msg_id, uint8_t isInternal)
+{
+  static euiMessage_t *foundMsgPtr;
+
+  if(isInternal)
+  {
+    //search the internal array for matching messageID
+    for(int i = 0; i < ARR_ELEM(int_msg_store); i++)
+    {
+      if( strcmp( msg_id, int_msg_store[i].msgID ) == 0 )
+      {
+        foundMsgPtr = &int_msg_store[i];
+      }
+    }
+    return 0;
+  }
+  else
+  {
+    //search developer space array for matching messageID
+    for(int i = 0; i < numDevObjects; i++)
+    {
+      if( strcmp( msg_id, devObjectArray[i].msgID ) == 0 )
+      {
+        foundMsgPtr = &devObjectArray[i];
+      }
+    }
+    return 0;
+  }
+
+  return foundMsgPtr;
+}
+
 void generatePacket(const char * msg_id, uint8_t header, uint8_t payloadLen, void* payload)
 {
   uint8_t packetBuffer[PACKET_BASE_SIZE + PAYLOAD_SIZE_MAX];
@@ -184,34 +216,16 @@ void parsePacket(uint8_t inboundByte, struct eui_parser_state *commInterface)
 
 void handlePacket(struct eui_parser_state *validPacket)
 {
-  euiMessage_t *msgObjPtr;  //create temp pointer to message object we find
-
   //we know the message is valid, use deconstructed header for convenience
   euiHeader_t header = *(euiHeader_t*)&validPacket->inboundHeader;
 
-  if(header.internal)
+  //create temp pointer to the message object we find
+  euiMessage_t *msgObjPtr = findMessageObject( (char*)validPacket->inboundID, header.internal );  
+  
+  //check for search miss
+  if(msgObjPtr == 0)
   {
-    //search the internal array for matching messageID
-    for(int i = 0; i < ARR_ELEM(int_msg_store); i++)
-    {
-      if( strcmp( (char*)validPacket->inboundID, int_msg_store[i].msgID ) == 0 )
-      {
-        msgObjPtr = &int_msg_store[i];
-      }
-    }
-    //todo handle search miss
-  }
-  else
-  {
-    //search developer space array for matching messageID
-    for(int i = 0; i < numDevObjects; i++)
-    {
-      if( strcmp( (char*)validPacket->inboundID, devObjectArray[i].msgID ) == 0 )
-      {
-        msgObjPtr = &devObjectArray[i];
-      }
-    }
-    //todo handle search miss
+    //todo handle error state properly
   }
 
   //TODO decide if we trust the packet or internal store that matches the ID?
@@ -274,6 +288,20 @@ void announceDevMsg()
   //announce start
   //iterate through the dev message list
   //announce end
+void sendTracked(const char * msg_id, uint8_t isInternal)
+{
+  //find the tracked variable in the array
+  euiMessage_t *msgObjPtr = findMessageObject( msg_id, isInternal );  
+
+  euiHeader_t header =  { .internal = isInternal, 
+                          .customType = MSG_TYPE_TYP, 
+                          .reqACK = MSG_ACK_NOTREQ, 
+                          .reserved = MSG_RES_L, 
+                          .type = msgObjPtr->type 
+                        };
+
+  //generate the message
+  generatePacket(msgObjPtr->msgID, *(uint8_t*)&header, msgObjPtr->size, msgObjPtr->payload);
 }
 
 void announceBoard()

@@ -91,10 +91,12 @@ CallBackType parsedCallbackHandler;
 
 uint8_t calcCRC(uint8_t *toSum, uint8_t datagramLen);
 uint8_t generateHeader(uint8_t internalmsg, uint8_t reqack, uint8_t reservedbit, uint8_t customtype, uint8_t payloadtype);
+euiMessage_t * findMessageObject(const char * msg_id, uint8_t isInternal);
 void generatePacket(const char * msg_id, uint8_t header, uint8_t payloadLen, void* payload);
 void parsePacket(uint8_t inboundByte, struct eui_parser_state *commInterface);
 void handlePacket(struct eui_parser_state *validPacket);
 
+void sendTracked(const char * msg_id, uint8_t isInternal);
 
 
 //application layer declarations
@@ -113,7 +115,7 @@ void setupDevMsg(euiMessage_t *msgArray, uint8_t numObjects);
 //internal
 const uint8_t libraryVersion = 1;
 const uint8_t protocolVersion = 1;
-uint8_t heartbeat = 0;
+uint8_t heartbeat;
 
 void announceDevMsg(void);
 void announceBoard(void);
