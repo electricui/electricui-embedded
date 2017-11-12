@@ -1,6 +1,49 @@
 # electricui-embedded
 
-# Implementation Notes
+ElectricUI communications and handling library for use on simplistic embedded microcontrollers. Communicates with a ElectricUI compatible UI or device.
+
+See the docs or website for more information.
+
+
+## Getting Started
+
+### Arduino
+
+1. Ensure the Arduino IDE is installed (version >1.6.X tested ok) and the standard Blink.ino sketch compiles/flashes to the dev board.
+
+2. Clone or download the electricui-embedded repo onto your computer. Put it whereever you like and use symbolic links, or copy the contents into "*/arduino/libraries/electricui*" folder as typically done with Arduino libraries. 
+
+Symbolic folder links are a nice way to separate the library from the Arduino IDE install.
+
+Unix (your Arduino sketchbook location may vary by OS/install):
+
+```
+sudo ln -s ~/projects/electricui-embedded/ ~/Arduino/libraries/electricui
+```
+
+3. In the Arduino IDE, one can simply click *File > Examples > electricui > Examples > Hello_Electric* to load an example sketch.
+
+4. If using the ElectricUI helloboard, set the board with *Tools > Board > "Arduino Leonardo"*
+
+5. Test building and flashing the firmware to the board!
+
+
+### Other Microcontrollers 
+
+1. Just clone the repo and use the electricui files. Import into your project as normal (use extern C { } if using C++) and ensure the minimum setup functions are called.
+
+2. The library assumes that you will provide a pointer to the serial tx function which accepts a char, this could be putc() or similar single byte uart_tx_write(uint8) function.
+
+3. For for more detail, follow the docs or example Arduino code which shows the minimum setup and usage examples.
+
+
+## Usage
+
+todo...
+
+___
+
+# Protocol Implementation Notes
 
 We want the library to be portable, stateless, and easy to use.
 
@@ -27,14 +70,14 @@ The header field is a single byte which contains the following information throu
 This is defined with the custom structure in C
 
 `
-typedef struct
-{
-	unsigned internal	: 1;
-	unsigned customType : 1;
-	unsigned reqACK		: 1;
-	unsigned reserved	: 1;
-	unsigned type		: 4;
-} euiHeader_t:
+typedef struct  
+{  
+	unsigned internal	: 1;  
+	unsigned customType : 1;  
+	unsigned reqACK		: 1;  
+	unsigned reserved	: 1;  
+	unsigned type		: 4;  
+} euiHeader_t;  
 `
 
 ## messageID
@@ -91,5 +134,6 @@ Types are defined as part of the header byte, where types are as follows:
 | uint64        | 64-bit unsigned integer |
 | float         | Standard float (4-byte) |
 | double        | Double precision float  |
-|               |                         |
+| callback      | Function callbacks      |
+| query         | Empty request for var   |
 
