@@ -27,20 +27,20 @@ float     example_float_arr[]  = { 1.60217, 9.1093, -1.0015 };
 
 //internal index of developer-space message metadata
 const euiMessage_t dev_msg_store[] = {
-    {.msgID = "led", .type = TYPE_UINT8,    .payload = &led_brightness  },
-    {.msgID = "tgl", .type = TYPE_CALLBACK, .payload = &toggleLed       },
-    {.msgID = "btA", .type = TYPE_UINT8,    .payload = &btn1_state      },
-    {.msgID = "btB", .type = TYPE_UINT8,    .payload = &btn2_state      },
+    {.msgID = "led", .type = TYPE_UINT8,    .size = sizeof(led_brightness), .payload = &led_brightness  },
+    {.msgID = "tgl", .type = TYPE_CALLBACK, .size = sizeof(toggleLed),      .payload = &toggleLed       },
+    {.msgID = "btA", .type = TYPE_UINT8,    .size = sizeof(btn1_state),     .payload = &btn1_state      },
+    {.msgID = "btB", .type = TYPE_UINT8,    .size = sizeof(btn2_state),     .payload = &btn2_state      },
 
     //type examples
-    {.msgID = "ui8", .type = TYPE_UINT8,  .payload = &example_uint8       },
-    {.msgID = "i16", .type = TYPE_UINT16, .payload = &example_uint16      },
-    {.msgID = "i32", .type = TYPE_UINT32, .payload = &example_uint32      },
-    {.msgID = "fPI", .type = TYPE_FLOAT,  .payload = &example_float       },
-    {.msgID = "ua8", .type = TYPE_UINT8,  .payload = &example_uint8_arr   },
-    {.msgID = "ia6", .type = TYPE_UINT16, .payload = &example_uint16_arr  },
-    {.msgID = "ia2", .type = TYPE_UINT32, .payload = &example_uint32_arr  },
-    {.msgID = "fpA", .type = TYPE_FLOAT,  .payload = &example_float_arr   },
+    {.msgID = "ui8", .type = TYPE_UINT8,  .size = sizeof(example_uint8),  .payload = &example_uint8       },
+    {.msgID = "i16", .type = TYPE_UINT16, .size = sizeof(example_uint16), .payload = &example_uint16      },
+    {.msgID = "i32", .type = TYPE_UINT32, .size = sizeof(example_uint32), .payload = &example_uint32      },
+    {.msgID = "fPI", .type = TYPE_FLOAT,  .size = sizeof(example_float),  .payload = &example_float       },
+    {.msgID = "ua8", .type = TYPE_UINT8,  .size = sizeof(example_uint8_arr),  .payload = &example_uint8_arr   },
+    {.msgID = "ia6", .type = TYPE_UINT16, .size = sizeof(example_uint16_arr), .payload = &example_uint16_arr  },
+    {.msgID = "ia2", .type = TYPE_UINT32, .size = sizeof(example_uint32_arr), .payload = &example_uint32_arr  },
+    {.msgID = "fpA", .type = TYPE_FLOAT,  .size = sizeof(example_float_arr),  .payload = &example_float_arr   },
 };
 
 eui_parser_state usb_comms; //parser data storage by struct (todo cleanup)
@@ -77,7 +77,7 @@ void printDevArray()
   {
       generatePacket( dev_msg_store[i].msgID, 
                       generateHeader(MSG_DEV, MSG_ACK_NOTREQ, MSG_RES_L, MSG_TYPE_TYP, dev_msg_store[i].type),
-                      sizeof(example_uint8), 
+                      dev_msg_store[i].size, 
                       dev_msg_store[i].payload);
   }
 }

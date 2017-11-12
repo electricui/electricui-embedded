@@ -53,6 +53,7 @@ typedef enum {
 typedef struct {
     const char*   msgID;
     uint8_t       type;
+    uint8_t       size;
     void          *payload;
 } euiMessage_t;
 
@@ -112,14 +113,18 @@ void setupDevMsg(euiMessage_t *msgArray, uint8_t numObjects);
 //internal
 const uint8_t libraryVersion = 1;
 const uint8_t protocolVersion = 1;
+uint8_t heartbeat = 0;
+
 void announceDevMsg(void);
 void announceBoard(void);
 
 const euiMessage_t int_msg_store[] = {
-    {.msgID = "LiV", .type = TYPE_UINT8, .payload = &libraryVersion },
-    {.msgID = "PrV", .type = TYPE_UINT8, .payload = &protocolVersion },
-    {.msgID = "aDM", .type = TYPE_CALLBACK, .payload = &announceDevMsg },
-    {.msgID = "eHi", .type = TYPE_CALLBACK, .payload = &announceBoard },
+    {.msgID = "lv", .type = TYPE_UINT8, .size = sizeof(libraryVersion),     .payload = &libraryVersion },
+    {.msgID = "pv", .type = TYPE_UINT8, .size = sizeof(protocolVersion),    .payload = &protocolVersion },
+    {.msgID = "hb", .type = TYPE_UINT8, .size = sizeof(heartbeat),          .payload = &heartbeat },
+
+    {.msgID = "dm", .type = TYPE_CALLBACK, .size = sizeof(announceDevMsg),  .payload = &announceDevMsg },
+    {.msgID = "hi", .type = TYPE_CALLBACK, .size = sizeof(announceBoard),   .payload = &announceBoard },
 };
 
 #endif
