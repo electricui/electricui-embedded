@@ -285,9 +285,34 @@ void setupDevMsg(euiMessage_t *msgArray, uint8_t numObjects)
 //application layer callbacks
 void announceDevMsg()
 {
-  //announce start
-  //iterate through the dev message list
-  //announce end
+  const uint8_t numMessages = numDevObjects;
+
+  euiHeader_t dmHeader = { .internal = MSG_INTERNAL, 
+                            .customType = MSG_TYPE_TYP, 
+                            .reqACK = MSG_ACK_NOTREQ, 
+                            .reserved = MSG_RES_L, 
+                            .type = TYPE_UINT8 
+                          };
+
+  generatePacket("dms", *(uint8_t*)&dmHeader, sizeof(numMessages), &numMessages);
+
+  euiHeader_t idmdahead = { .internal = MSG_INTERNAL, 
+                            .customType = MSG_TYPE_TYP, 
+                            .reqACK = MSG_ACK_NOTREQ, 
+                            .reserved = MSG_RES_L, 
+                            .type = TYPE_UINT8 
+                          };
+
+  uint8_t msgContents[20];
+
+  //create string with the various message ID's as null terminated strings
+  //publish that list to the UI
+  //send multiple messages if they have that many defined
+
+  generatePacket("dme", *(uint8_t*)&dmHeader, sizeof(numMessages), &numMessages);
+
+}
+
 void sendTracked(const char * msg_id, uint8_t isInternal)
 {
   //find the tracked variable in the array
@@ -306,5 +331,19 @@ void sendTracked(const char * msg_id, uint8_t isInternal)
 
 void announceBoard()
 {
-  //tell the other side who/what we are as part of discovery
+  //repond to search request with board info
+  //this information helps populate the connection UI page
+  euiHeader_t header =  { .internal = MSG_INTERNAL, 
+                          .customType = MSG_TYPE_TYP, 
+                          .reqACK = MSG_ACK_NOTREQ, 
+                          .reserved = MSG_RES_L, 
+                          .type = TYPE_UINT8 
+                        };
+  uint8_t data = 0;
+
+  //todo remove mock outputs
+  generatePacket("hi", *(uint8_t*)&header, sizeof(data), &data);
+  sendTracked("lv", 1);
+  sendTracked("pv", 1);
+  generatePacket("bye", *(uint8_t*)&header, sizeof(data), &data);
 }
