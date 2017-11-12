@@ -25,6 +25,27 @@ uint16_t  example_uint16_arr[] = { 321, 320, 319 };
 uint32_t  example_uint32_arr[] = { 654321, 654320, 654319 };
 float     example_float_arr[]  = { 1.60217, 9.1093, -1.0015 };
 
+//example custom type
+typedef struct {
+  int red;
+  int green;
+  int blue;
+} rgb_t;
+
+typedef struct {
+  float x;
+  float y;
+  float z;
+} imu_t;
+
+typedef enum {
+    TYPE_RGB = TYPE_CUSTOM_MARKER,
+    TYPE_IMU,
+} custom_euiType_t;
+
+rgb_t example_rgb = { 182, 236, 20 };
+imu_t example_imu = { 0.002, 0.003, -9.782 };
+
 //internal index of developer-space message metadata
 const euiMessage_t dev_msg_store[] = {
     {.msgID = "led", .type = TYPE_UINT8,    .size = sizeof(led_brightness), .payload = &led_brightness  },
@@ -41,6 +62,10 @@ const euiMessage_t dev_msg_store[] = {
     {.msgID = "ia6", .type = TYPE_UINT16, .size = sizeof(example_uint16_arr), .payload = &example_uint16_arr  },
     {.msgID = "ia2", .type = TYPE_UINT32, .size = sizeof(example_uint32_arr), .payload = &example_uint32_arr  },
     {.msgID = "fpA", .type = TYPE_FLOAT,  .size = sizeof(example_float_arr),  .payload = &example_float_arr   },
+
+    //custom type examples
+    {.msgID = "rgb", .type = TYPE_RGB, .size = sizeof(example_rgb), .payload = &example_rgb },
+    {.msgID = "imu", .type = TYPE_IMU, .size = sizeof(example_imu), .payload = &example_imu },
 };
 
 eui_parser_state usb_comms; //parser data storage by struct (todo cleanup)

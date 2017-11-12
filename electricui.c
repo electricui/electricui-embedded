@@ -18,10 +18,19 @@ uint8_t generateHeader(uint8_t internalmsg, uint8_t reqack, uint8_t reservedbit,
   euiHeader_t genHeader; 
 
   genHeader.internal = internalmsg;
-  genHeader.customType = customtype;
   genHeader.reqACK = reqack;
   genHeader.reserved = reservedbit;
-  genHeader.type = payloadtype;
+
+  if(payloadtype >= TYPE_CUSTOM_MARKER || customtype)
+  {
+    genHeader.customType = MSG_TYPE_CUSTOM; //they've passed a type larger than we expect, must be custom
+    genHeader.type = payloadtype - MSG_TYPE_CUSTOM;
+  }
+  else
+  {
+    genHeader.customType = customtype;
+    genHeader.type = payloadtype;
+  }
 
   return *(uint8_t*)&genHeader;
 }
