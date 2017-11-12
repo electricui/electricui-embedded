@@ -96,7 +96,6 @@ void handlePacket(struct eui_parser_state *validPacket);
 
 
 
-
 //application layer declarations
 
 //dev interface
@@ -119,8 +118,8 @@ void announceBoard(void);
 const euiMessage_t int_msg_store[] = {
     {.msgID = "LiV", .type = TYPE_UINT8, .payload = &libraryVersion },
     {.msgID = "PrV", .type = TYPE_UINT8, .payload = &protocolVersion },
-    {.msgID = "aDM", .type = TYPE_UINT8, .payload = &announceDevMsg },
-    {.msgID = "eHi", .type = TYPE_UINT8, .payload = &announceBoard },
+    {.msgID = "aDM", .type = TYPE_CALLBACK, .payload = &announceDevMsg },
+    {.msgID = "eHi", .type = TYPE_CALLBACK, .payload = &announceBoard },
 };
 
 #endif

@@ -1,6 +1,5 @@
 #include "electricui.h"
 
-//eUI core stuff
 uint8_t calcCRC(uint8_t *toSum, uint8_t datagramLen) 
 {
   uint8_t XOR; 
