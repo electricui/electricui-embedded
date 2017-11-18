@@ -37,9 +37,9 @@ uint8_t generateHeader(uint8_t internalmsg, uint8_t reqack, uint8_t reservedbit,
 
 euiMessage_t * findMessageObject(const char * msg_id, uint8_t isInternal)
 {
-  static euiMessage_t *foundMsgPtr;
+  euiMessage_t *foundMsgPtr;
 
-  if(isInternal)
+  if(isInternal == MSG_INTERNAL)
   {
     //search the internal array for matching messageID
     for(int i = 0; i < ARR_ELEM(int_msg_store); i++)
@@ -49,9 +49,9 @@ euiMessage_t * findMessageObject(const char * msg_id, uint8_t isInternal)
         foundMsgPtr = &int_msg_store[i];
       }
     }
-    return 0;
+    //return 0;
   }
-  else
+  else if (isInternal == MSG_DEV)
   {
     //search developer space array for matching messageID
     for(int i = 0; i < numDevObjects; i++)
@@ -61,7 +61,7 @@ euiMessage_t * findMessageObject(const char * msg_id, uint8_t isInternal)
         foundMsgPtr = &devObjectArray[i];
       }
     }
-    return 0;
+    //return 0;
   }
 
   return foundMsgPtr;
