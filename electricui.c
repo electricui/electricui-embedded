@@ -77,8 +77,8 @@ void generatePacket(const char * msg_id, uint8_t header, uint8_t payloadLen, voi
   packetBuffer[p++] = header;
 
   //copy the message ID in
-  memcpy(packetBuffer+p, msg_id, MESSAGEID_SIZE);
-  p += MESSAGEID_SIZE;
+  strcpy(packetBuffer+p, msg_id);
+  p += strlen(msg_id);
 
   //start of payload control character
   packetBuffer[p++] = stText;
