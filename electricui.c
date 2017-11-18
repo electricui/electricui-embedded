@@ -240,31 +240,40 @@ void handlePacket(struct eui_parser_state *validPacket)
   switch(header.type)
   {
     case TYPE_CALLBACK:
-    //create a function to call from the internally stored pointer
-    parsedCallbackHandler = msgObjPtr->payload;
-   
-    if(parsedCallbackHandler) //decide if this should be an assert? Can't check at compile.
-    {
-      parsedCallbackHandler();
-    }
-
+      //create a function to call from the internally stored pointer
+      parsedCallbackHandler = msgObjPtr->payload;
+     
+      //decide if this should be an assert? Can't check at compile.
+      if(parsedCallbackHandler) 
+      {
+        parsedCallbackHandler();
+      }
     break;
 
     case TYPE_QUERY:
-    //parrot back the variable contents in the payload
+    { 
+      //create a header with properties of internal object
+      euiHeader_t query_header =  { .internal = header.internal, 
+                                    .customType = (msgObjPtr->type >= TYPE_CUSTOM_MARKER) ? MSG_TYPE_CUSTOM : MSG_TYPE_TYP, 
+                                    .reqACK = MSG_ACK_NOTREQ, 
+                                    .reserved = MSG_RES_L, 
+                                    .type = msgObjPtr->type 
+                                  };
 
-    //we basically just ignore the payload, and the ack at the end of ingest should sort this out
+      //respond to the query with internal value of the requested messageID
+      generatePacket(msgObjPtr->msgID, *(uint8_t*)&query_header, msgObjPtr->size, msgObjPtr->payload);
+    }
     break;
 
     default:
-    if(header.customType)
-    {
-      //TODO add support for custom types...
-    }
+      if(header.customType)
+      {
+        //TODO add custom handling or callbacks for custom types if needed?
+      }
 
-    //any other normal message type, just copy payload data into the object blindly
-    //todo add some checks here?
-    memcpy(msgObjPtr->payload, validPacket->inboundData, validPacket->inboundSize);
+      //copy payload data into the object blindly
+      //todo add some checks here?
+      memcpy(msgObjPtr->payload, validPacket->inboundData, validPacket->inboundSize);
     break;
   }
 
