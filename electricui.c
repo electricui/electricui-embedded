@@ -124,33 +124,32 @@ void parsePacket(uint8_t inboundByte, struct eui_parser_state *commInterface)
     break;
     
     case s_header:
-      //read the message ID in
-      commInterface->inboundID[commInterface->processedID] = inboundByte;
-      commInterface->processedID++;
-
-      if(commInterface->processedID >= MESSAGEID_SIZE)
-      {
-        //stop parsing and wait for STX, messageID can't be longer than that
-        commInterface->controlState = s_msg_id;
-        commInterface->inboundID[commInterface->processedID] = '\0';  //terminate the ID string
-      }
-
-      if(inboundByte == stText && commInterface->processedID)  //need at least one byte before a STX
+      //Check if we've seen a shorter than maxLength msgID
+      if(commInterface->processedID && inboundByte == stText )  
       {
         commInterface->controlState = s_datastart;
-        commInterface->inboundID[commInterface->processedID] = '\0';  //terminate the ID string
+        commInterface->inboundID[commInterface->processedID + 1] = '\0';  //terminate msgID string
+      }
+      else
+      {
+        //read the message ID character in
+        commInterface->inboundID[commInterface->processedID] = inboundByte;
+        commInterface->processedID++;
+
+        //stop parsing and wait for STX, messageID can't be longer than preset maxlength
+        if(commInterface->processedID >= MESSAGEID_SIZE)
+        {
+          commInterface->controlState = s_msg_id;
+          commInterface->inboundID[commInterface->processedID] = '\0';  //terminate the ID string
+        }
       }
     break;
     
     case s_msg_id:
-      //wait for a STX to know the payload is coming (this state shouldn't trigger)
+      //wait for a STX to know the payloadlength is coming
       if(inboundByte == stText)
       {
         commInterface->controlState = s_datastart;
-      }
-      else
-      {
-        //data after msgID we aren't expecting.
       }
     break;
     
