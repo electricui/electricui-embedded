@@ -299,6 +299,12 @@ void setupDevMsg(euiMessage_t *msgArray, uint8_t numObjects)
   numDevObjects = numObjects;
 }
 
+void setupIdentifier()
+{
+  //hahahaha
+  boardidentifier = rand();
+}
+
 //application layer callbacks
 void announceDevMsg()
 {

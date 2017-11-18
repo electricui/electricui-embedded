@@ -112,11 +112,14 @@ CallBackDataType parserOutputFunc;
 
 void setupParser(CallBackDataType parserFuncPtr);
 void setupDevMsg(euiMessage_t *msgArray, uint8_t numObjects);
+void setupIdentifier();
+
 
 //internal
 const uint8_t libraryVersion = 1;
 const uint8_t protocolVersion = 1;
 uint8_t heartbeat;
+uint8_t boardidentifier;
 
 void announceDevMsg(void);
 void announceBoard(void);
@@ -125,6 +128,7 @@ const euiMessage_t int_msg_store[] = {
     {.msgID = "lv", .type = TYPE_UINT8, .size = sizeof(libraryVersion),     .payload = &libraryVersion },
     {.msgID = "pv", .type = TYPE_UINT8, .size = sizeof(protocolVersion),    .payload = &protocolVersion },
     {.msgID = "hb", .type = TYPE_UINT8, .size = sizeof(heartbeat),          .payload = &heartbeat },
+    {.msgID = "id", .type = TYPE_UINT8, .size = sizeof(boardidentifier),    .payload = &boardidentifier },
 
     {.msgID = "dm", .type = TYPE_CALLBACK, .size = sizeof(announceDevMsg),  .payload = &announceDevMsg },
     {.msgID = "hi", .type = TYPE_CALLBACK, .size = sizeof(announceBoard),   .payload = &announceBoard },

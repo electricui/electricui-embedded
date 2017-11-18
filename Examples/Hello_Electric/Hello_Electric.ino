@@ -80,6 +80,7 @@ void setup()
   //pass parser callback ptr and developer msg array to eUI lib.
   setupParser(&uart_tx_putc); 
   setupDevMsg(dev_msg_store, ARR_ELEM(dev_msg_store));
+  setupIdentifier();
 }
 
 void loop() 
