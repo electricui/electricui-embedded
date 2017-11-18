@@ -43,6 +43,45 @@ todo...
 
 ___
 
+# Application Layer Behaviour
+
+## Handshaking
+
+The UI needs to handshake with devices in order to establish what the device is, and if there are incompatible versions of UI or microcontroller code.
+
+This process also provides a unique device identifier (UUID) to the UI which should allow the UI to communicate with different microcontrollers on the same computer, or recognise multiple connection methods to the same eUI instance.
+
+To kick this process, the UI will send an internal callback message of "hi".
+
+The micro will then respond with:
+
+- "hi" - start of search response
+- "lv" - library version
+- "pv" - protocol version
+- todo add "id" - board UUID
+- "bye" - end of search response
+
+Additional information will be added to this process as multiple connection method functionality is added.
+
+## Sharing messageID data with the host
+
+When connecting to a micro, the UI will need to know what internal variables we are going to send it, and what their corresponding types/etc are going to be. This allows the UI to populate the UI on connection.
+
+To accomplish this (after the UI has performed handshaking), the UI will send an internal callback message of "dm".
+
+The micro will then respond with"
+
+- "dms" - developer message start, uint8, payload is the number of developer variables internally tracked
+- "???" - undecided, either a message with msgID's in payload, or the actual messages
+- "dme" - developer message end, uint8, payload is the number of developer variables sent
+
+## Heartbeats
+
+TODO: write about this after adding some rough pass...
+
+
+___
+
 # Protocol Implementation Notes
 
 We want the library to be portable, stateless, and easy to use.
@@ -80,15 +119,25 @@ typedef struct
 } euiHeader_t;  
 `
 
+Currently, the customType bit is not exposed to the developer, and essentially acts as a modifier on the 16-type limit. See the type details section for more customType notes.
+
+### Arrays
+
+Arrays are handled natively without special header information.
+
+The payload length defines the total number of bytes being sent (of the array), but the type defines the size of each element if needed for checks or casting. Generally there shouldn't be any issues with this providing the total payload size (arrayElements * elementSize) doesn't exceed the max payload length.
+
 ## messageID
 
 This is the identifier used for the message. Typically 3 bytes are allocated for the use of this identifier.
 
-While the protocol is binary in design, the developer will see these as a 3-char string which can be used as a human readable define.
+While the protocol is binary in design, the developer will see these as a 1 to 3 char string which can be used as a human readable define.
 
-`btn` or `sw1` for example.
+`btn` or `sw` for example.
 
-In theory, the developer could truncate this to a single int that references the index in the eUI variable structure, but we get around this by simplifying things a bit. This might change down the track depending on tooling and user feedback.
+This is allowed to be any char/byte array with length ranging from 1 to the defined max message ID length in electricui.h. The library relies on null-terminated strings if the length is less than max.
+
+For this reason, null-termination characters are illegal in the actual messageID.
 
 As the header provides a internal/developer bit, we don't need to worry about collisions with userspace messages.
 
@@ -109,6 +158,8 @@ We assume the length of this is known as part of the length sent earlier, and th
 ## Checksum
 
 The checksum is (for now) the XOR'ed contents of the entire message (from SOH to ETX). At this point, a single byte is likely sufficient for error detection, but each end should be designed in a manner which can be later increased to support n-byte checksum information.
+
+___
 
 # Handling Types
 
@@ -137,3 +188,6 @@ Types are defined as part of the header byte, where types are as follows:
 | callback      | Function callbacks      |
 | query         | Empty request for var   |
 
+If the developer is using custom types, they will create another enum to define their types internally, but set their enum's first element to TYPE_CUSTOM_MARKER, which is the end of the electricUI defined type enum.
+
+This allows the custom typed developer messages to be passed around as normal, and the library will check the type reference and apply the custom-type bit in the header automatically on generation.
