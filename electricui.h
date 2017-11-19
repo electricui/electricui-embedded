@@ -49,7 +49,6 @@ typedef enum {
     TYPE_FLOAT,
     TYPE_DOUBLE,
     TYPE_CALLBACK,
-    TYPE_QUERY,
     TYPE_CUSTOM_MARKER
 } euiType_t;
 

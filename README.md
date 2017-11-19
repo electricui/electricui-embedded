@@ -192,7 +192,6 @@ Types are defined as part of the header byte, where types are as follows:
 | float         | Standard float (4-byte) |
 | double        | Double precision float  |
 | callback      | Function callbacks      |
-| query         | Empty request for var   |
 
 If the developer is using custom types, they will create another enum to define their types internally, but set their enum's first element to TYPE_CUSTOM_MARKER, which is the end of the electricUI defined type enum.
 

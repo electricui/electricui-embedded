@@ -250,39 +250,32 @@ void handlePacket(struct eui_parser_state *validPacket)
       }
     break;
 
-    case TYPE_QUERY:
-    { 
-      //create a header with properties of internal object
-      euiHeader_t query_header =  { .internal = header.internal, 
-                                    .customType = (msgObjPtr->type >= TYPE_CUSTOM_MARKER) ? MSG_TYPE_CUSTOM : MSG_TYPE_TYP, 
-                                    .reqACK = MSG_ACK_NOTREQ, 
-                                    .reserved = MSG_RES_L, 
-                                    .type = msgObjPtr->type 
-                                  };
-
-      //respond to the query with internal value of the requested messageID
-      generatePacket(msgObjPtr->msgID, *(uint8_t*)&query_header, msgObjPtr->size, msgObjPtr->payload);
-    }
-    break;
-
     default:
       if(header.customType)
       {
         //TODO add custom handling or callbacks for custom types if needed?
       }
 
-      //copy payload data into the object blindly
-      //todo add some checks here?
-      memcpy(msgObjPtr->payload, validPacket->inboundData, validPacket->inboundSize);
+      //copy payload data into the object blindly providing we actually have some
+      if(validPacket->inboundSize != 0)
+      {
+        memcpy(msgObjPtr->payload, validPacket->inboundData, validPacket->inboundSize);
+      }
     break;
   }
 
   //a ACK was requested for this message
   if(header.reqACK)
   {
-    //send "ack" with the message ID as contents? 
-    //or send the message ID with an ACK type? 
-    //or send messageID with ack payload?
+    euiHeader_t query_header =  { .internal = header.internal, 
+                                  .customType = (msgObjPtr->type >= TYPE_CUSTOM_MARKER) ? MSG_TYPE_CUSTOM : MSG_TYPE_TYP, 
+                                  .reqACK = MSG_ACK_NOTREQ, 
+                                  .reserved = MSG_RES_L, 
+                                  .type = msgObjPtr->type 
+                                };
+
+    //respond to the ack with internal value of the requested messageID as confirmation
+    generatePacket(msgObjPtr->msgID, *(uint8_t*)&query_header, msgObjPtr->size, msgObjPtr->payload);
   }
 }
 
