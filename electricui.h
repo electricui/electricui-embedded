@@ -76,15 +76,15 @@ struct eui_parser_state {
 };
 
 enum parseStates {
-    s_invalidData = 0,
-    s_preamble,
-    s_header,
-    s_msg_id,
-    s_datastart,
-    s_datalen,
-    s_payload,
-    s_dataend,
-    s_checksum,
+    find_preamble = 0,
+    exp_header,
+    exp_msgID,
+    exp_stx,
+    exp_payloadlen,
+    exp_data,
+    exp_etx,
+    exp_crc,
+    exp_eot,
 };
 
 typedef void (*CallBackType)();

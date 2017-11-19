@@ -108,26 +108,26 @@ void parsePacket(uint8_t inboundByte, struct eui_parser_state *commInterface)
 {
   switch(commInterface->controlState)
   {
-    case s_invalidData:
+    case find_preamble:
       //random data we don't care about prior to preamble
       if(inboundByte == stHeader)
       {
-        commInterface->controlState = s_preamble;
+        commInterface->controlState = exp_header;
         commInterface->processedCRC = 0; //clear out the CRC for this new message
       }
     break;
 
-    case s_preamble:
+    case exp_header:
       //we've seen the preamble 0x01 control char. Nnext byte should be the header
       commInterface->inboundHeader = inboundByte;
-      commInterface->controlState = s_header;
+      commInterface->controlState = exp_msgID;
     break;
     
-    case s_header:
+    case exp_msgID:
       //Check if we've seen a shorter than maxLength msgID
       if(commInterface->processedID && inboundByte == stText )  
       {
-        commInterface->controlState = s_datastart;
+        commInterface->controlState = exp_payloadlen;
         commInterface->inboundID[commInterface->processedID + 1] = '\0';  //terminate msgID string
       }
       else
@@ -139,28 +139,27 @@ void parsePacket(uint8_t inboundByte, struct eui_parser_state *commInterface)
         //stop parsing and wait for STX, messageID can't be longer than preset maxlength
         if(commInterface->processedID >= MESSAGEID_SIZE)
         {
-          commInterface->controlState = s_msg_id;
+          commInterface->controlState = exp_stx;
           commInterface->inboundID[commInterface->processedID] = '\0';  //terminate the ID string
         }
       }
     break;
     
-    case s_msg_id:
+    case exp_stx:
       //wait for a STX to know the payloadlength is coming
       if(inboundByte == stText)
       {
-        commInterface->controlState = s_datastart;
+        commInterface->controlState = exp_payloadlen;
       }
     break;
     
-    case s_datastart:
+    case exp_payloadlen:
       //first byte should be payload length
       commInterface->inboundSize = inboundByte;
-      //commInterface->controlState = s_datalen;
-      commInterface->controlState = (commInterface->inboundSize == 0) ? s_payload: s_datalen;
+      commInterface->controlState = (commInterface->inboundSize == 0) ? exp_etx: exp_data;
     break;
     
-    case s_datalen:
+    case exp_data:
       //we know the length of the payload, parse until we've eaten that many bytes
       commInterface->inboundData[commInterface->processedData] = inboundByte;
       commInterface->processedData++;
@@ -168,17 +167,17 @@ void parsePacket(uint8_t inboundByte, struct eui_parser_state *commInterface)
       if(commInterface->processedData >= commInterface->inboundSize)
       {
         //stop parsing and wait for STX, messageID can't be longer than that
-        commInterface->controlState = s_payload;
+        commInterface->controlState = exp_etx;
       }
       //we even eat ETX characters, because they are valid bytes in a payload...
     break;
     
-    case s_payload:
+    case exp_etx:
       //payload data saved in, the first character into this state really should be ETX
       //wait for a ETX to know checksum is coming
       if(inboundByte == enText)
       {
-        commInterface->controlState = s_dataend;
+        commInterface->controlState = exp_crc;
       }
       else
       {
@@ -186,13 +185,13 @@ void parsePacket(uint8_t inboundByte, struct eui_parser_state *commInterface)
       }
     break;
     
-    case s_dataend:
+    case exp_crc:
       //the ETX character has been seen, the next byte is the CRC
       commInterface->inboundCRC = inboundByte;
-      commInterface->controlState = s_checksum;
+      commInterface->controlState = exp_eot;
     break;
     
-    case s_checksum:
+    case exp_eot:
       //we've seen the checksum byte and are waiting for end of packet indication
       if(inboundByte == enTransmission)
       {
