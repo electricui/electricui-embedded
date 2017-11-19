@@ -45,6 +45,10 @@ ___
 
 # Application Layer Behaviour
 
+The current msgID's for these behaviours is for temporary debug visibility.
+
+I plan on converting to an enum of bytes eventually.
+
 ## Handshaking
 
 The UI needs to handshake with devices in order to establish what the device is, and if there are incompatible versions of UI or microcontroller code.
@@ -72,13 +76,15 @@ To accomplish this (after the UI has performed handshaking), the UI will send an
 The micro will then respond with"
 
 - "dms" - developer message start, uint8, payload is the number of developer variables internally tracked
-- "???" - undecided, either a message with msgID's in payload, or the actual messages
+- "dml" - developer message list, payload contains the msgID's with null character (\0 or 0x00) delimiter
+- "dml" - more dml messages until all developer msgID's have been sent (definable max num per message)
 - "dme" - developer message end, uint8, payload is the number of developer variables sent
 
 ## Heartbeats
 
-TODO: write about this after adding some rough pass...
+In the current rough implementation, "hb" behaves as a uint8 internal variable.
 
+The UI can set/query it, but there is no microcontroller side logic at this point.
 
 ___
 
