@@ -317,21 +317,26 @@ void announceDevMsg()
                             .type = TYPE_UINT8 
                           };
 
+  //tell the UI we are starting the index handshake process
   generatePacket("dms", *(uint8_t*)&dmHeader, sizeof(numMessages), &numMessages);
 
-  euiHeader_t idmdahead = { .internal = MSG_INTERNAL, 
-                            .customType = MSG_TYPE_TYP, 
-                            .reqACK = MSG_ACK_NOTREQ, 
-                            .reserved = MSG_RES_L, 
-                            .type = TYPE_UINT8 
-                          };
+  //fill a buffer which contains the developer message ID's
+  uint8_t msgBuffer[60];  //todo change this length?
+  uint8_t msgBufferPos = 0; //keep track of position in buffer
+  uint8_t msgIDlen = 0;
 
-  uint8_t msgContents[20];
+  for(int i = 0; i <= numMessages; i++)
+  {
+    //copy messageID into the buffer, use null termination characters as delimiter
+    msgIDlen = strlen(devObjectArray[i].msgID) + 1; //account for null character
+    memcpy(msgBuffer+msgBufferPos, devObjectArray[i].msgID, msgIDlen);
+    msgBufferPos += msgIDlen;
+  }
 
-  //create string with the various message ID's as null terminated strings
-  //publish that list to the UI
-  //send multiple messages if they have that many defined
+  //send message with msgID's in payload
+  generatePacket("dml", *(uint8_t*)&dmHeader, msgBufferPos, &msgBuffer);
 
+  //tell the UI we've finished
   generatePacket("dme", *(uint8_t*)&dmHeader, sizeof(numMessages), &numMessages);
 
 }
