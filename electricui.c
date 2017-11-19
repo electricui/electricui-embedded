@@ -310,6 +310,7 @@ void announceDevMsg()
 {
   const uint8_t numMessages = numDevObjects;
 
+  //generate a generic header for these messages
   euiHeader_t dmHeader = { .internal = MSG_INTERNAL, 
                             .customType = MSG_TYPE_TYP, 
                             .reqACK = MSG_ACK_NOTREQ, 
@@ -321,24 +322,31 @@ void announceDevMsg()
   generatePacket("dms", *(uint8_t*)&dmHeader, sizeof(numMessages), &numMessages);
 
   //fill a buffer which contains the developer message ID's
-  uint8_t msgBuffer[60];  //todo change this length?
-  uint8_t msgBufferPos = 0; //keep track of position in buffer
-  uint8_t msgIDlen = 0;
+  uint8_t msgBuffer[ (MESSAGEID_SIZE+1)*MESSAGES_PK_DISCOVERY ];
+  uint8_t msgBufferPos = 0; //position in buffer
+  uint8_t msgIDlen = 0;     //length of a single msgID string
+  uint8_t msgIDPacked = 0;  //count messages packed into buffer
 
   for(int i = 0; i <= numMessages; i++)
   {
     //copy messageID into the buffer, use null termination characters as delimiter
-    msgIDlen = strlen(devObjectArray[i].msgID) + 1; //account for null character
+    msgIDlen = strlen(devObjectArray[i].msgID) + 1; //+1 to account for null character
     memcpy(msgBuffer+msgBufferPos, devObjectArray[i].msgID, msgIDlen);
     msgBufferPos += msgIDlen;
-  }
+    msgIDPacked++;  
 
-  //send message with msgID's in payload
-  generatePacket("dml", *(uint8_t*)&dmHeader, msgBufferPos, &msgBuffer);
+    //send messages and clear buffer to break list into shorter messagaes
+    if(msgIDPacked >= 10 || i >= numMessages)
+    {
+      generatePacket("dml", *(uint8_t*)&dmHeader, msgBufferPos, &msgBuffer);
+      memset(msgBuffer, 0, sizeof(msgBuffer));
+      msgBufferPos = 0;
+      msgIDPacked = 0;
+    }
+  }
 
   //tell the UI we've finished
   generatePacket("dme", *(uint8_t*)&dmHeader, sizeof(numMessages), &numMessages);
-
 }
 
 void sendTracked(const char * msg_id, uint8_t isInternal)

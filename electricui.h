@@ -8,6 +8,8 @@
 #define PAYLOAD_SIZE_MAX 120
 #define PACKET_BASE_SIZE 10
 
+#define MESSAGES_PK_DISCOVERY 10
+
 #define MSG_INTERNAL 1
 #define MSG_DEV 0
 #define MSG_TYPE_CUSTOM 1
