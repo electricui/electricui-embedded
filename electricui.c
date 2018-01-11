@@ -42,11 +42,11 @@ euiMessage_t * findMessageObject(const char * msg_id, uint8_t isInternal)
   if(isInternal == MSG_INTERNAL)
   {
     //search the internal array for matching messageID
-    for(int i = 0; i < ARR_ELEM(int_msg_store); i++)
+    for(int i = 0; i < ARR_ELEM(internal_msg_store); i++)
     {
-      if( strcmp( msg_id, int_msg_store[i].msgID ) == 0 )
+      if( strcmp( msg_id, internal_msg_store[i].msgID ) == 0 )
       {
-        foundMsgPtr = &int_msg_store[i];
+        foundMsgPtr = &internal_msg_store[i];
       }
     }
     //return 0;
@@ -242,8 +242,8 @@ void handlePacket(struct eui_parser_state *validPacket)
       //create a function to call from the internally stored pointer
       parsedCallbackHandler = msgObjPtr->payload;
      
-      //decide if this should be an assert? Can't check at compile.
-      if(parsedCallbackHandler) 
+      //decide if this should be an assert on failure? Can't check at compile.
+      if( parsedCallbackHandler ) 
       {
         parsedCallbackHandler();
       }
@@ -328,16 +328,18 @@ void announceDevMsg()
     msgIDPacked++;  
 
     //send messages and clear buffer to break list into shorter messagaes
-    if(msgIDPacked >= 10 || i >= numMessages)
+    if(msgIDPacked >= MESSAGES_PK_DISCOVERY || i >= numMessages)
     {
       generatePacket("dml", *(uint8_t*)&dmHeader, msgBufferPos, &msgBuffer);
+      
+      //cleanup
       memset(msgBuffer, 0, sizeof(msgBuffer));
       msgBufferPos = 0;
       msgIDPacked = 0;
     }
   }
 
-  //tell the UI we've finished
+  //tell the UI we've finished sending msg id strings
   generatePacket("dme", *(uint8_t*)&dmHeader, sizeof(numMessages), &numMessages);
 }
 
@@ -369,10 +371,10 @@ void announceBoard()
                         };
   uint8_t data = 0;
 
-  //todo remove mock outputs
+  //todo remove mock start and finish strings
   generatePacket("hi", *(uint8_t*)&header, sizeof(data), &data);
-  sendTracked("lv", 1);
-  sendTracked("pv", 1);
-  sendTracked("id", 1);
+  sendTracked("lv", MSG_INTERNAL);
+  sendTracked("pv", MSG_INTERNAL);
+  sendTracked("id", MSG_INTERNAL);
   generatePacket("bye", *(uint8_t*)&header, sizeof(data), &data);
 }

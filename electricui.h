@@ -125,7 +125,7 @@ uint8_t boardidentifier;
 void announceDevMsg(void);
 void announceBoard(void);
 
-const euiMessage_t int_msg_store[] = {
+const euiMessage_t internal_msg_store[] = {
     {.msgID = "lv", .type = TYPE_UINT8, .size = sizeof(libraryVersion),     .payload = &libraryVersion },
     {.msgID = "pv", .type = TYPE_UINT8, .size = sizeof(protocolVersion),    .payload = &protocolVersion },
     {.msgID = "hb", .type = TYPE_UINT8, .size = sizeof(heartbeat),          .payload = &heartbeat },
