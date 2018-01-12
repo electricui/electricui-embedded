@@ -27,6 +27,9 @@ const uint8_t stText = 0x02;
 const uint8_t enText = 0x03;
 const uint8_t enTransmission = 0x04;
 
+typedef void (*CallBackType)();            //callback with no data
+typedef void (*CallBackDataType)(uint8_t); //callback with single char of data
+
 typedef struct {
   unsigned internal   : 1;
   unsigned customType : 1;
@@ -59,7 +62,7 @@ typedef struct {
     void          *payload;
 } euiMessage_t;
 
-struct eui_parser_state {
+struct eui_interface_state {
     uint8_t controlState;
 
     //buffer incoming data
@@ -73,6 +76,8 @@ struct eui_parser_state {
     uint8_t processedID;
     uint8_t processedData;
     uint8_t processedCRC;
+
+    CallBackDataType output_char_fnPtr;
 };
 
 enum parseStates {
@@ -87,34 +92,22 @@ enum parseStates {
     exp_eot,
 };
 
-typedef void (*CallBackType)();
-CallBackType parsedCallbackHandler;
-
-
 uint8_t calcCRC(uint8_t *toSum, uint8_t datagramLen);
 uint8_t generateHeader(uint8_t internalmsg, uint8_t reqack, uint8_t reservedbit, uint8_t customtype, uint8_t payloadtype);
 euiMessage_t * findMessageObject(const char * msg_id, uint8_t isInternal);
 void generatePacket(const char * msg_id, uint8_t header, uint8_t payloadLen, void* payload);
-void parsePacket(uint8_t inboundByte, struct eui_parser_state *commInterface);
-void handlePacket(struct eui_parser_state *validPacket);
+void parsePacket(uint8_t inboundByte, struct eui_interface_state *commInterface);
+void handlePacket(struct eui_interface_state *validPacket);
 
 void sendTracked(const char * msg_id, uint8_t isInternal);
-
-
-//application layer declarations
 
 //dev interface
 euiMessage_t *devObjectArray;
 uint8_t numDevObjects;
+CallBackDataType parserOutputFunc;  //holding ref for output func
 
-//callback with single char of data
-typedef void (*CallBackDataType)(uint8_t);
-CallBackDataType parserOutputFunc;
-
-void setupParser(CallBackDataType parserFuncPtr);
 void setupDevMsg(euiMessage_t *msgArray, uint8_t numObjects);
 void setupIdentifier();
-
 
 //internal
 const uint8_t libraryVersion = 1;

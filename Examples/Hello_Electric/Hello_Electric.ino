@@ -68,7 +68,7 @@ const euiMessage_t dev_msg_store[] = {
     {.msgID = "imu", .type = TYPE_IMU, .size = sizeof(example_imu), .payload = &example_imu },
 };
 
-eui_parser_state usb_comms; //parser data storage by struct (todo cleanup)
+eui_interface_state usb_comms; //eui Transport interface holding obj
 
 
 void setup() 
@@ -77,8 +77,9 @@ void setup()
   Serial1.begin(115200);  //hardware uart instance
   pinMode(4, OUTPUT);     //set led to output
 
+
   //pass parser callback ptr and developer msg array to eUI lib.
-  setupParser(&uart_tx_putc); 
+  usb_comms.output_char_fnPtr = &uart_tx_putc;
   setupDevMsg(dev_msg_store, ARR_ELEM(dev_msg_store));
   setupIdentifier();
 }

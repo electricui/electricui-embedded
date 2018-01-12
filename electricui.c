@@ -17,9 +17,9 @@ uint8_t generateHeader(uint8_t internalmsg, uint8_t reqack, uint8_t reservedbit,
 {
   euiHeader_t genHeader; 
 
-  genHeader.internal = internalmsg;
-  genHeader.reqACK = reqack;
-  genHeader.reserved = reservedbit;
+  genHeader.internal  = internalmsg;
+  genHeader.reqACK    = reqack;
+  genHeader.reserved  = reservedbit;
 
   if(payloadtype >= TYPE_CUSTOM_MARKER || customtype)
   {
@@ -100,11 +100,14 @@ void generatePacket(const char * msg_id, uint8_t header, uint8_t payloadLen, voi
   //pass the message to the output function
   for (uint8_t i = 0; i < p; i++) 
   {
-    parserOutputFunc(packetBuffer[i]);
+    if(parserOutputFunc)  //todo ASSERT if not valid?
+    {
+      parserOutputFunc(packetBuffer[i]);
+    }
   }
 }
 
-void parsePacket(uint8_t inboundByte, struct eui_parser_state *commInterface)
+void parsePacket(uint8_t inboundByte, struct eui_interface_state *commInterface)
 {
   switch(commInterface->controlState)
   {
@@ -209,7 +212,9 @@ void parsePacket(uint8_t inboundByte, struct eui_parser_state *commInterface)
           //invalid crc (TODO, add error reporting)
         }
 
-        memset( commInterface, 0, sizeof(struct eui_parser_state) );
+        //done handling the message, clear out the state info (but leave the output pointer alone)
+        memset( commInterface, 0, sizeof(struct eui_interface_state) - sizeof(CallBackDataType) );
+        parserOutputFunc = 0;
       }
       else
       {
@@ -221,10 +226,13 @@ void parsePacket(uint8_t inboundByte, struct eui_parser_state *commInterface)
   commInterface->processedCRC ^= inboundByte;  //running crc
 }
 
-void handlePacket(struct eui_parser_state *validPacket)
+void handlePacket(struct eui_interface_state *validPacket)
 {
   //we know the message is valid, use deconstructed header for convenience
   euiHeader_t header = *(euiHeader_t*)&validPacket->inboundHeader;
+
+  //ensure all outut as part of the response goes through the same bus as the inbound message
+  parserOutputFunc = validPacket->output_char_fnPtr;
 
   //create temp pointer to the message object we find
   euiMessage_t *msgObjPtr = findMessageObject( (char*)validPacket->inboundID, header.internal );  
@@ -239,14 +247,17 @@ void handlePacket(struct eui_parser_state *validPacket)
   switch(header.type)
   {
     case TYPE_CALLBACK:
+    {
       //create a function to call from the internally stored pointer
+      CallBackType parsedCallbackHandler;
       parsedCallbackHandler = msgObjPtr->payload;
      
       //decide if this should be an assert on failure? Can't check at compile.
-      if( parsedCallbackHandler ) 
+      if(parsedCallbackHandler) 
       {
         parsedCallbackHandler();
       }
+    }
     break;
 
     default:
@@ -280,11 +291,6 @@ void handlePacket(struct eui_parser_state *validPacket)
 
 
 //application layer developer setup helpers
-void setupParser(CallBackDataType parserFuncPtr)
-{
-  parserOutputFunc = parserFuncPtr;
-}
-
 void setupDevMsg(euiMessage_t *msgArray, uint8_t numObjects)
 {
   devObjectArray = msgArray;
