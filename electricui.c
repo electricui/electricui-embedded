@@ -381,6 +381,7 @@ void announceBoard()
   generatePacket("hi", *(uint8_t*)&header, sizeof(data), &data);
   sendTracked("lv", MSG_INTERNAL);
   sendTracked("pv", MSG_INTERNAL);
-  sendTracked("id", MSG_INTERNAL);
+  sendTracked("bi", MSG_INTERNAL);
+  sendTracked("si", MSG_INTERNAL);
   generatePacket("bye", *(uint8_t*)&header, sizeof(data), &data);
 }

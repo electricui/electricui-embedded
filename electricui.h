@@ -126,8 +126,8 @@ const euiMessage_t internal_msg_store[] = {
     {.msgID = "pv", .type = TYPE_UINT8, .size = sizeof(protocolVersion),    .payload = &protocolVersion     },
 
     {.msgID = "hb", .type = TYPE_UINT8, .size = sizeof(heartbeat),          .payload = &heartbeat           },
-    {.msgID = "id", .type = TYPE_UINT8, .size = sizeof(board_identifier),   .payload = &board_identifier    },
-    {.msgID = "ss", .type = TYPE_UINT8, .size = sizeof(session_identifier), .payload = &session_identifier  },
+    {.msgID = "bi", .type = TYPE_UINT8, .size = sizeof(board_identifier),   .payload = &board_identifier    },
+    {.msgID = "si", .type = TYPE_UINT8, .size = sizeof(session_identifier), .payload = &session_identifier  },
 
     {.msgID = "dm", .type = TYPE_CALLBACK, .size = sizeof(announceDevMsg),  .payload = &announceDevMsg      },
     {.msgID = "hi", .type = TYPE_CALLBACK, .size = sizeof(announceBoard),   .payload = &announceBoard       },
