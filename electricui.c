@@ -244,7 +244,7 @@ void handlePacket(struct eui_interface_state *validPacket)
   }
 
   //TODO decide if we trust the packet or internal store that matches the ID?
-  switch(header.type)
+  switch(msgObjPtr->type)
   {
     case TYPE_CALLBACK:
     {
