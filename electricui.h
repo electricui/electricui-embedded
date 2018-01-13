@@ -118,8 +118,8 @@ uint8_t heartbeat;
 uint8_t board_identifier;
 uint8_t session_identifier;
 
-void announceDevMsg(void);
 void announceBoard(void);
+void announceDevMsg(void);
 
 const euiMessage_t internal_msg_store[] = {
     {.msgID = "lv", .type = TYPE_UINT8, .size = sizeof(libraryVersion),     .payload = &libraryVersion      },

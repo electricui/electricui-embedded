@@ -289,6 +289,21 @@ void handlePacket(struct eui_interface_state *validPacket)
   }
 }
 
+void sendTracked(const char * msg_id, uint8_t isInternal)
+{
+  //find the tracked variable in the array
+  euiMessage_t *msgObjPtr = findMessageObject( msg_id, isInternal );  
+
+  euiHeader_t header =  { .internal = isInternal, 
+                          .customType = MSG_TYPE_TYP, 
+                          .reqACK = MSG_ACK_NOTREQ, 
+                          .reserved = MSG_RES_L, 
+                          .type = msgObjPtr->type 
+                        };
+
+  //generate the message
+  generatePacket(msgObjPtr->msgID, *(uint8_t*)&header, msgObjPtr->size, msgObjPtr->payload);
+}
 
 //application layer developer setup helpers
 void setupDevMsg(euiMessage_t *msgArray, uint8_t numObjects)
@@ -304,6 +319,27 @@ void setupIdentifier()
 }
 
 //application layer callbacks
+void announceBoard()
+{
+  //repond to search request with board info
+  //this information helps populate the connection UI page
+  euiHeader_t header =  { .internal = MSG_INTERNAL, 
+                          .customType = MSG_TYPE_TYP, 
+                          .reqACK = MSG_ACK_NOTREQ, 
+                          .reserved = MSG_RES_L, 
+                          .type = TYPE_UINT8 
+                        };
+  uint8_t data = 0;
+
+  //todo remove mock start and finish strings
+  generatePacket("as", *(uint8_t*)&header, sizeof(data), &data);
+  sendTracked("lv", MSG_INTERNAL);
+  sendTracked("pv", MSG_INTERNAL);
+  sendTracked("bi", MSG_INTERNAL);
+  sendTracked("si", MSG_INTERNAL);
+  generatePacket("ae", *(uint8_t*)&header, sizeof(data), &data);
+}
+
 void announceDevMsg()
 {
   const uint8_t numMessages = numDevObjects;
@@ -347,41 +383,4 @@ void announceDevMsg()
 
   //tell the UI we've finished sending msg id strings
   generatePacket("dme", *(uint8_t*)&dmHeader, sizeof(numMessages), &numMessages);
-}
-
-void sendTracked(const char * msg_id, uint8_t isInternal)
-{
-  //find the tracked variable in the array
-  euiMessage_t *msgObjPtr = findMessageObject( msg_id, isInternal );  
-
-  euiHeader_t header =  { .internal = isInternal, 
-                          .customType = MSG_TYPE_TYP, 
-                          .reqACK = MSG_ACK_NOTREQ, 
-                          .reserved = MSG_RES_L, 
-                          .type = msgObjPtr->type 
-                        };
-
-  //generate the message
-  generatePacket(msgObjPtr->msgID, *(uint8_t*)&header, msgObjPtr->size, msgObjPtr->payload);
-}
-
-void announceBoard()
-{
-  //repond to search request with board info
-  //this information helps populate the connection UI page
-  euiHeader_t header =  { .internal = MSG_INTERNAL, 
-                          .customType = MSG_TYPE_TYP, 
-                          .reqACK = MSG_ACK_NOTREQ, 
-                          .reserved = MSG_RES_L, 
-                          .type = TYPE_UINT8 
-                        };
-  uint8_t data = 0;
-
-  //todo remove mock start and finish strings
-  generatePacket("as", *(uint8_t*)&header, sizeof(data), &data);
-  sendTracked("lv", MSG_INTERNAL);
-  sendTracked("pv", MSG_INTERNAL);
-  sendTracked("bi", MSG_INTERNAL);
-  sendTracked("si", MSG_INTERNAL);
-  generatePacket("ae", *(uint8_t*)&header, sizeof(data), &data);
 }
