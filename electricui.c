@@ -378,10 +378,10 @@ void announceBoard()
   uint8_t data = 0;
 
   //todo remove mock start and finish strings
-  generatePacket("hi", *(uint8_t*)&header, sizeof(data), &data);
+  generatePacket("as", *(uint8_t*)&header, sizeof(data), &data);
   sendTracked("lv", MSG_INTERNAL);
   sendTracked("pv", MSG_INTERNAL);
   sendTracked("bi", MSG_INTERNAL);
   sendTracked("si", MSG_INTERNAL);
-  generatePacket("bye", *(uint8_t*)&header, sizeof(data), &data);
+  generatePacket("ae", *(uint8_t*)&header, sizeof(data), &data);
 }

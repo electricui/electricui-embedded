@@ -130,7 +130,7 @@ const euiMessage_t internal_msg_store[] = {
     {.msgID = "si", .type = TYPE_UINT8, .size = sizeof(session_identifier), .payload = &session_identifier  },
 
     {.msgID = "dm", .type = TYPE_CALLBACK, .size = sizeof(announceDevMsg),  .payload = &announceDevMsg      },
-    {.msgID = "hi", .type = TYPE_CALLBACK, .size = sizeof(announceBoard),   .payload = &announceBoard       },
+    {.msgID = "as", .type = TYPE_CALLBACK, .size = sizeof(announceBoard),   .payload = &announceBoard       },
 };
 
 #endif
