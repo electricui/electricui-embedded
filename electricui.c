@@ -213,7 +213,7 @@ void parsePacket(uint8_t inboundByte, struct eui_interface_state *commInterface)
         }
 
         //done handling the message, clear out the state info (but leave the output pointer alone)
-        memset( commInterface, 0, sizeof(struct eui_interface_state) - sizeof(CallBackDataType) );
+        memset( commInterface, 0, sizeof(struct eui_interface_state) - sizeof(CallBackwithUINT8) );
         parserOutputFunc = 0;
       }
       else

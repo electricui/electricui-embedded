@@ -22,13 +22,13 @@
 #define ARR_ELEM(a) (sizeof(a) / sizeof(*a))    //number of elements in array
 
 //control characters in packets
-const uint8_t stHeader = 0x01;
-const uint8_t stText = 0x02;
-const uint8_t enText = 0x03;
-const uint8_t enTransmission = 0x04;
+const uint8_t stHeader          = 0x01;
+const uint8_t stText            = 0x02;
+const uint8_t enText            = 0x03;
+const uint8_t enTransmission    = 0x04;
 
 typedef void (*CallBackType)();            //callback with no data
-typedef void (*CallBackDataType)(uint8_t); //callback with single char of data
+typedef void (*CallBackwithUINT8)(uint8_t); //callback with single char of data
 
 typedef struct {
   unsigned internal   : 1;
@@ -77,7 +77,8 @@ struct eui_interface_state {
     uint8_t processedData;
     uint8_t processedCRC;
 
-    CallBackDataType output_char_fnPtr;
+    //output function (expects a character as argument)
+    CallBackwithUINT8 output_char_fnPtr;
 };
 
 enum parseStates {
@@ -104,28 +105,32 @@ void sendTracked(const char * msg_id, uint8_t isInternal);
 //dev interface
 euiMessage_t *devObjectArray;
 uint8_t numDevObjects;
-CallBackDataType parserOutputFunc;  //holding ref for output func
+CallBackwithUINT8 parserOutputFunc;  //holding ref for output func
 
 void setupDevMsg(euiMessage_t *msgArray, uint8_t numObjects);
 void setupIdentifier();
 
 //internal
-const uint8_t libraryVersion = 1;
-const uint8_t protocolVersion = 1;
+const uint8_t libraryVersion    = 1;
+const uint8_t protocolVersion   = 1;
+
 uint8_t heartbeat;
-uint8_t boardidentifier;
+uint8_t board_identifier;
+uint8_t session_identifier;
 
 void announceDevMsg(void);
 void announceBoard(void);
 
 const euiMessage_t internal_msg_store[] = {
-    {.msgID = "lv", .type = TYPE_UINT8, .size = sizeof(libraryVersion),     .payload = &libraryVersion },
-    {.msgID = "pv", .type = TYPE_UINT8, .size = sizeof(protocolVersion),    .payload = &protocolVersion },
-    {.msgID = "hb", .type = TYPE_UINT8, .size = sizeof(heartbeat),          .payload = &heartbeat },
-    {.msgID = "id", .type = TYPE_UINT8, .size = sizeof(boardidentifier),    .payload = &boardidentifier },
+    {.msgID = "lv", .type = TYPE_UINT8, .size = sizeof(libraryVersion),     .payload = &libraryVersion      },
+    {.msgID = "pv", .type = TYPE_UINT8, .size = sizeof(protocolVersion),    .payload = &protocolVersion     },
 
-    {.msgID = "dm", .type = TYPE_CALLBACK, .size = sizeof(announceDevMsg),  .payload = &announceDevMsg },
-    {.msgID = "hi", .type = TYPE_CALLBACK, .size = sizeof(announceBoard),   .payload = &announceBoard },
+    {.msgID = "hb", .type = TYPE_UINT8, .size = sizeof(heartbeat),          .payload = &heartbeat           },
+    {.msgID = "id", .type = TYPE_UINT8, .size = sizeof(board_identifier),   .payload = &board_identifier    },
+    {.msgID = "ss", .type = TYPE_UINT8, .size = sizeof(session_identifier), .payload = &session_identifier  },
+
+    {.msgID = "dm", .type = TYPE_CALLBACK, .size = sizeof(announceDevMsg),  .payload = &announceDevMsg      },
+    {.msgID = "hi", .type = TYPE_CALLBACK, .size = sizeof(announceBoard),   .payload = &announceBoard       },
 };
 
 #endif
