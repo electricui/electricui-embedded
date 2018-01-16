@@ -105,7 +105,8 @@ void printDevArray()
       generatePacket( dev_msg_store[i].msgID, 
                       generateHeader(MSG_DEV, MSG_ACK_NOTREQ, MSG_RES_L, MSG_TYPE_TYP, dev_msg_store[i].type),
                       dev_msg_store[i].size, 
-                      dev_msg_store[i].payload);
+                      dev_msg_store[i].payload,
+                      &usb_comms);
   }
 }
 
