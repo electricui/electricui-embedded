@@ -84,6 +84,8 @@ void setup()
   setupIdentifier();
 }
 
+uint8_t led_status_counter = 0;
+
 void loop() 
 {
   uart_rx_handler();  //check serial rx fifo
@@ -93,9 +95,12 @@ void loop()
   btn1_state = digitalRead(5);      //buttonA on helloboard
   btn2_state = digitalRead(8);      //buttonB
 
-  //printDevArray();  //print messages without being prompted
+  if(led_status_counter++ >= 200)
+  {
+    digitalWrite(13, !digitalRead(13));
+  }
 
-  delay(50);
+  delay(1);
 }
 
 void printDevArray()
