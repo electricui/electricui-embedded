@@ -127,22 +127,10 @@ void setupIdentifier()
 void announceBoard()
 {
   //repond to search request with board info
-  //this information helps populate the connection UI page
-  euiHeader_t header =  { .internal = MSG_INTERNAL, 
-                          .customType = MSG_TYPE_TYP, 
-                          .reqACK = MSG_ACK_NOTREQ, 
-                          .reserved = MSG_RES_L, 
-                          .type = TYPE_UINT8 
-                        };
-  uint8_t data = 0;
-
-  //todo remove mock start and finish strings
-  generatePacket("as", *(uint8_t*)&header, sizeof(data), &data, parserOutputFunc);
   sendTracked("lv", MSG_INTERNAL);
   sendTracked("pv", MSG_INTERNAL);
   sendTracked("bi", MSG_INTERNAL);
   sendTracked("si", MSG_INTERNAL);
-  generatePacket("ae", *(uint8_t*)&header, sizeof(data), &data, parserOutputFunc);
 }
 
 void announceDevMsg()
