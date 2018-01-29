@@ -81,6 +81,8 @@ void setup()
   //pass parser callback ptr and developer msg array to eUI lib.
   usb_comms.output_char_fnPtr = &uart_tx_putc;
   setupDevMsg(dev_msg_store, ARR_ELEM(dev_msg_store));
+
+  randomSeed( analogRead(A4) );
   setupIdentifier();
 }
 
