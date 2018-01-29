@@ -2,7 +2,7 @@
 
 euiMessage_t * findMessageObject(const char * msg_id, uint8_t isInternal)
 {
-  euiMessage_t *foundMsgPtr;
+  euiMessage_t *foundMsgPtr = 0;
 
   if(isInternal == MSG_INTERNAL)
   {
@@ -34,63 +34,65 @@ euiMessage_t * findMessageObject(const char * msg_id, uint8_t isInternal)
 
 void handlePacket(struct eui_interface_state *validPacket)
 {
-  //we know the message is valid, use deconstructed header for convenience
+  //we know the message is 'valid', use deconstructed header for convenience
   euiHeader_t header = *(euiHeader_t*)&validPacket->inboundHeader;
 
-  //ensure all outut as part of the response goes through the same bus as the inbound message
+  //ensure response outputs use the same bus as the inbound message
   parserOutputFunc = validPacket->output_char_fnPtr;
 
-  //create temp pointer to the message object we find
+  //pointer to the message object we find
   euiMessage_t *msgObjPtr = findMessageObject( (char*)validPacket->inboundID, header.internal );  
   
-  //check for search miss
-  if(msgObjPtr == 0)
+  //Check that the searched ID was found
+  if(msgObjPtr != 0)
   {
-    //todo handle error state properly
-  }
-
-  switch(msgObjPtr->type)
-  {
-    case TYPE_CALLBACK:
+    switch(msgObjPtr->type)
     {
-      //create a function to call from the internally stored pointer
-      CallBackType parsedCallbackHandler;
-      parsedCallbackHandler = msgObjPtr->payload;
-     
-      //decide if this should be an assert on failure? Can't check at compile.
-      if(parsedCallbackHandler) 
+      case TYPE_CALLBACK:
       {
-        parsedCallbackHandler();
+        //create a function to call from the internally stored pointer
+        CallBackType parsedCallbackHandler;
+        parsedCallbackHandler = msgObjPtr->payload;
+       
+        if(parsedCallbackHandler) 
+        {
+          parsedCallbackHandler();
+        }
       }
+      break;
+
+      default:
+        if(header.customType)
+        {
+          //TODO add custom handling or callbacks for custom types if needed?
+        }
+
+        //copy payload data into the object blindly providing we actually have data
+        if(validPacket->inboundSize != 0)
+        {
+          memcpy(msgObjPtr->payload, validPacket->inboundData, validPacket->inboundSize);
+        }
+      break;
     }
-    break;
 
-    default:
-      if(header.customType)
-      {
-        //TODO add custom handling or callbacks for custom types if needed?
-      }
+    //ACK was requested for this message
+    if(header.reqACK)
+    {
+      euiHeader_t query_header =  { .internal = header.internal, 
+                                    .customType = (msgObjPtr->type >= TYPE_CUSTOM_MARKER) ? MSG_TYPE_CUSTOM : MSG_TYPE_TYP, 
+                                    .reqACK = MSG_ACK_NOTREQ, 
+                                    .reserved = MSG_RES_L, 
+                                    .type = msgObjPtr->type 
+                                  };
 
-      //copy payload data into the object blindly providing we actually have some
-      if(validPacket->inboundSize != 0)
-      {
-        memcpy(msgObjPtr->payload, validPacket->inboundData, validPacket->inboundSize);
-      }
-    break;
+      //respond to the ack with internal value of the requested messageID as confirmation
+      generatePacket(msgObjPtr->msgID, *(uint8_t*)&query_header, msgObjPtr->size, msgObjPtr->payload, parserOutputFunc);
+    }
+
   }
-
-  //a ACK was requested for this message
-  if(header.reqACK)
+  else
   {
-    euiHeader_t query_header =  { .internal = header.internal, 
-                                  .customType = (msgObjPtr->type >= TYPE_CUSTOM_MARKER) ? MSG_TYPE_CUSTOM : MSG_TYPE_TYP, 
-                                  .reqACK = MSG_ACK_NOTREQ, 
-                                  .reserved = MSG_RES_L, 
-                                  .type = msgObjPtr->type 
-                                };
-
-    //respond to the ack with internal value of the requested messageID as confirmation
-    generatePacket(msgObjPtr->msgID, *(uint8_t*)&query_header, msgObjPtr->size, msgObjPtr->payload, parserOutputFunc);
+    //search miss
   }
 }
 
