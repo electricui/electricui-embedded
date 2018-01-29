@@ -130,7 +130,6 @@ void announceBoard()
 {
   //repond to search request with board info
   sendTracked("lv", MSG_INTERNAL);
-  sendTracked("pv", MSG_INTERNAL);
   sendTracked("bi", MSG_INTERNAL);
   sendTracked("si", MSG_INTERNAL);
 }

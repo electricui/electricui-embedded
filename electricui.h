@@ -31,7 +31,6 @@ void setupIdentifier();
 
 //internal
 const uint8_t libraryVersion    = 1;
-const uint8_t protocolVersion   = 1;
 
 uint8_t heartbeat;
 uint8_t board_identifier;
@@ -42,7 +41,6 @@ void announceDevMsg(void);
 
 const euiMessage_t internal_msg_store[] = {
     {.msgID = "lv", .type = TYPE_UINT8, .size = sizeof(libraryVersion),     .payload = &libraryVersion      },
-    {.msgID = "pv", .type = TYPE_UINT8, .size = sizeof(protocolVersion),    .payload = &protocolVersion     },
 
     {.msgID = "hb", .type = TYPE_UINT8, .size = sizeof(heartbeat),          .payload = &heartbeat           },
     {.msgID = "bi", .type = TYPE_UINT8, .size = sizeof(board_identifier),   .payload = &board_identifier    },
