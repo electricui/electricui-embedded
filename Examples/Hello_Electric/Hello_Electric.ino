@@ -106,7 +106,7 @@ void printDevArray()
                       generateHeader(MSG_DEV, MSG_ACK_NOTREQ, MSG_RES_L, MSG_TYPE_TYP, dev_msg_store[i].type),
                       dev_msg_store[i].size, 
                       dev_msg_store[i].payload,
-                      &usb_comms);
+                      &uart_tx_putc);
   }
 }
 

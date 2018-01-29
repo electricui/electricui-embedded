@@ -81,7 +81,7 @@ enum parseStates {
 
 uint8_t calcCRC(uint8_t *toSum, uint8_t datagramLen);
 uint8_t generateHeader(uint8_t internalmsg, uint8_t reqack, uint8_t reservedbit, uint8_t customtype, uint8_t payloadtype);
-void    generatePacket(const char * msg_id, uint8_t header, uint8_t payloadLen, void* payload, struct eui_interface_state *commInterface);
+void    generatePacket(const char * msg_id, uint8_t header, uint8_t payloadLen, void* payload, CallBackwithUINT8 outputFunc);
 void    parsePacket(uint8_t inboundByte, struct eui_interface_state *commInterface);
 
 #endif

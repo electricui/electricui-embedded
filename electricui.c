@@ -60,7 +60,6 @@ void handlePacket(struct eui_interface_state *validPacket)
       //decide if this should be an assert on failure? Can't check at compile.
       if(parsedCallbackHandler) 
       {
-        parserOutputFunc = validPacket->output_char_fnPtr;
         parsedCallbackHandler();
       }
     }
@@ -91,7 +90,7 @@ void handlePacket(struct eui_interface_state *validPacket)
                                 };
 
     //respond to the ack with internal value of the requested messageID as confirmation
-    generatePacket(msgObjPtr->msgID, *(uint8_t*)&query_header, msgObjPtr->size, msgObjPtr->payload, validPacket->output_char_fnPtr);
+    generatePacket(msgObjPtr->msgID, *(uint8_t*)&query_header, msgObjPtr->size, msgObjPtr->payload, parserOutputFunc);
   }
 }
 

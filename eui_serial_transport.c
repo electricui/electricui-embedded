@@ -35,7 +35,7 @@ uint8_t generateHeader(uint8_t internalmsg, uint8_t reqack, uint8_t reservedbit,
   return *(uint8_t*)&genHeader;
 }
 
-void generatePacket(const char * msg_id, uint8_t header, uint8_t payloadLen, void* payload, struct eui_interface_state *commInterface)
+void generatePacket(const char * msg_id, uint8_t header, uint8_t payloadLen, void* payload, CallBackwithUINT8 outputFunc)
 {
   uint8_t packetBuffer[PACKET_BASE_SIZE + payloadLen + 1];  //todo see if +1 can be removed
   uint8_t p = 0;
@@ -68,9 +68,9 @@ void generatePacket(const char * msg_id, uint8_t header, uint8_t payloadLen, voi
   //pass the message to the output function
   for (uint8_t i = 0; i < p; i++) 
   {
-    if(commInterface->output_char_fnPtr)  //todo ASSERT if not valid?
+    if(outputFunc)  //todo ASSERT if not valid?
     {
-      commInterface->output_char_fnPtr(packetBuffer[i]);
+      outputFunc(packetBuffer[i]);
     }
   }
 }
