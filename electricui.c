@@ -151,7 +151,7 @@ void announceDevMsg()
   generatePacket("dms", *(uint8_t*)&dmHeader, sizeof(numMessages), &numMessages, parserOutputFunc);
 
   //fill a buffer which contains the developer message ID's
-  uint8_t msgBuffer[ (MESSAGEID_SIZE+1)*MESSAGES_PK_DISCOVERY ];
+  uint8_t msgBuffer[ (MESSAGEID_SIZE+1)*(PAYLOAD_SIZE_MAX / PACKET_BASE_SIZE) ];
   uint8_t msgBufferPos = 0; //position in buffer
   uint8_t msgIDlen = 0;     //length of a single msgID string
   uint8_t msgIDPacked = 0;  //count messages packed into buffer
@@ -165,7 +165,7 @@ void announceDevMsg()
     msgIDPacked++;  
 
     //send messages and clear buffer to break list into shorter messagaes
-    if(msgIDPacked >= MESSAGES_PK_DISCOVERY || i >= numMessages)
+    if(msgIDPacked >= (PAYLOAD_SIZE_MAX / PACKET_BASE_SIZE) || i >= numMessages)
     {
       generatePacket("dml", *(uint8_t*)&dmHeader, msgBufferPos, &msgBuffer, parserOutputFunc);
       

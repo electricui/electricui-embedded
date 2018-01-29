@@ -5,7 +5,6 @@
 #include <eui_serial_transport.h>
 
 //eUI defines
-#define MESSAGES_PK_DISCOVERY 10
 
 #define ARR_ELEM(a) (sizeof(a) / sizeof(*a))    //number of elements in array
 
