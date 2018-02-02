@@ -1,24 +1,24 @@
 #include "eui_serial_transport.h"
 
-uint8_t calcCRC(uint8_t *toSum, uint8_t datagramLen) 
+uint8_t calcCRC(uint8_t *to_xor, uint8_t datagram_len) 
 {
   uint8_t XOR; 
   uint8_t i;
 
-  for (XOR = 0, i = 0; i < datagramLen; i++) 
+  for (XOR = 0, i = 0; i < datagram_len; i++) 
   {
-    XOR ^= toSum[i];
+    XOR ^= to_xor[i];
   }
 
   return XOR;
 }
 
-uint8_t generateHeader(uint8_t internalmsg, uint8_t reqack, uint8_t reservedbit, uint8_t customtype, uint8_t payloadtype)
+uint8_t generateHeader(uint8_t internal, uint8_t ack, uint8_t reservedbit, uint8_t customtype, uint8_t payloadtype)
 {
   euiHeader_t genHeader; 
 
-  genHeader.internal  = internalmsg;
-  genHeader.reqACK    = reqack;
+  genHeader.internal  = internal;
+  genHeader.reqACK    = ack;
   genHeader.reserved  = reservedbit;
 
   if(payloadtype >= TYPE_CUSTOM_MARKER || customtype)
@@ -35,9 +35,9 @@ uint8_t generateHeader(uint8_t internalmsg, uint8_t reqack, uint8_t reservedbit,
   return *(uint8_t*)&genHeader;
 }
 
-void generatePacket(const char * msg_id, uint8_t header, uint8_t payloadLen, void* payload, CallBackwithUINT8 outputFunc)
+void generatePacket(const char * msg_id, uint8_t header, uint8_t payload_len, void* payload, CallBackwithUINT8 output_function)
 {
-  uint8_t packetBuffer[PACKET_BASE_SIZE + payloadLen + 1];  //todo see if +1 can be removed
+  uint8_t packetBuffer[PACKET_BASE_SIZE + payload_len + 1];  //todo see if +1 can be removed
   uint8_t p = 0;
 
   //preamble and header
@@ -52,9 +52,9 @@ void generatePacket(const char * msg_id, uint8_t header, uint8_t payloadLen, voi
   packetBuffer[p++] = stText;
 
   //payload length and payload data
-  packetBuffer[p++] = payloadLen;
-  memcpy(packetBuffer+p, payload, payloadLen);
-  p += payloadLen;
+  packetBuffer[p++] = payload_len;
+  memcpy(packetBuffer+p, payload, payload_len);
+  p += payload_len;
 
   //end payload control character, checksum
   packetBuffer[p++] = enText;
@@ -68,77 +68,77 @@ void generatePacket(const char * msg_id, uint8_t header, uint8_t payloadLen, voi
   //pass the message to the output function
   for (uint8_t i = 0; i < p; i++) 
   {
-    if(outputFunc)  //todo ASSERT if not valid?
+    if(output_function)  //todo ASSERT if not valid?
     {
-      outputFunc(packetBuffer[i]);
+      output_function(packetBuffer[i]);
     }
   }
 }
 
-void parsePacket(uint8_t inboundByte, struct eui_interface_state *commInterface)
+void parsePacket(uint8_t inbound_byte, struct eui_interface_state *active_interface)
 {
-  switch(commInterface->controlState)
+  switch(active_interface->controlState)
   {
     case find_preamble:
       //random data we don't care about prior to preamble
-      if(inboundByte == stHeader)
+      if(inbound_byte == stHeader)
       {
-        commInterface->controlState = exp_header;
-        commInterface->processedCRC = 0; //clear out the CRC for this new message
+        active_interface->controlState = exp_header;
+        active_interface->processedCRC = 0; //clear out the CRC for this new message
       }
     break;
 
     case exp_header:
       //we've seen the preamble 0x01 control char. Nnext byte should be the header
-      commInterface->inboundHeader = inboundByte;
-      commInterface->controlState = exp_msgID;
+      active_interface->inboundHeader = inbound_byte;
+      active_interface->controlState = exp_msgID;
     break;
     
     case exp_msgID:
       //Check if we've seen a shorter than maxLength msgID
-      if(commInterface->processedID && inboundByte == stText )  
+      if(active_interface->processedID && inbound_byte == stText )  
       {
-        commInterface->controlState = exp_payloadlen;
-        commInterface->inboundID[commInterface->processedID + 1] = '\0';  //terminate msgID string
+        active_interface->controlState = exp_payload_len;
+        active_interface->inboundID[active_interface->processedID + 1] = '\0';  //terminate msgID string
       }
       else
       {
         //read the message ID character in
-        commInterface->inboundID[commInterface->processedID] = inboundByte;
-        commInterface->processedID++;
+        active_interface->inboundID[active_interface->processedID] = inbound_byte;
+        active_interface->processedID++;
 
         //stop parsing and wait for STX, messageID can't be longer than preset maxlength
-        if(commInterface->processedID >= MESSAGEID_SIZE)
+        if(active_interface->processedID >= MESSAGEID_SIZE)
         {
-          commInterface->controlState = exp_stx;
-          commInterface->inboundID[commInterface->processedID] = '\0';  //terminate the ID string
+          active_interface->controlState = exp_stx;
+          active_interface->inboundID[active_interface->processedID] = '\0';  //terminate the ID string
         }
       }
     break;
     
     case exp_stx:
       //wait for a STX to know the payloadlength is coming
-      if(inboundByte == stText)
+      if(inbound_byte == stText)
       {
-        commInterface->controlState = exp_payloadlen;
+        active_interface->controlState = exp_payload_len;
       }
     break;
     
-    case exp_payloadlen:
+    case exp_payload_len:
       //first byte should be payload length
-      commInterface->inboundSize = inboundByte;
-      commInterface->controlState = (commInterface->inboundSize == 0) ? exp_etx: exp_data;
+      active_interface->inboundSize = inbound_byte;
+      active_interface->controlState = (active_interface->inboundSize == 0) ? exp_etx: exp_data;
     break;
     
     case exp_data:
       //we know the length of the payload, parse until we've eaten that many bytes
-      commInterface->inboundData[commInterface->processedData] = inboundByte;
-      commInterface->processedData++;
+      active_interface->inboundData[active_interface->processedData] = inbound_byte;
+      active_interface->processedData++;
 
-      if(commInterface->processedData >= commInterface->inboundSize)
+      if(active_interface->processedData >= active_interface->inboundSize)
       {
         //stop parsing and wait for STX, messageID can't be longer than that
-        commInterface->controlState = exp_etx;
+        active_interface->controlState = exp_etx;
       }
       //we even eat ETX characters, because they are valid bytes in a payload...
     break;
@@ -146,9 +146,9 @@ void parsePacket(uint8_t inboundByte, struct eui_interface_state *commInterface)
     case exp_etx:
       //payload data saved in, the first character into this state really should be ETX
       //wait for a ETX to know checksum is coming
-      if(inboundByte == enText)
+      if(inbound_byte == enText)
       {
-        commInterface->controlState = exp_crc;
+        active_interface->controlState = exp_crc;
       }
       else
       {
@@ -158,22 +158,22 @@ void parsePacket(uint8_t inboundByte, struct eui_interface_state *commInterface)
     
     case exp_crc:
       //the ETX character has been seen, the next byte is the CRC
-      commInterface->inboundCRC = inboundByte;
-      commInterface->controlState = exp_eot;
+      active_interface->inboundCRC = inbound_byte;
+      active_interface->controlState = exp_eot;
     break;
     
     case exp_eot:
       //we've seen the checksum byte and are waiting for end of packet indication
-      if(inboundByte == enTransmission)
+      if(inbound_byte == enTransmission)
       {
         //if the running xor matched recieved checksum, running would have changed to 0x00
         //since we add the new data to the running CRC outside this switch (afterwards)
         //0x00 gives validated payload.
         //TODO check if this is dangerous (seems like the same thing as a normal equality check, just later?)
         //TODO could be an issue if the CRC negates itself due to no new data or a false reset?
-        if(commInterface->processedCRC == 0)
+        if(active_interface->processedCRC == 0)
         {
-          handlePacket(commInterface);
+          handlePacket(active_interface);
         }
         else
         {
@@ -181,7 +181,7 @@ void parsePacket(uint8_t inboundByte, struct eui_interface_state *commInterface)
         }
 
         //done handling the message, clear out the state info (but leave the output pointer alone)
-        memset( commInterface, 0, sizeof(struct eui_interface_state) - sizeof(CallBackwithUINT8) );
+        memset( active_interface, 0, sizeof(struct eui_interface_state) - sizeof(CallBackwithUINT8) );
       }
       else
       {
@@ -190,5 +190,5 @@ void parsePacket(uint8_t inboundByte, struct eui_interface_state *commInterface)
     break;  
   }   //end switch
 
-  commInterface->processedCRC ^= inboundByte;  //running crc
+  active_interface->processedCRC ^= inbound_byte;  //running crc
 }

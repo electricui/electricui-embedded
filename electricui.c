@@ -1,10 +1,10 @@
 #include "electricui.h"
 
-euiMessage_t * findMessageObject(const char * msg_id, uint8_t isInternal)
+euiMessage_t * findMessageObject(const char * msg_id, uint8_t is_internal)
 {
   euiMessage_t *foundMsgPtr = 0;
 
-  if(isInternal == MSG_INTERNAL)
+  if(is_internal == MSG_INTERNAL)
   {
     //search the internal array for matching messageID
     for(int i = 0; i < ARR_ELEM(internal_msg_store); i++)
@@ -16,7 +16,7 @@ euiMessage_t * findMessageObject(const char * msg_id, uint8_t isInternal)
     }
     //return 0;
   }
-  else if (isInternal == MSG_DEV)
+  else if (is_internal == MSG_DEV)
   {
     //search developer space array for matching messageID
     for(int i = 0; i < numDevObjects; i++)
@@ -32,16 +32,16 @@ euiMessage_t * findMessageObject(const char * msg_id, uint8_t isInternal)
   return foundMsgPtr;
 }
 
-void handlePacket(struct eui_interface_state *validPacket)
+void handlePacket(struct eui_interface_state *valid_packet)
 {
   //we know the message is 'valid', use deconstructed header for convenience
-  euiHeader_t header = *(euiHeader_t*)&validPacket->inboundHeader;
+  euiHeader_t header = *(euiHeader_t*)&valid_packet->inboundHeader;
 
   //ensure response outputs use the same bus as the inbound message
-  parserOutputFunc = validPacket->output_char_fnPtr;
+  parserOutputFunc = valid_packet->output_char_fnPtr;
 
   //pointer to the message object we find
-  euiMessage_t *msgObjPtr = findMessageObject( (char*)validPacket->inboundID, header.internal );  
+  euiMessage_t *msgObjPtr = findMessageObject( (char*)valid_packet->inboundID, header.internal );  
   
   //Check that the searched ID was found
   if(msgObjPtr != 0)
@@ -68,9 +68,9 @@ void handlePacket(struct eui_interface_state *validPacket)
         }
 
         //copy payload data into the object blindly providing we actually have data
-        if(validPacket->inboundSize != 0)
+        if(valid_packet->inboundSize != 0)
         {
-          memcpy(msgObjPtr->payload, validPacket->inboundData, validPacket->inboundSize);
+          memcpy(msgObjPtr->payload, valid_packet->inboundData, valid_packet->inboundSize);
         }
       break;
     }
@@ -96,19 +96,17 @@ void handlePacket(struct eui_interface_state *validPacket)
   }
 }
 
-void sendTracked(const char * msg_id, uint8_t isInternal)
+void sendTracked(const char * msg_id, uint8_t is_internal)
 {
-  //find the tracked variable in the array
-  euiMessage_t *msgObjPtr = findMessageObject( msg_id, isInternal );  
+  euiMessage_t *msgObjPtr = findMessageObject( msg_id, is_internal );  
 
-  euiHeader_t header =  { .internal = isInternal, 
+  euiHeader_t header =  { .internal = is_internal, 
                           .customType = MSG_TYPE_TYP, 
                           .reqACK = MSG_ACK_NOTREQ, 
                           .reserved = MSG_RES_L, 
                           .type = msgObjPtr->type 
                         };
 
-  //generate the message
   generatePacket(msgObjPtr->msgID, *(uint8_t*)&header, msgObjPtr->size, msgObjPtr->payload, parserOutputFunc);
 }
 

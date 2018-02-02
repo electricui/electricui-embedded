@@ -20,9 +20,9 @@ typedef struct {
     void          *payload;
 } euiMessage_t;
 
-euiMessage_t * findMessageObject(const char * msg_id, uint8_t isInternal);
-void handlePacket(struct eui_interface_state *validPacket);
-void sendTracked(const char * msg_id, uint8_t isInternal);
+euiMessage_t * findMessageObject(const char * msg_id, uint8_t is_internal);
+void handlePacket(struct eui_interface_state *valid_packet);
+void sendTracked(const char * msg_id, uint8_t is_internal);
 
 //dev interface
 euiMessage_t *devObjectArray;

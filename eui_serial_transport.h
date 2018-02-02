@@ -72,16 +72,16 @@ enum parseStates {
     exp_header,
     exp_msgID,
     exp_stx,
-    exp_payloadlen,
+    exp_payload_len,
     exp_data,
     exp_etx,
     exp_crc,
     exp_eot,
 };
 
-uint8_t calcCRC(uint8_t *toSum, uint8_t datagramLen);
-uint8_t generateHeader(uint8_t internalmsg, uint8_t reqack, uint8_t reservedbit, uint8_t customtype, uint8_t payloadtype);
-void    generatePacket(const char * msg_id, uint8_t header, uint8_t payloadLen, void* payload, CallBackwithUINT8 outputFunc);
-void    parsePacket(uint8_t inboundByte, struct eui_interface_state *commInterface);
+uint8_t calcCRC(uint8_t *to_xor, uint8_t datagram_len);
+uint8_t generateHeader(uint8_t internal, uint8_t ack, uint8_t reservedbit, uint8_t customtype, uint8_t payloadtype);
+void    generatePacket(const char * msg_id, uint8_t header, uint8_t payload_len, void* payload, CallBackwithUINT8 output_function);
+void    parsePacket(uint8_t inbound_byte, struct eui_interface_state *active_interface);
 
 #endif
