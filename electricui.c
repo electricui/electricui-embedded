@@ -14,7 +14,6 @@ euiMessage_t * findMessageObject(const char * msg_id, uint8_t is_internal)
         foundMsgPtr = &internal_msg_store[i];
       }
     }
-    //return 0;
   }
   else if (is_internal == MSG_DEV)
   {
@@ -26,7 +25,6 @@ euiMessage_t * findMessageObject(const char * msg_id, uint8_t is_internal)
         foundMsgPtr = &devObjectArray[i];
       }
     }
-    //return 0;
   }
 
   return foundMsgPtr;
@@ -57,6 +55,10 @@ void handlePacket(struct eui_interface_state *valid_packet)
         if(parsedCallbackHandler) 
         {
           parsedCallbackHandler();
+        }
+        else
+        {
+          report_error(err_missing_callback);
         }
       }
       break;
@@ -90,9 +92,16 @@ void handlePacket(struct eui_interface_state *valid_packet)
     }
 
   }
-  else
+  else  //search miss
   {
-    //search miss
+    if(header.internal)
+    {
+      report_error(err_invalid_internal);
+    } 
+    else 
+    {    
+      report_error(err_invalid_developer);
+    }
   }
 }
 
@@ -175,4 +184,10 @@ void announceDevMsg()
 
   //tell the UI we've finished sending msg id strings
   generatePacket("dme", *(uint8_t*)&dmHeader, sizeof(numMessages), &numMessages, parserOutputFunc);
+}
+
+void report_error(uint8_t error)
+{
+  last_error = error;
+  sendTracked("er", MSG_INTERNAL);
 }
