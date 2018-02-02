@@ -72,7 +72,8 @@ void handlePacket(struct eui_interface_state *valid_packet)
         //copy payload data into the object blindly providing we actually have data
         if(valid_packet->inboundSize != 0)
         {
-          memcpy(msgObjPtr->payload, valid_packet->inboundData, valid_packet->inboundSize);
+          uint8_t bytes_to_write = (valid_packet->inboundSize <= msgObjPtr->size) ? valid_packet->inboundSize : msgObjPtr->size;
+          memcpy(msgObjPtr->payload, valid_packet->inboundData, bytes_to_write);
         }
       break;
     }
