@@ -40,6 +40,7 @@ CallBackwithUINT8 parserOutputFunc;  //holding ref for output func
 
 void setupDevMsg(euiMessage_t *msgArray, uint8_t numObjects);
 void setupIdentifier();
+void sendMessage(const char * msg_id, struct eui_interface_state *active_interface);
 
 //internal
 const uint8_t library_version[] = { VER_MAJOR, VER_MINOR, VER_PATCH };

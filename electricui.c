@@ -120,6 +120,12 @@ void sendTracked(const char * msg_id, uint8_t is_internal)
   generatePacket(msgObjPtr->msgID, *(uint8_t*)&header, msgObjPtr->size, msgObjPtr->payload, parserOutputFunc);
 }
 
+void sendMessage(const char * msg_id, struct eui_interface_state *active_interface)
+{
+  parserOutputFunc = active_interface->output_char_fnPtr;
+  sendTracked(msg_id, MSG_DEV);
+}
+
 //application layer developer setup helpers
 void setupDevMsg(euiMessage_t *msgArray, uint8_t numObjects)
 {
