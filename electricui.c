@@ -195,17 +195,19 @@ void announceDevMsg()
 
 void announce_dev_vars(void)
 {
-  euiHeader_t dmHeader = { .internal = MSG_INTERNAL, 
+  euiHeader_t dvHeader = { .internal = MSG_DEV, 
                             .customType = MSG_TYPE_TYP, 
                             .reqACK = MSG_ACK_NOTREQ, 
                             .reserved = MSG_RES_L, 
-                            .type = TYPE_UINT8 
+                            .type = TYPE_BYTE 
                           };
 
   for(int i = 0; i <= numDevObjects; i++)
   {
+    dvHeader.type = devObjectArray[i].type;
+
     generatePacket( devObjectArray[i].msgID, 
-                    *(uint8_t*)&dmHeader, 
+                    *(uint8_t*)&dvHeader, 
                     devObjectArray[i].size, 
                     devObjectArray[i].payload, 
                     parserOutputFunc
