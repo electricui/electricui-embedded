@@ -31,7 +31,8 @@ typedef struct {
 } euiHeader_t;
 
 typedef enum {
-    TYPE_BYTE = 0,
+    TYPE_CALLBACK = 0,
+    TYPE_BYTE,
     TYPE_CHAR,
     TYPE_INT8,
     TYPE_UINT8,
@@ -39,11 +40,8 @@ typedef enum {
     TYPE_UINT16,
     TYPE_INT32,
     TYPE_UINT32,
-    TYPE_INT64,
-    TYPE_UINT64,
     TYPE_FLOAT,
     TYPE_DOUBLE,
-    TYPE_CALLBACK,
     TYPE_CUSTOM_MARKER
 } euiType_t;
 
