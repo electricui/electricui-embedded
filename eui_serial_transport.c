@@ -13,13 +13,13 @@ uint8_t calc_crc(uint8_t *to_xor, uint8_t datagram_len)
   return XOR;
 }
 
-uint8_t generate_header(uint8_t internal, uint8_t ack, uint8_t reservedbit, uint8_t payloadtype)
+uint8_t generate_header(uint8_t internal, uint8_t ack, uint8_t offset_packet, uint8_t payloadtype)
 {
   euiHeader_t genHeader; 
 
   genHeader.internal  = internal;
   genHeader.reqACK    = ack;
-  genHeader.reserved  = reservedbit;
+  genHeader.offsetAd  = offset_packet;
   genHeader.type      = payloadtype;
 
   return *(uint8_t*)&genHeader;

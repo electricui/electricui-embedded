@@ -83,7 +83,7 @@ void handle_packet(struct eui_interface_state *valid_packet)
     {
       euiHeader_t query_header =  { .internal = header.internal, 
                                     .reqACK = MSG_ACK_NOTREQ, 
-                                    .reserved = MSG_RES_L, 
+                                    .offsetAd = MSG_STANDARD_PACKET, 
                                     .type = msgObjPtr->type 
                                   };
 
@@ -111,7 +111,7 @@ void send_tracked(const char * msg_id, uint8_t is_internal)
 
   euiHeader_t header =  { .internal = is_internal, 
                           .reqACK = MSG_ACK_NOTREQ, 
-                          .reserved = MSG_RES_L, 
+                          .offsetAd = MSG_STANDARD_PACKET, 
                           .type = msgObjPtr->type 
                         };
 
@@ -153,7 +153,7 @@ void announce_dev_msg()
   //generate a generic header for these messages
   euiHeader_t dmHeader = {.internal = MSG_INTERNAL, 
                           .reqACK = MSG_ACK_NOTREQ, 
-                          .reserved = MSG_RES_L, 
+                          .offsetAd = MSG_STANDARD_PACKET, 
                           .type = TYPE_UINT8 
                           };
 
@@ -193,7 +193,7 @@ void announce_dev_vars(void)
 {
   euiHeader_t dvHeader = {.internal = MSG_DEV, 
                           .reqACK = MSG_ACK_NOTREQ, 
-                          .reserved = MSG_RES_L, 
+                          .offsetAd = MSG_STANDARD_PACKET, 
                           .type = TYPE_BYTE 
                           };
 

@@ -57,12 +57,12 @@ By using these control characters, the messageID can (in theory) be indeterminat
 
 The header field is a single byte which contains the following information through use of a bitfield as listed below:
 
-| Bit Number    | Purpose                 |
-| ------------- | ----------------------- |
-| 0             | 1 if developer message  |
-| 1             | 1 if ack requested      |
-| 2             | Reserved for future use |
-| 3-7           | Type of payload         |
+| Bit Number    | Purpose                    |
+| ------------- | -------------------------- |
+| 0             | 1 if developer message     |
+| 1             | 1 if ack requested         |
+| 2             | Indicates offset value use |
+| 3-7           | Type of payload            |
 
 This is defined with the custom structure in C
 
@@ -71,7 +71,7 @@ typedef struct
 {  
 	unsigned internal	: 1;  
 	unsigned reqACK		: 1;  
-	unsigned reserved	: 1;  
+	unsigned offsetAd	: 1;  
 	unsigned type		: 4;  
 } euiHeader_t;  
 `
@@ -128,6 +128,16 @@ A single byte allocated for payload length.
 As long running messages aren't best practice anyway, restricting this to a single unsigned int allows payloads of 255 bytes in length.
 
 Any messages longer than 255 bytes should ~~be handled through a custom type or like an array~~.
+
+## Address Offsets
+
+For really large data types or arrays, sending the entire variable in one message isn't feasible due to buffer sizes and potential transfer duration.
+
+As a result, handling larger arrays and 'very large variables' is accomplished by sharing an offset value representing the position in memory of the first value in the payload for a given messageID.
+
+This, in conjunction with the payload length information, allows either end to know how much data to ingest, and if required, where in the variable's memory space that payload data should be read or written to.
+
+Where possible, the payload data will align with the data structure's edge (mostly structs) to reduce any issues which could occur if a structure was split over two messages (mostly readability and conceptual issues).
 
 ## Payload
 
@@ -216,6 +226,22 @@ The micro will then respond with"
 In the current implementation, "hb" behaves as a uint8 internal variable.
 
 The UI can set/query it, but there is no microcontroller side logic at this point.
+
+## Dealing with "large" data structures and arrays
+
+When people want to move lots of information with eUI the protocol needs to be able to handle multi-message payloads.
+
+This is performed by essentially allowing direct memory manipulation of that variable, and the innate understanding of types, payload lengths and how memory is read and written to.
+
+For a given packet, if the offset bit is high, a 16-bit (future expansion plan for 32-bit option) offset address takes the first bytes of the payload. 
+
+This address indicates what part of the variable's memory the payload data is intended to consume. By using this offset address and the pointer to the variable as stored in the eUI object, randomised chunks of the larger data structure can be streamed in or out with a mostly stateless approach.
+
+Initially, the variable will be streamed back-to-front, giving the UI the ability to allocate a sufficiently large buffer when processing the first message. When the offset address is 0x00, or equal to the variable's pointer, we are assuming (for now) that the transfer of the data has completed.
+
+The UI is able to track gaps in memory and confirm data if anything was missed or corrupted during transit.
+
+Using this approach, one is able to handle a minimum of 2^16 bytes for a given 'variable' pointer (structures or arrays etc).
 
 ___
 
