@@ -169,6 +169,8 @@ void announceDevMsg()
   uint8_t msgIDlen = 0;     //length of a single msgID string
   uint8_t msgIDPacked = 0;  //count messages packed into buffer
 
+  dmHeader.type = TYPE_CHAR;
+
   for(int i = 0; i <= numMessages; i++)
   {
     //copy messageID into the buffer, use null termination characters as delimiter
@@ -188,9 +190,6 @@ void announceDevMsg()
       msgIDPacked = 0;
     }
   }
-
-  //tell the UI we've finished sending msg id strings
-  generatePacket("dme", *(uint8_t*)&dmHeader, sizeof(numMessages), &numMessages, parserOutputFunc);
 }
 
 void announce_dev_vars(void)
