@@ -4,9 +4,9 @@ extern "C"
 };
 
 //example interactive data
-uint8_t led_brightness = 2;
-uint8_t btn1_state = 0;
-uint8_t btn2_state = 0;
+uint8_t led_brightness  = 2;
+uint8_t btn1_state      = 0;
+uint8_t btn2_state      = 0;
 
 //example function called by UI
 void toggleLed()
@@ -68,21 +68,20 @@ const euiMessage_t dev_msg_store[] = {
     {.msgID = "imu", .type = TYPE_IMU, .size = sizeof(example_imu), .payload = &example_imu },
 };
 
-eui_interface_state usb_comms; //eui Transport interface holding obj
-
+eui_interface_state usb_comms; //eui Transport interface holding object
+eui_interface_state uart_comms;
 
 void setup() 
 {
   Serial.begin(115200);   //USB CDC instance
   Serial1.begin(115200);  //hardware uart instance
   pinMode(4, OUTPUT);     //set led to output
-
-
-  //pass parser callback ptr and developer msg array to eUI lib.
-  usb_comms.output_char_fnPtr = &uart_tx_putc;
-  setup_dev_msg(dev_msg_store, ARR_ELEM(dev_msg_store));
-
   randomSeed( analogRead(A4) );
+
+  //eUI setup
+  usb_comms.output_char_fnPtr = &cdc_tx_putc;
+  uart_comms.output_char_fnPtr = &uart_tx_putc;
+  setup_dev_msg(dev_msg_store, ARR_ELEM(dev_msg_store));
   setup_identifier();
 }
 
@@ -105,29 +104,28 @@ void loop()
   delay(1);
 }
 
-void printDevArray()
-{
-  for(int i = 0; i < ARR_ELEM(dev_msg_store); i++)
-  {
-      generate_packet( dev_msg_store[i].msgID, 
-                      generate_header(MSG_DEV, MSG_ACK_NOTREQ, MSG_RES_L, MSG_TYPE_TYP, dev_msg_store[i].type),
-                      dev_msg_store[i].size, 
-                      dev_msg_store[i].payload,
-                      &uart_tx_putc);
-  }
-}
-
 void uart_rx_handler()
 {
+  //USB CDC VCP
   while(Serial.available() > 0)  //rx has data
   {  
     parse_packet(Serial.read(), &usb_comms);  //eat a byte
   }
+
+  //Hardware Serial Port
+  while(Serial1.available() > 0)
+  {  
+    parse_packet(Serial1.read(), &uart_comms);
+  }
 }
 
 //helps us pretend what most other microcontrollers use as an output function
+void cdc_tx_putc(uint8_t data)
+{
+  Serial.write(data);  //output on usb cdc virtual com
+}
+
 void uart_tx_putc(uint8_t data)
 {
   Serial1.write(data); //write to hardware uart
-  Serial.write(data);  //output on usb cdc virtual com
 }
