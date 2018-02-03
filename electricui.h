@@ -28,9 +28,9 @@ enum error_codes {
     err_missing_callback,
 };
 
-euiMessage_t * findMessageObject(const char * msg_id, uint8_t is_internal);
-void handlePacket(struct eui_interface_state *valid_packet);
-void sendTracked(const char * msg_id, uint8_t is_internal);
+euiMessage_t * find_message_object(const char * msg_id, uint8_t is_internal);
+void handle_packet(struct eui_interface_state *valid_packet);
+void send_tracked(const char * msg_id, uint8_t is_internal);
 void report_error(uint8_t error);
 
 //dev interface
@@ -38,9 +38,9 @@ euiMessage_t *devObjectArray;
 uint8_t numDevObjects;
 CallBackwithUINT8 parserOutputFunc;  //holding ref for output func
 
-void setupDevMsg(euiMessage_t *msgArray, uint8_t numObjects);
-void setupIdentifier();
-void sendMessage(const char * msg_id, struct eui_interface_state *active_interface);
+void setup_dev_msg(euiMessage_t *msgArray, uint8_t numObjects);
+void setup_identifier();
+void send_message(const char * msg_id, struct eui_interface_state *active_interface);
 
 //internal
 const uint8_t library_version[] = { VER_MAJOR, VER_MINOR, VER_PATCH };
@@ -50,8 +50,8 @@ uint8_t session_identifier;
 
 uint8_t last_error;
 
-void announceBoard(void);
-void announceDevMsg(void);
+void announce_board(void);
+void announce_dev_msg(void);
 void announce_dev_vars(void);
 
 const euiMessage_t internal_msg_store[] = {
@@ -62,9 +62,9 @@ const euiMessage_t internal_msg_store[] = {
     {.msgID = "er", .type = TYPE_UINT8, .size = sizeof(last_error),         .payload = &last_error          },
     {.msgID = "hb", .type = TYPE_UINT8, .size = sizeof(heartbeat),          .payload = &heartbeat           },
 
-    {.msgID = "dm", .type = TYPE_CALLBACK, .size = sizeof(announceDevMsg),  .payload = &announceDevMsg      },
+    {.msgID = "dm", .type = TYPE_CALLBACK, .size = sizeof(announce_dev_msg),  .payload = &announce_dev_msg  },
     {.msgID = "dv", .type = TYPE_CALLBACK, .size = sizeof(announce_dev_vars), .payload = &announce_dev_vars },
-    {.msgID = "as", .type = TYPE_CALLBACK, .size = sizeof(announceBoard),   .payload = &announceBoard       },
+    {.msgID = "as", .type = TYPE_CALLBACK, .size = sizeof(announce_board),    .payload = &announce_board    },
 };
 
 #endif

@@ -80,10 +80,10 @@ void setup()
 
   //pass parser callback ptr and developer msg array to eUI lib.
   usb_comms.output_char_fnPtr = &uart_tx_putc;
-  setupDevMsg(dev_msg_store, ARR_ELEM(dev_msg_store));
+  setup_dev_msg(dev_msg_store, ARR_ELEM(dev_msg_store));
 
   randomSeed( analogRead(A4) );
-  setupIdentifier();
+  setup_identifier();
 }
 
 uint8_t led_status_counter = 0;
@@ -109,8 +109,8 @@ void printDevArray()
 {
   for(int i = 0; i < ARR_ELEM(dev_msg_store); i++)
   {
-      generatePacket( dev_msg_store[i].msgID, 
-                      generateHeader(MSG_DEV, MSG_ACK_NOTREQ, MSG_RES_L, MSG_TYPE_TYP, dev_msg_store[i].type),
+      generate_packet( dev_msg_store[i].msgID, 
+                      generate_header(MSG_DEV, MSG_ACK_NOTREQ, MSG_RES_L, MSG_TYPE_TYP, dev_msg_store[i].type),
                       dev_msg_store[i].size, 
                       dev_msg_store[i].payload,
                       &uart_tx_putc);
@@ -121,7 +121,7 @@ void uart_rx_handler()
 {
   while(Serial.available() > 0)  //rx has data
   {  
-    parsePacket(Serial.read(), &usb_comms);  //eat a byte
+    parse_packet(Serial.read(), &usb_comms);  //eat a byte
   }
 }
 

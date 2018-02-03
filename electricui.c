@@ -1,6 +1,6 @@
 #include "electricui.h"
 
-euiMessage_t * findMessageObject(const char * msg_id, uint8_t is_internal)
+euiMessage_t * find_message_object(const char * msg_id, uint8_t is_internal)
 {
   euiMessage_t *foundMsgPtr = 0;
 
@@ -30,7 +30,7 @@ euiMessage_t * findMessageObject(const char * msg_id, uint8_t is_internal)
   return foundMsgPtr;
 }
 
-void handlePacket(struct eui_interface_state *valid_packet)
+void handle_packet(struct eui_interface_state *valid_packet)
 {
   //we know the message is 'valid', use deconstructed header for convenience
   euiHeader_t header = *(euiHeader_t*)&valid_packet->inboundHeader;
@@ -39,7 +39,7 @@ void handlePacket(struct eui_interface_state *valid_packet)
   parserOutputFunc = valid_packet->output_char_fnPtr;
 
   //pointer to the message object we find
-  euiMessage_t *msgObjPtr = findMessageObject( (char*)valid_packet->inboundID, header.internal );  
+  euiMessage_t *msgObjPtr = find_message_object( (char*)valid_packet->inboundID, header.internal );  
   
   //Check that the searched ID was found
   if(msgObjPtr != 0)
@@ -89,7 +89,7 @@ void handlePacket(struct eui_interface_state *valid_packet)
                                   };
 
       //respond to the ack with internal value of the requested messageID as confirmation
-      generatePacket(msgObjPtr->msgID, *(uint8_t*)&query_header, msgObjPtr->size, msgObjPtr->payload, parserOutputFunc);
+      generate_packet(msgObjPtr->msgID, *(uint8_t*)&query_header, msgObjPtr->size, msgObjPtr->payload, parserOutputFunc);
     }
 
   }
@@ -106,9 +106,9 @@ void handlePacket(struct eui_interface_state *valid_packet)
   }
 }
 
-void sendTracked(const char * msg_id, uint8_t is_internal)
+void send_tracked(const char * msg_id, uint8_t is_internal)
 {
-  euiMessage_t *msgObjPtr = findMessageObject( msg_id, is_internal );  
+  euiMessage_t *msgObjPtr = find_message_object( msg_id, is_internal );  
 
   euiHeader_t header =  { .internal = is_internal, 
                           .customType = MSG_TYPE_TYP, 
@@ -117,38 +117,38 @@ void sendTracked(const char * msg_id, uint8_t is_internal)
                           .type = msgObjPtr->type 
                         };
 
-  generatePacket(msgObjPtr->msgID, *(uint8_t*)&header, msgObjPtr->size, msgObjPtr->payload, parserOutputFunc);
+  generate_packet(msgObjPtr->msgID, *(uint8_t*)&header, msgObjPtr->size, msgObjPtr->payload, parserOutputFunc);
 }
 
-void sendMessage(const char * msg_id, struct eui_interface_state *active_interface)
+void send_message(const char * msg_id, struct eui_interface_state *active_interface)
 {
   parserOutputFunc = active_interface->output_char_fnPtr;
-  sendTracked(msg_id, MSG_DEV);
+  send_tracked(msg_id, MSG_DEV);
 }
 
 //application layer developer setup helpers
-void setupDevMsg(euiMessage_t *msgArray, uint8_t numObjects)
+void setup_dev_msg(euiMessage_t *msgArray, uint8_t numObjects)
 {
   devObjectArray = msgArray;
   numDevObjects = numObjects;
 }
 
-void setupIdentifier()
+void setup_identifier()
 {
   //hahahaha
   board_identifier = rand();
 }
 
 //application layer callbacks
-void announceBoard()
+void announce_board()
 {
   //repond to search request with board info
-  sendTracked("lv", MSG_INTERNAL);
-  sendTracked("bi", MSG_INTERNAL);
-  sendTracked("si", MSG_INTERNAL);
+  send_tracked("lv", MSG_INTERNAL);
+  send_tracked("bi", MSG_INTERNAL);
+  send_tracked("si", MSG_INTERNAL);
 }
 
-void announceDevMsg()
+void announce_dev_msg()
 {
   const uint8_t numMessages = numDevObjects;
 
@@ -161,7 +161,7 @@ void announceDevMsg()
                           };
 
   //tell the UI we are starting the index handshake process
-  generatePacket("dms", *(uint8_t*)&dmHeader, sizeof(numMessages), &numMessages, parserOutputFunc);
+  generate_packet("dms", *(uint8_t*)&dmHeader, sizeof(numMessages), &numMessages, parserOutputFunc);
 
   //fill a buffer which contains the developer message ID's
   uint8_t msgBuffer[ (MESSAGEID_SIZE+1)*(PAYLOAD_SIZE_MAX / PACKET_BASE_SIZE) ];
@@ -182,7 +182,7 @@ void announceDevMsg()
     //send messages and clear buffer to break list into shorter messagaes
     if(msgIDPacked >= (PAYLOAD_SIZE_MAX / PACKET_BASE_SIZE) || i >= numMessages)
     {
-      generatePacket("dml", *(uint8_t*)&dmHeader, msgBufferPos, &msgBuffer, parserOutputFunc);
+      generate_packet("dml", *(uint8_t*)&dmHeader, msgBufferPos, &msgBuffer, parserOutputFunc);
       
       //cleanup
       memset(msgBuffer, 0, sizeof(msgBuffer));
@@ -205,7 +205,7 @@ void announce_dev_vars(void)
   {
     dvHeader.type = devObjectArray[i].type;
 
-    generatePacket( devObjectArray[i].msgID, 
+    generate_packet(devObjectArray[i].msgID, 
                     *(uint8_t*)&dvHeader, 
                     devObjectArray[i].size, 
                     devObjectArray[i].payload, 
@@ -217,5 +217,5 @@ void announce_dev_vars(void)
 void report_error(uint8_t error)
 {
   last_error = error;
-  sendTracked("er", MSG_INTERNAL);
+  send_tracked("er", MSG_INTERNAL);
 }

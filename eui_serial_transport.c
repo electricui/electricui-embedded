@@ -1,6 +1,6 @@
 #include "eui_serial_transport.h"
 
-uint8_t calcCRC(uint8_t *to_xor, uint8_t datagram_len) 
+uint8_t calc_crc(uint8_t *to_xor, uint8_t datagram_len) 
 {
   uint8_t XOR; 
   uint8_t i;
@@ -13,7 +13,7 @@ uint8_t calcCRC(uint8_t *to_xor, uint8_t datagram_len)
   return XOR;
 }
 
-uint8_t generateHeader(uint8_t internal, uint8_t ack, uint8_t reservedbit, uint8_t customtype, uint8_t payloadtype)
+uint8_t generate_header(uint8_t internal, uint8_t ack, uint8_t reservedbit, uint8_t customtype, uint8_t payloadtype)
 {
   euiHeader_t genHeader; 
 
@@ -35,7 +35,7 @@ uint8_t generateHeader(uint8_t internal, uint8_t ack, uint8_t reservedbit, uint8
   return *(uint8_t*)&genHeader;
 }
 
-void generatePacket(const char * msg_id, uint8_t header, uint8_t payload_len, void* payload, CallBackwithUINT8 output_function)
+void generate_packet(const char * msg_id, uint8_t header, uint8_t payload_len, void* payload, CallBackwithUINT8 output_function)
 {
   uint8_t packetBuffer[PACKET_BASE_SIZE + payload_len + 1];  //todo see if +1 can be removed
   uint8_t p = 0;
@@ -58,7 +58,7 @@ void generatePacket(const char * msg_id, uint8_t header, uint8_t payload_len, vo
 
   //end payload control character, checksum
   packetBuffer[p++] = enText;
-  uint8_t crc = calcCRC(packetBuffer, p);
+  uint8_t crc = calc_crc(packetBuffer, p);
   packetBuffer[p++] = crc;
 
   //end of packet character, and null-terminate the array
@@ -75,7 +75,7 @@ void generatePacket(const char * msg_id, uint8_t header, uint8_t payload_len, vo
   }
 }
 
-void parsePacket(uint8_t inbound_byte, struct eui_interface_state *active_interface)
+void parse_packet(uint8_t inbound_byte, struct eui_interface_state *active_interface)
 {
   switch(active_interface->controlState)
   {
@@ -173,7 +173,7 @@ void parsePacket(uint8_t inbound_byte, struct eui_interface_state *active_interf
         //TODO could be an issue if the CRC negates itself due to no new data or a false reset?
         if(active_interface->processedCRC == 0)
         {
-          handlePacket(active_interface);
+          handle_packet(active_interface);
         }
         else
         {

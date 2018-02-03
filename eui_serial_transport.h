@@ -79,9 +79,9 @@ enum parseStates {
     exp_eot,
 };
 
-uint8_t calcCRC(uint8_t *to_xor, uint8_t datagram_len);
-uint8_t generateHeader(uint8_t internal, uint8_t ack, uint8_t reservedbit, uint8_t customtype, uint8_t payloadtype);
-void    generatePacket(const char * msg_id, uint8_t header, uint8_t payload_len, void* payload, CallBackwithUINT8 output_function);
-void    parsePacket(uint8_t inbound_byte, struct eui_interface_state *active_interface);
+uint8_t calc_crc(uint8_t *to_xor, uint8_t datagram_len);
+uint8_t generate_header(uint8_t internal, uint8_t ack, uint8_t reservedbit, uint8_t customtype, uint8_t payloadtype);
+void    generate_packet(const char * msg_id, uint8_t header, uint8_t payload_len, void* payload, CallBackwithUINT8 output_function);
+void    parse_packet(uint8_t inbound_byte, struct eui_interface_state *active_interface);
 
 #endif
