@@ -64,9 +64,9 @@ void handle_packet(struct eui_interface_state *valid_packet)
       break;
 
       default:
-        if(header.customType)
+        if(header.type >= TYPE_CUSTOM_MARKER)
         {
-          //TODO add custom handling or callbacks for custom types if needed?
+          //TODO add handling or callbacks for not-default types if needed?
         }
 
         //copy payload data into the object blindly providing we actually have data
@@ -82,7 +82,6 @@ void handle_packet(struct eui_interface_state *valid_packet)
     if(header.reqACK)
     {
       euiHeader_t query_header =  { .internal = header.internal, 
-                                    .customType = (msgObjPtr->type >= TYPE_CUSTOM_MARKER) ? MSG_TYPE_CUSTOM : MSG_TYPE_TYP, 
                                     .reqACK = MSG_ACK_NOTREQ, 
                                     .reserved = MSG_RES_L, 
                                     .type = msgObjPtr->type 
@@ -111,7 +110,6 @@ void send_tracked(const char * msg_id, uint8_t is_internal)
   euiMessage_t *msgObjPtr = find_message_object( msg_id, is_internal );  
 
   euiHeader_t header =  { .internal = is_internal, 
-                          .customType = MSG_TYPE_TYP, 
                           .reqACK = MSG_ACK_NOTREQ, 
                           .reserved = MSG_RES_L, 
                           .type = msgObjPtr->type 
@@ -153,11 +151,10 @@ void announce_dev_msg()
   const uint8_t numMessages = numDevObjects;
 
   //generate a generic header for these messages
-  euiHeader_t dmHeader = { .internal = MSG_INTERNAL, 
-                            .customType = MSG_TYPE_TYP, 
-                            .reqACK = MSG_ACK_NOTREQ, 
-                            .reserved = MSG_RES_L, 
-                            .type = TYPE_UINT8 
+  euiHeader_t dmHeader = {.internal = MSG_INTERNAL, 
+                          .reqACK = MSG_ACK_NOTREQ, 
+                          .reserved = MSG_RES_L, 
+                          .type = TYPE_UINT8 
                           };
 
   //tell the UI we are starting the index handshake process
@@ -194,11 +191,10 @@ void announce_dev_msg()
 
 void announce_dev_vars(void)
 {
-  euiHeader_t dvHeader = { .internal = MSG_DEV, 
-                            .customType = MSG_TYPE_TYP, 
-                            .reqACK = MSG_ACK_NOTREQ, 
-                            .reserved = MSG_RES_L, 
-                            .type = TYPE_BYTE 
+  euiHeader_t dvHeader = {.internal = MSG_DEV, 
+                          .reqACK = MSG_ACK_NOTREQ, 
+                          .reserved = MSG_RES_L, 
+                          .type = TYPE_BYTE 
                           };
 
   for(int i = 0; i <= numDevObjects; i++)

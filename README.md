@@ -60,10 +60,9 @@ The header field is a single byte which contains the following information throu
 | Bit Number    | Purpose                 |
 | ------------- | ----------------------- |
 | 0             | 1 if developer message  |
-| 1             | 1 if type is custom     |
-| 2             | 1 if ack requested      |
-| 3             | Reserved for future use |
-| 4-7           | Type of payload         |
+| 1             | 1 if ack requested      |
+| 2             | Reserved for future use |
+| 3-7           | Type of payload         |
 
 This is defined with the custom structure in C
 
@@ -71,14 +70,11 @@ This is defined with the custom structure in C
 typedef struct  
 {  
 	unsigned internal	: 1;  
-	unsigned customType : 1;  
 	unsigned reqACK		: 1;  
 	unsigned reserved	: 1;  
 	unsigned type		: 4;  
 } euiHeader_t;  
 `
-
-Currently, the customType bit is not exposed to the developer, and essentially acts as a modifier on the 16-type limit.
 
 ### Handling Types
 
@@ -92,6 +88,7 @@ Types are defined as part of the header byte, where types are as follows:
 
 | Bit Number    | Purpose                 |
 | ------------- | ----------------------- |
+| callback      | Function callbacks      |
 | byte			| A single 8-bit message  |
 | char			| A single character      |
 | int8          | 8-bit signed integer    |
@@ -100,17 +97,14 @@ Types are defined as part of the header byte, where types are as follows:
 | uint16        | 16-bit unsigned integer |
 | int32         | 32-bit signed integer   |
 | uint32        | 32-bit unsigned integer |
-| int64         | 64-bit signed integer   |
-| uint64        | 64-bit unsigned integer |
 | float         | Standard float (4-byte) |
 | double        | Double precision float  |
-| callback      | Function callbacks      |
 
 If the developer is using custom types, they will create another enum to define their types internally, but set their enum's first element to TYPE_CUSTOM_MARKER, which is the end of the electricUI defined type enum.
 
-This allows the custom typed developer messages to be passed around as normal, and the library will check the type reference and apply the custom-type bit in the header automatically on generation.
+This allows the custom typed developer messages to be passed around as normal, and the library/UI will check the type reference and handle it accordingly.
 
-Due to this implementation and 4 header bits for type are allocated, the maximum number of custom types is 16.
+Due to this implementation and 5 header bits for type are allocated, the maximum number of custom types is 20.
 
 ## messageID
 

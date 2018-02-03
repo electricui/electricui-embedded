@@ -9,8 +9,6 @@
 
 #define MSG_INTERNAL        1
 #define MSG_DEV             0
-#define MSG_TYPE_CUSTOM     1
-#define MSG_TYPE_TYP        0
 #define MSG_ACK_REQ         1
 #define MSG_ACK_NOTREQ      0
 #define MSG_RES_H           1
@@ -24,10 +22,9 @@ static const uint8_t enTransmission = 0x04;
 
 typedef struct {
   unsigned internal   : 1;
-  unsigned customType : 1;
   unsigned reqACK     : 1;
   unsigned reserved   : 1;
-  unsigned type       : 4;
+  unsigned type       : 5;
 } euiHeader_t;
 
 typedef enum {
@@ -78,7 +75,7 @@ enum parseStates {
 };
 
 uint8_t calc_crc(uint8_t *to_xor, uint8_t datagram_len);
-uint8_t generate_header(uint8_t internal, uint8_t ack, uint8_t reservedbit, uint8_t customtype, uint8_t payloadtype);
+uint8_t generate_header(uint8_t internal, uint8_t ack, uint8_t reservedbit, uint8_t payloadtype);
 void    generate_packet(const char * msg_id, uint8_t header, uint8_t payload_len, void* payload, CallBackwithUINT8 output_function);
 void    parse_packet(uint8_t inbound_byte, struct eui_interface_state *active_interface);
 

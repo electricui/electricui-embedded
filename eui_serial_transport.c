@@ -13,24 +13,14 @@ uint8_t calc_crc(uint8_t *to_xor, uint8_t datagram_len)
   return XOR;
 }
 
-uint8_t generate_header(uint8_t internal, uint8_t ack, uint8_t reservedbit, uint8_t customtype, uint8_t payloadtype)
+uint8_t generate_header(uint8_t internal, uint8_t ack, uint8_t reservedbit, uint8_t payloadtype)
 {
   euiHeader_t genHeader; 
 
   genHeader.internal  = internal;
   genHeader.reqACK    = ack;
   genHeader.reserved  = reservedbit;
-
-  if(payloadtype >= TYPE_CUSTOM_MARKER || customtype)
-  {
-    genHeader.customType = MSG_TYPE_CUSTOM; //they've passed a type larger than we expect, must be custom
-    genHeader.type = payloadtype - MSG_TYPE_CUSTOM;
-  }
-  else
-  {
-    genHeader.customType = customtype;
-    genHeader.type = payloadtype;
-  }
+  genHeader.type      = payloadtype;
 
   return *(uint8_t*)&genHeader;
 }
