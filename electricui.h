@@ -52,6 +52,7 @@ uint8_t last_error;
 
 void announceBoard(void);
 void announceDevMsg(void);
+void announce_dev_vars(void);
 
 const euiMessage_t internal_msg_store[] = {
     {.msgID = "lv", .type = TYPE_UINT8, .size = sizeof(library_version),    .payload = &library_version     },
@@ -62,6 +63,7 @@ const euiMessage_t internal_msg_store[] = {
     {.msgID = "hb", .type = TYPE_UINT8, .size = sizeof(heartbeat),          .payload = &heartbeat           },
 
     {.msgID = "dm", .type = TYPE_CALLBACK, .size = sizeof(announceDevMsg),  .payload = &announceDevMsg      },
+    {.msgID = "dv", .type = TYPE_CALLBACK, .size = sizeof(announce_dev_vars), .payload = &announce_dev_vars },
     {.msgID = "as", .type = TYPE_CALLBACK, .size = sizeof(announceBoard),   .payload = &announceBoard       },
 };
 

@@ -193,6 +193,26 @@ void announceDevMsg()
   generatePacket("dme", *(uint8_t*)&dmHeader, sizeof(numMessages), &numMessages, parserOutputFunc);
 }
 
+void announce_dev_vars(void)
+{
+  euiHeader_t dmHeader = { .internal = MSG_INTERNAL, 
+                            .customType = MSG_TYPE_TYP, 
+                            .reqACK = MSG_ACK_NOTREQ, 
+                            .reserved = MSG_RES_L, 
+                            .type = TYPE_UINT8 
+                          };
+
+  for(int i = 0; i <= numDevObjects; i++)
+  {
+    generatePacket( devObjectArray[i].msgID, 
+                    *(uint8_t*)&dmHeader, 
+                    devObjectArray[i].size, 
+                    devObjectArray[i].payload, 
+                    parserOutputFunc
+                  );
+  }
+}
+
 void report_error(uint8_t error)
 {
   last_error = error;
