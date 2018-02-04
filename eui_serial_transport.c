@@ -27,12 +27,17 @@ uint8_t generate_header(uint8_t internal, uint8_t ack, uint8_t offset_packet, ui
 
 void generate_packet(const char * msg_id, uint8_t header, uint8_t payload_len, void* payload, CallBackwithUINT8 output_function)
 {
-  uint8_t packetBuffer[PACKET_BASE_SIZE + payload_len + 1];  //todo see if +1 can be removed
+  generate_packet_offset(msg_id, header, payload_len, MSG_STANDARD_PACKET, payload, output_function);
+}
+
+void generate_packet_offset(const char * msg_id, uint8_t header, uint8_t payload_len, uint16_t offset, void* payload, CallBackwithUINT8 output_function)
+{
+  uint8_t packetBuffer[PACKET_BASE_SIZE + payload_len + 1 + 2];  //todo see if +1 can be removed, todo cleanup extra 2 bytes for offset
   uint8_t p = 0;
 
   //preamble and header
   packetBuffer[p++] = stHeader;
-  packetBuffer[p++] = header;
+  packetBuffer[p++] = *(uint8_t*)header;
 
   //copy the message ID in
   strcpy(packetBuffer+p, msg_id);
@@ -41,8 +46,18 @@ void generate_packet(const char * msg_id, uint8_t header, uint8_t payload_len, v
   //start of payload control character
   packetBuffer[p++] = stText;
 
-  //payload length and payload data
-  packetBuffer[p++] = payload_len;
+  //payload length
+  packetBuffer[p] = payload_len;
+  p += sizeof(payload_len);
+
+  //payload offset if used
+  if((*(euiHeader_t*)header).offsetAd)
+  {
+    memcpy(packetBuffer+p, offset, sizeof(offset));
+    p += sizeof(offset);
+  }
+
+  //payload
   memcpy(packetBuffer+p, payload, payload_len);
   p += payload_len;
 
