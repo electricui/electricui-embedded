@@ -32,7 +32,7 @@ void generate_packet(const char * msg_id, uint8_t header, uint8_t payload_len, v
 
 void generate_packet_offset(const char * msg_id, uint8_t header, uint8_t payload_len, uint16_t offset, void* payload, CallBackwithUINT8 output_function)
 {
-  uint8_t packetBuffer[PACKET_BASE_SIZE + payload_len + 1 + 2];  //todo see if +1 can be removed, todo cleanup extra 2 bytes for offset
+  uint8_t packetBuffer[PACKET_BASE_SIZE + payload_len];  //holding array large enough to fit the entire packet
   uint8_t p = 0;
 
   //preamble and header
@@ -43,11 +43,8 @@ void generate_packet_offset(const char * msg_id, uint8_t header, uint8_t payload
   strcpy(packetBuffer+p, msg_id);
   p += strlen(msg_id);
 
-  //start of payload control character
-  packetBuffer[p++] = stText;
-
   //payload length
-  packetBuffer[p] = payload_len;
+  memcpy(packetBuffer+p, payload_len, sizeof(payload_len));
   p += sizeof(payload_len);
 
   //payload offset if used
@@ -56,6 +53,9 @@ void generate_packet_offset(const char * msg_id, uint8_t header, uint8_t payload
     memcpy(packetBuffer+p, offset, sizeof(offset));
     p += sizeof(offset);
   }
+
+  //start of payload control character
+  packetBuffer[p++] = stText;
 
   //payload
   memcpy(packetBuffer+p, payload, payload_len);
@@ -101,7 +101,7 @@ void parse_packet(uint8_t inbound_byte, struct eui_interface_state *active_inter
     
     case exp_msgID:
       //Check if we've seen a shorter than maxLength msgID
-      if(active_interface->processedID && inbound_byte == stText )  
+      if(active_interface->processedID && inbound_byte == enID )  
       {
         active_interface->controlState = exp_payload_len;
         active_interface->inboundID[active_interface->processedID + 1] = '\0';  //terminate msgID string
@@ -115,24 +115,48 @@ void parse_packet(uint8_t inbound_byte, struct eui_interface_state *active_inter
         //stop parsing and wait for STX, messageID can't be longer than preset maxlength
         if(active_interface->processedID >= MESSAGEID_SIZE)
         {
-          active_interface->controlState = exp_stx;
+          active_interface->controlState = exp_payload_len;
           active_interface->inboundID[active_interface->processedID] = '\0';  //terminate the ID string
         }
       }
     break;
     
-    case exp_stx:
-      //wait for a STX to know the payloadlength is coming
-      if(inbound_byte == stText)
+    case exp_payload_len:
+      active_interface->inboundSize = inbound_byte;
+      active_interface->controlState = exp_offset;
+    break;
+
+    case exp_offset:
+      //first byte value determines if the offset functionality is being used
+      if(!active_interface->inboundOffset)
       {
-        active_interface->controlState = exp_payload_len;
+        if(inbound_byte == stText) 
+        {
+          //there is no offset value
+          active_interface->inboundOffset = 0;  //todo remove redundant set?
+          active_interface->controlState = exp_data;
+        }
+        else
+        {
+          //ingest first byte of offset into LSB
+          active_interface->inboundOffset = inbound_byte;
+          active_interface->inboundOffset << 8;
+        }
+      }
+      else
+      {
+        //ingest second offset byte as the MSB
+        active_interface->inboundOffset |= inbound_byte;
+        active_interface->controlState = exp_stx;
       }
     break;
     
-    case exp_payload_len:
-      //first byte should be payload length
-      active_interface->inboundSize = inbound_byte;
-      active_interface->controlState = (active_interface->inboundSize == 0) ? exp_etx: exp_data;
+    case exp_stx:
+      //wait for a STX to know the payload is coming
+      if(inbound_byte == stText)
+      {
+        active_interface->controlState = exp_data;
+      }
     break;
     
     case exp_data:
@@ -145,12 +169,11 @@ void parse_packet(uint8_t inbound_byte, struct eui_interface_state *active_inter
         //stop parsing and wait for STX, messageID can't be longer than that
         active_interface->controlState = exp_etx;
       }
-      //we even eat ETX characters, because they are valid bytes in a payload...
+      //we even eat ETX characters, because they are valid bytes in a payload... todo add improvements
     break;
     
     case exp_etx:
       //payload data saved in, the first character into this state really should be ETX
-      //wait for a ETX to know checksum is coming
       if(inbound_byte == enText)
       {
         active_interface->controlState = exp_crc;
@@ -162,7 +185,7 @@ void parse_packet(uint8_t inbound_byte, struct eui_interface_state *active_inter
     break;
     
     case exp_crc:
-      //the ETX character has been seen, the next byte is the CRC
+      //the ETX character has been seen, the newest byte is the CRC
       active_interface->inboundCRC = inbound_byte;
       active_interface->controlState = exp_eot;
     break;
@@ -174,8 +197,6 @@ void parse_packet(uint8_t inbound_byte, struct eui_interface_state *active_inter
         //if the running xor matched recieved checksum, running would have changed to 0x00
         //since we add the new data to the running CRC outside this switch (afterwards)
         //0x00 gives validated payload.
-        //TODO check if this is dangerous (seems like the same thing as a normal equality check, just later?)
-        //TODO could be an issue if the CRC negates itself due to no new data or a false reset?
         if(active_interface->processedCRC == 0)
         {
           handle_packet(active_interface);

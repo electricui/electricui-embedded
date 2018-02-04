@@ -45,13 +45,13 @@ ___
 
 We want the library to be portable, stateless where possible, and easy to use.
 
-We use a binary protocol, and load the protocol as following (w/o whitespace):
+We use a binary protocol, and pack the protocol as follows (w/o whitespace, optional offset value):
 
-`SOH header messageID STX payloadLen payload ETX checksum EOT`
+`SOH header messageID payloadLen offset STX payload ETX checksum EOT`
 
 We use the non-printable ascii control characters for start of header, start of text, end of text, end of transmission (oscilloscopes and logic analysers can catch these nicely, amongst actual relevance in this usecase).
 
-By using these control characters, the messageID can (in theory) be indeterminate length as the STX would trigger the end of the header.
+By using these control characters, and null-termination on the messageID, messageID's can (in theory) be indeterminate length, with max payload size of the payloadLength's natural type (uint8 by default, room for expansion later)
 
 ## Header Byte
 
