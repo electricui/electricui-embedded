@@ -3,32 +3,43 @@
 
 #include <stdint.h>
 
-#define MESSAGEID_SIZE      3      //max allowed bytes in msgID
-#define PACKET_BASE_SIZE    ( sizeof(stHeader) + sizeof(euiHeader_t) + MESSAGEID_SIZE \
-                            + sizeof(uint8_t) + sizeof(uint16_t) + sizeof(stText) \
-                            + sizeof(enText) + sizeof(enTransmission) )  //maximum overhead in bytes
+#define MESSAGEID_BITS      4                       //size of the messageIDlen bitfield
+#define MESSAGEID_SIZE      ( 2^MESSAGEID_BITS )    //max allowed bytes in msgID
+
+#define PACKET_BASE_SIZE    ( sizeof(stHeader) + sizeof(euiHeader_t) \
+                            + sizeof(uint16_t) + sizeof(uint16_t) + sizeof(enTransmission) )  //maximum overhead in bytes
 #define PAYLOAD_SIZE_MAX    120    //max payload data size
 
 #define MSG_INTERNAL        1
 #define MSG_DEV             0
-#define MSG_ACK_REQ         1
-#define MSG_ACK_NOTREQ      0
+#define MSG_ACK             1
+#define MSG_NACK            0
+#define MSG_QUERY           1
+#define MSG_NQUERY          0
 #define MSG_OFFSET_PACKET   1
 #define MSG_STANDARD_PACKET 0
 
 //control characters in packets
 static const uint8_t stHeader       = 0x01;
-static const uint8_t stText         = 0x02;
-static const uint8_t enText         = 0x03;
 static const uint8_t enTransmission = 0x04;
-static const uint8_t enID           = 0x00;
 
 typedef struct {
   unsigned internal   : 1;
-  unsigned reqACK     : 1;
-  unsigned offsetAd   : 1;
-  unsigned type       : 5;
+  unsigned ack        : 1;
+  unsigned query      : 1;
+  unsigned offset     : 1;
+  unsigned type       : 4;
+  unsigned id_len     : MESSAGEID_BITS;
+  unsigned data_len   : 10;
+  unsigned seq        : 2;
 } euiHeader_t;
+
+typedef struct {
+  unsigned internal   : 1;
+  unsigned ack        : 1;
+  unsigned query      : 1;
+  unsigned type       : 4;
+} euiPacketSettings_t;
 
 typedef enum {
     TYPE_CALLBACK = 0,
@@ -47,42 +58,44 @@ typedef enum {
 
 typedef void (*CallBackwithUINT8)(uint8_t); //callback with single char of data
 
-struct eui_interface_state {
-    uint8_t controlState;
-
-    //buffer incoming data
-    uint8_t inboundID[MESSAGEID_SIZE+1];
-    uint8_t inboundHeader;
-    uint8_t inboundSize;
-    uint16_t inboundOffset;
-    uint8_t inboundData[PAYLOAD_SIZE_MAX];
-    uint8_t inboundCRC;
-
-    //count the bytes ingested
-    uint8_t processedID;
-    uint8_t processedData;
-    uint8_t processedCRC;
-
-    CallBackwithUINT8 output_char_fnPtr;
-};
+typedef struct {
+  unsigned parser_s         : 3;
+  unsigned header_bytes_in  : 2;
+  unsigned id_bytes_in      : MESSAGEID_BITS;
+  unsigned offset_bytes_in  : 1;
+  unsigned data_bytes_in    : 10;
+  unsigned crc_bytes_in     : 1;
+} eui_interface_state_t;
 
 enum parseStates {
     find_preamble = 0,
     exp_header,
-    exp_msgID,
-    exp_payload_len,
+    exp_message_id,
     exp_offset,
-    exp_stx,
     exp_data,
-    exp_etx,
     exp_crc,
     exp_eot,
 };
 
-uint8_t calc_crc(uint8_t *to_xor, uint8_t datagram_len);
-uint8_t generate_header(uint8_t internal, uint8_t ack, uint8_t offset_packet, uint8_t payloadtype);
-void    generate_packet(const char * msg_id, uint8_t header, uint8_t payload_len, void* payload, CallBackwithUINT8 output_function);
-void    generate_packet_offset(const char * msg_id, uint8_t header, uint8_t payload_len, uint16_t offset, void* payload, CallBackwithUINT8 output_function);
-void    parse_packet(uint8_t inbound_byte, struct eui_interface_state *active_interface);
+struct eui_interface {
+    //hold the inbound parser state information
+    eui_interface_state_t state;
+
+    //buffer incoming data
+    euiHeader_t inboundHeader;
+    uint8_t inboundID[MESSAGEID_SIZE+1];
+    uint16_t inboundOffset;
+    uint8_t inboundData[PAYLOAD_SIZE_MAX];
+    uint16_t inboundCRC;
+
+    //maintain a pointer to the output function for this interface
+    CallBackwithUINT8 output_char_fnPtr;
+};
+
+uint16_t        crc16(uint8_t *data, uint8_t len);
+euiHeader_t *   generate_header(uint8_t internal, uint8_t ack, uint8_t query, uint8_t offset_packet, uint8_t data_type, uint8_t msgID_len, uint8_t data_length, uint8_t sequence_num);
+void            form_offset_packet_simple(CallBackwithUINT8 output_function, euiPacketSettings_t *settings, const char * msg_id, uint16_t offset_addr, uint8_t payload_len, void* payload);
+void            write_packet(CallBackwithUINT8 output_function, euiHeader_t * header, const char * msg_id, uint16_t offset, void* payload);
+void            parse_packet(uint8_t inbound_byte, struct eui_interface *active_interface);
 
 #endif

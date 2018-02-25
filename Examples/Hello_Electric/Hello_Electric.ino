@@ -68,8 +68,8 @@ const euiMessage_t dev_msg_store[] = {
     {.msgID = "imu", .type = TYPE_IMU, .size = sizeof(example_imu), .payload = &example_imu },
 };
 
-eui_interface_state usb_comms; //eui Transport interface holding object
-eui_interface_state uart_comms;
+eui_interface usb_comms; //eui Transport interface holding object
+eui_interface uart_comms;
 
 void setup() 
 {

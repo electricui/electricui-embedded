@@ -30,7 +30,7 @@ euiMessage_t * find_message_object(const char * msg_id, uint8_t is_internal)
   return foundMsgPtr;
 }
 
-void handle_packet(struct eui_interface_state *valid_packet)
+void handle_packet(struct eui_interface *valid_packet)
 {
   //we know the message is 'valid', use deconstructed header for convenience
   euiHeader_t header = *(euiHeader_t*)&valid_packet->inboundHeader;
@@ -39,7 +39,7 @@ void handle_packet(struct eui_interface_state *valid_packet)
   parserOutputFunc = valid_packet->output_char_fnPtr;
 
   //pointer to the message object we find
-  euiMessage_t *msgObjPtr = find_message_object( (char*)valid_packet->inboundID, header.internal );  
+  euiMessage_t *msgObjPtr = find_message_object((char*)valid_packet->inboundID, header.internal);  
   
   //Check that the searched ID was found
   if(msgObjPtr != 0)
@@ -70,25 +70,25 @@ void handle_packet(struct eui_interface_state *valid_packet)
         }
 
         //copy payload data into the object blindly providing we actually have data
-        if(valid_packet->inboundSize != 0)
+        if(valid_packet->state.data_bytes_in != 0)
         {
-          uint8_t bytes_to_write = (valid_packet->inboundSize <= msgObjPtr->size) ? valid_packet->inboundSize : msgObjPtr->size;
+          uint8_t bytes_to_write = (valid_packet->state.data_bytes_in <= msgObjPtr->size) ? valid_packet->state.data_bytes_in : msgObjPtr->size;
           memcpy(msgObjPtr->payload, valid_packet->inboundData, bytes_to_write);
         }
       break;
     }
 
     //ACK was requested for this message
-    if(header.reqACK)
+    if(header.ack)
     {
-      euiHeader_t query_header =  { .internal = header.internal, 
-                                    .reqACK = MSG_ACK_NOTREQ, 
-                                    .offsetAd = MSG_STANDARD_PACKET, 
-                                    .type = msgObjPtr->type 
-                                  };
+      euiPacketSettings_t query_header = {.internal = header.internal, 
+                                          .ack      = MSG_NACK, 
+                                          .query    = MSG_STANDARD_PACKET, 
+                                          .type     = msgObjPtr->type 
+                                          };
 
       //respond to the ack with internal value of the requested messageID as confirmation
-      generate_packet(msgObjPtr->msgID, *(uint8_t*)&query_header, msgObjPtr->size, msgObjPtr->payload, parserOutputFunc);
+      form_offset_packet_simple(parserOutputFunc, &query_header, msgObjPtr->msgID, 0x00, msgObjPtr->size, msgObjPtr->payload);
     }
 
   }
@@ -109,16 +109,16 @@ void send_tracked(const char * msg_id, uint8_t is_internal)
 {
   euiMessage_t *msgObjPtr = find_message_object( msg_id, is_internal );  
 
-  euiHeader_t header =  { .internal = is_internal, 
-                          .reqACK = MSG_ACK_NOTREQ, 
-                          .offsetAd = MSG_STANDARD_PACKET, 
-                          .type = msgObjPtr->type 
-                        };
+  euiPacketSettings_t temp_header =  {.internal = is_internal, 
+                                      .ack      = MSG_NACK, 
+                                      .query    = MSG_STANDARD_PACKET, 
+                                      .type     = msgObjPtr->type 
+                                      };
 
-  generate_packet(msgObjPtr->msgID, *(uint8_t*)&header, msgObjPtr->size, msgObjPtr->payload, parserOutputFunc);
+  form_offset_packet_simple(parserOutputFunc, &temp_header, msgObjPtr->msgID, 0x00, msgObjPtr->size, msgObjPtr->payload);
 }
 
-void send_message(const char * msg_id, struct eui_interface_state *active_interface)
+void send_message(const char * msg_id, struct eui_interface *active_interface)
 {
   parserOutputFunc = active_interface->output_char_fnPtr;
   send_tracked(msg_id, MSG_DEV);
@@ -150,15 +150,15 @@ void announce_dev_msg()
 {
   const uint8_t numMessages = numDevObjects;
 
-  //generate a generic header for these messages
-  euiHeader_t dmHeader = {.internal = MSG_INTERNAL, 
-                          .reqACK = MSG_ACK_NOTREQ, 
-                          .offsetAd = MSG_STANDARD_PACKET, 
-                          .type = TYPE_UINT8 
-                          };
+  //create a generic header for these messages
+  euiPacketSettings_t dm_header =  { .internal  = MSG_INTERNAL, 
+                                     .ack       = MSG_NACK, 
+                                     .query     = MSG_STANDARD_PACKET, 
+                                     .type      = TYPE_UINT8 
+                                    };
 
   //tell the UI we are starting the index handshake process
-  generate_packet("dms", *(uint8_t*)&dmHeader, sizeof(numMessages), &numMessages, parserOutputFunc);
+  form_offset_packet_simple(parserOutputFunc, &dm_header, "dms", 0x00, sizeof(numMessages), &numMessages);
 
   //fill a buffer which contains the developer message ID's
   uint8_t msgBuffer[ (MESSAGEID_SIZE+1)*(PAYLOAD_SIZE_MAX / PACKET_BASE_SIZE) ];
@@ -166,7 +166,7 @@ void announce_dev_msg()
   uint8_t msgIDlen = 0;     //length of a single msgID string
   uint8_t msgIDPacked = 0;  //count messages packed into buffer
 
-  dmHeader.type = TYPE_CHAR;
+  dm_header.type = TYPE_CHAR;
 
   for(int i = 0; i <= numMessages; i++)
   {
@@ -179,8 +179,8 @@ void announce_dev_msg()
     //send messages and clear buffer to break list into shorter messagaes
     if(msgIDPacked >= (PAYLOAD_SIZE_MAX / PACKET_BASE_SIZE) || i >= numMessages)
     {
-      generate_packet("dml", *(uint8_t*)&dmHeader, msgBufferPos, &msgBuffer, parserOutputFunc);
-      
+      form_offset_packet_simple(parserOutputFunc, &dm_header, "dml", 0x00, msgBufferPos, &msgBuffer);
+
       //cleanup
       memset(msgBuffer, 0, sizeof(msgBuffer));
       msgBufferPos = 0;
@@ -191,22 +191,24 @@ void announce_dev_msg()
 
 void announce_dev_vars(void)
 {
-  euiHeader_t dvHeader = {.internal = MSG_DEV, 
-                          .reqACK = MSG_ACK_NOTREQ, 
-                          .offsetAd = MSG_STANDARD_PACKET, 
-                          .type = TYPE_BYTE 
-                          };
+  euiPacketSettings_t dv_header =  { .internal  = MSG_DEV, 
+                                      .ack      = MSG_NACK, 
+                                      .query    = MSG_STANDARD_PACKET, 
+                                      .type     = TYPE_BYTE 
+                                    };
 
   for(int i = 0; i <= numDevObjects; i++)
   {
-    dvHeader.type = devObjectArray[i].type;
+    //reuse the header, but use the appropriate type for each var
+    dv_header.type = devObjectArray[i].type;
 
-    generate_packet(devObjectArray[i].msgID, 
-                    *(uint8_t*)&dvHeader, 
-                    devObjectArray[i].size, 
-                    devObjectArray[i].payload, 
-                    parserOutputFunc
-                  );
+    form_offset_packet_simple(parserOutputFunc, 
+                              &dv_header, 
+                              devObjectArray[i].msgID, 
+                              0x00, 
+                              devObjectArray[i].size, 
+                              devObjectArray[i].payload
+                            );
   }
 }
 

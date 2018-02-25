@@ -47,33 +47,41 @@ We want the library to be portable, stateless where possible, and easy to use.
 
 We use a binary protocol, and pack the protocol as follows (w/o whitespace, optional offset value):
 
-`SOH header messageID payloadLen offset STX payload ETX checksum EOT`
+`SOH header messageID offset(optional) payload checksum EOT`
 
-We use the non-printable ascii control characters for start of header, start of text, end of text, end of transmission (oscilloscopes and logic analysers can catch these nicely, amongst actual relevance in this usecase).
+We use the non-printable ascii control characters for start of header and end of transmission (oscilloscopes and logic analysers can catch these nicely, amongst actual relevance in this usecase).
 
-By using these control characters, and null-termination on the messageID, messageID's can (in theory) be indeterminate length, with max payload size of the payloadLength's natural type (uint8 by default, room for expansion later)
+By using these control characters, rigidly defined lengths for all other fields included in the header, parsing a packet is reasonably trivial.
 
 ## Header Byte
 
-The header field is a single byte which contains the following information through use of a bitfield as listed below:
+The header field spans 3 bytes which contain the following information through use of a bitfield as listed below:
 
 | Bit Number    | Purpose                    |
 | ------------- | -------------------------- |
 | 0             | 1 if developer message     |
 | 1             | 1 if ack requested         |
-| 2             | Indicates offset value use |
-| 3-7           | Type of payload            |
+| 2             | 1 if query requested       |
+| 3             | 1 if offset address inc    |
+| 4-7           | Payload type enum          |
+| 8-11          | Length of message ID       |
+| 12-22         | Length of payload data     |
+| 23-24         | sequence number            |
 
 This is defined with the custom structure in C
 
 `
-typedef struct  
-{  
-	unsigned internal	: 1;  
-	unsigned reqACK		: 1;  
-	unsigned offsetAd	: 1;  
-	unsigned type		: 4;  
-} euiHeader_t;  
+typedef struct {
+  unsigned internal   : 1;
+  unsigned ack        : 1;
+  unsigned query      : 1;
+  unsigned offset     : 1;
+  unsigned type       : 4;
+  unsigned id_len     : 4;
+  unsigned data_len   : 10;
+  unsigned seq        : 2;
+} euiHeader_t;
+
 `
 
 ### Handling Types
@@ -104,30 +112,27 @@ If the developer is using custom types, they will create another enum to define 
 
 This allows the custom typed developer messages to be passed around as normal, and the library/UI will check the type reference and handle it accordingly.
 
-Due to this implementation and 5 header bits for type are allocated, the maximum number of custom types is 20.
-
 ## messageID
 
-This is the identifier used for the message. Typically 3 bytes are allocated for the use of this identifier.
+This is the identifier used for the message. Currently 3 bytes are allocated for the use of this identifier, but the protocol supports up to 16.
 
-While the protocol is binary in design, the developer will see these as a 1 to 3 char string which can be used as a human readable define.
+While the protocol is binary in design, the developer will see these as a 1 to 16 char string which can be used as a human readable define.
 
-`btn` or `sw` for example.
+`btn` or `switch_left` for example.
 
 This is allowed to be any char/byte array with length ranging from 1 to the defined max message ID length in electricui.h. The library relies on null-terminated strings if the length is less than max.
 
 For this reason, null-termination characters are illegal in the actual messageID.
-Additionally, due to the use of the STX delimiter after the messageID, STX value usage is not recommended, but will be supported for single byte messageID's. Using STX on the 2nd to nth bytes will result in lost messageID data.
 
 As the header provides a internal/developer bit, we don't need to worry about collisions with userspace message IDs.
 
 ## Payload Length
 
-A single byte allocated for payload length. 
+10-bits are allocated for payload length to provide payloads up to 1kB in size. 
 
-As long running messages aren't best practice anyway, restricting this to a single unsigned int allows payloads of 255 bytes in length.
+As long running messages aren't best practice, restricting this to the size of the inbound message buffer size is recommended.
 
-Any messages longer than 255 bytes should ~~be handled through a custom type or like an array~~.
+Any messages longer than the limit should be handled somewhat automatically by the offset functionality for large data-structures.
 
 ## Address Offsets
 
@@ -157,7 +162,7 @@ Generally there shouldn't be any issues with this providing the total payload si
 
 ## Checksum
 
-The checksum is (for now) the XOR'ed contents of the entire message (from SOH to ETX). At this point, a single byte is likely sufficient for error detection, but each end should be designed in a manner which can be later increased to support n-byte checksum information.
+The checksum uses the CRC16 method defined at http://www.sal.wisc.edu/st5000/documents/tables/crc16.c and covers all data between (but not including) the preamble and checksum value/EOT.
 
 ___
 
@@ -256,6 +261,18 @@ Follow the example code for reference.
 ___
 
 # Overheads and Benchmarks
+
+TODO UPDATE THIS WITH VALID PERFORMANCE INFORMATION FOR THE NEW PROTOCOL IMPLEMENTATION.
+
+V0.2 protocol consumes the following resources:
+
+|                       | Flash           | Global Vars       |
+| --------------------- | --------------- | ----------------- |
+| +track all vars       | 8644            | 908               |
+
+which can be compared to the previous below:
+
+OUTDATED INFORMATION
 
 The baseline "starting consumption without eUI" is shown first, subsequent rows are adding something to the previous setup.
 

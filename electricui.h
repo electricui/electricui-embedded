@@ -29,7 +29,7 @@ enum error_codes {
 };
 
 euiMessage_t * find_message_object(const char * msg_id, uint8_t is_internal);
-void handle_packet(struct eui_interface_state *valid_packet);
+void handle_packet(struct eui_interface *valid_packet);
 void send_tracked(const char * msg_id, uint8_t is_internal);
 void report_error(uint8_t error);
 
@@ -40,7 +40,7 @@ CallBackwithUINT8 parserOutputFunc;  //holding ref for output func
 
 void setup_dev_msg(euiMessage_t *msgArray, uint8_t numObjects);
 void setup_identifier();
-void send_message(const char * msg_id, struct eui_interface_state *active_interface);
+void send_message(const char * msg_id, struct eui_interface *active_interface);
 
 //internal
 const uint8_t library_version[] = { VER_MAJOR, VER_MINOR, VER_PATCH };
