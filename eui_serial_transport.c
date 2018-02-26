@@ -80,9 +80,9 @@ write_packet(CallBackwithUINT8 output_function, euiHeader_t * header, const char
   p += header->data_len;
 
   //checksum between the preamble and CRC
-  uint16_t crc = crc16(packetBuffer + sizeof(stHeader), p - sizeof(stHeader));
-  memcpy(packetBuffer+p, crc, sizeof(crc));
-  packetBuffer[p++] = sizeof(crc);
+  uint16_t crc = crc16(&packetBuffer[sizeof(stHeader)], p - sizeof(stHeader) );
+  packetBuffer[p++] = crc & 0xFF;
+  packetBuffer[p++] = crc >> 8;
 
   //end of packet character, and null-terminate the array
   packetBuffer[p++] = enTransmission;
