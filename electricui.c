@@ -78,17 +78,19 @@ void handle_packet(struct eui_interface *valid_packet)
       break;
     }
 
-    //ACK was requested for this message
-    if(header.ack)
+    //form responses if required
+    if(header.ack || header.query)
     {
-      euiPacketSettings_t query_header = {.internal = header.internal, 
+      euiPacketSettings_t res_header =  { .internal = header.internal, 
                                           .ack      = MSG_NACK, 
-                                          .query    = MSG_STANDARD_PACKET, 
+                                          .query    = MSG_NQUERY, 
                                           .type     = msgObjPtr->type 
-                                          };
+                                        };
+      //queries send back the current variable contents, otherwise we don't need any data
+      uint8_t res_size = (header.query) ? msgObjPtr->size : 0;
 
       //respond to the ack with internal value of the requested messageID as confirmation
-      form_offset_packet_simple(parserOutputFunc, &query_header, msgObjPtr->msgID, 0x00, msgObjPtr->size, msgObjPtr->payload);
+      form_offset_packet_simple(parserOutputFunc, &res_header, msgObjPtr->msgID, 0x00, res_size, msgObjPtr->payload);
     }
 
   }
