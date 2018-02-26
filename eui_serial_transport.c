@@ -20,35 +20,35 @@ crc16(uint8_t *data, uint8_t len)
 euiHeader_t *
 generate_header(uint8_t internal, uint8_t ack, uint8_t query, uint8_t offset_packet, uint8_t data_type, uint8_t msgID_len, uint8_t data_length, uint8_t sequence_num)
 {
-  euiHeader_t *temp_header; 
+  euiHeader_t temp_header; 
 
-  temp_header->internal   = internal;
-  temp_header->ack        = ack;
-  temp_header->query      = query;
-  temp_header->offset     = offset_packet;
-  temp_header->type       = data_type;
-  temp_header->id_len     = msgID_len;
-  temp_header->data_len   = data_length;
-  temp_header->seq        = sequence_num;
+  temp_header.internal   = internal;
+  temp_header.ack        = ack;
+  temp_header.query      = query;
+  temp_header.offset     = offset_packet;
+  temp_header.type       = data_type;
+  temp_header.id_len     = msgID_len;
+  temp_header.data_len   = data_length;
+  temp_header.seq        = sequence_num;
 
-  return temp_header;
+  return &temp_header;
 }
 
 void
 form_offset_packet_simple(CallBackwithUINT8 output_function, euiPacketSettings_t *settings, const char * msg_id, uint16_t offset_addr, uint8_t payload_len, void* payload)
 {
-  euiHeader_t *temp_header;
+  euiHeader_t temp_header;
 
-  temp_header->internal   = settings->internal;
-  temp_header->ack        = settings->ack;
-  temp_header->query      = settings->query;
-  temp_header->offset     = (offset_addr) ? MSG_OFFSET_PACKET : MSG_STANDARD_PACKET;
-  temp_header->type       = settings->type;
-  temp_header->id_len     = strlen(msg_id);
-  temp_header->data_len   = payload_len;
-  temp_header->seq        = 0;  //todo implement this properly
+  temp_header.internal   = settings->internal;
+  temp_header.ack        = settings->ack;
+  temp_header.query      = settings->query;
+  temp_header.offset     = (offset_addr) ? MSG_OFFSET_PACKET : MSG_STANDARD_PACKET;
+  temp_header.type       = settings->type;
+  temp_header.id_len     = strlen(msg_id);
+  temp_header.data_len   = payload_len;
+  temp_header.seq        = 0;  //todo implement this properly
 
-  write_packet(output_function, temp_header, msg_id, offset_addr, payload);
+  write_packet(output_function, &temp_header, msg_id, offset_addr, payload);
 }
 
 void
