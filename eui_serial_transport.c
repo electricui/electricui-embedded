@@ -61,8 +61,20 @@ write_packet(CallBackwithUINT8 output_function, euiHeader_t * header, const char
   packetBuffer[p++] = stHeader;
 
   //header
-  memcpy(packetBuffer+p, header, sizeof(euiHeader_t));
-  p += sizeof(euiHeader_t);
+  packetBuffer[p] |= header->internal << 8;
+  packetBuffer[p] |= header->ack      << 7;
+  packetBuffer[p] |= header->query    << 6;
+  packetBuffer[p] |= header->offset   << 5;
+  packetBuffer[p] |= header->type;
+  p++;
+
+  uint16_t header_tail;
+  header_tail |= (header->id_len - 1) << 12;
+  header_tail |= header->data_len     << 2;
+  header_tail |= header->seq;
+
+  packetBuffer[p++] = header_tail & 0xFF;
+  packetBuffer[p++] = header_tail >> 8;
 
   //copy the message ID in
   memcpy(packetBuffer+p, msg_id, header->id_len);
