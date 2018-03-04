@@ -39,7 +39,7 @@ uint8_t numDevObjects;
 CallBackwithUINT8 parserOutputFunc;  //holding ref for output func
 
 void setup_dev_msg(euiMessage_t *msgArray, uint8_t numObjects);
-void setup_identifier();
+void setup_identifier(void);
 void send_message(const char * msg_id, struct eui_interface *active_interface);
 
 //internal

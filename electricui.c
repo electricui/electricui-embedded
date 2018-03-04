@@ -1,6 +1,7 @@
 #include "electricui.h"
 
-euiMessage_t * find_message_object(const char * msg_id, uint8_t is_internal)
+euiMessage_t * 
+find_message_object(const char * msg_id, uint8_t is_internal)
 {
   euiMessage_t *foundMsgPtr = 0;
 
@@ -30,7 +31,8 @@ euiMessage_t * find_message_object(const char * msg_id, uint8_t is_internal)
   return foundMsgPtr;
 }
 
-void handle_packet(struct eui_interface *valid_packet)
+void
+handle_packet(struct eui_interface *valid_packet)
 {
   //we know the message is 'valid', use deconstructed header for convenience
   euiHeader_t header = *(euiHeader_t*)&valid_packet->inboundHeader;
@@ -107,7 +109,8 @@ void handle_packet(struct eui_interface *valid_packet)
   }
 }
 
-void send_tracked(const char * msg_id, uint8_t is_internal)
+void
+send_tracked(const char * msg_id, uint8_t is_internal)
 {
   euiMessage_t *msgObjPtr = find_message_object( msg_id, is_internal );  
 
@@ -120,27 +123,31 @@ void send_tracked(const char * msg_id, uint8_t is_internal)
   form_offset_packet_simple(parserOutputFunc, &temp_header, msgObjPtr->msgID, 0x00, msgObjPtr->size, msgObjPtr->payload);
 }
 
-void send_message(const char * msg_id, struct eui_interface *active_interface)
+void
+send_message(const char * msg_id, struct eui_interface *active_interface)
 {
   parserOutputFunc = active_interface->output_char_fnPtr;
   send_tracked(msg_id, MSG_DEV);
 }
 
 //application layer developer setup helpers
-void setup_dev_msg(euiMessage_t *msgArray, uint8_t numObjects)
+void
+setup_dev_msg(euiMessage_t *msgArray, uint8_t numObjects)
 {
   devObjectArray = msgArray;
   numDevObjects = numObjects;
 }
 
-void setup_identifier()
+void
+setup_identifier(void)
 {
   //hahahaha
   board_identifier = rand();
 }
 
 //application layer callbacks
-void announce_board()
+void
+announce_board(void)
 {
   //repond to search request with board info
   send_tracked("lv", MSG_INTERNAL);
@@ -148,7 +155,8 @@ void announce_board()
   send_tracked("si", MSG_INTERNAL);
 }
 
-void announce_dev_msg()
+void
+announce_dev_msg(void)
 {
   const uint8_t numMessages = numDevObjects;
 
@@ -191,7 +199,8 @@ void announce_dev_msg()
   }
 }
 
-void announce_dev_vars(void)
+void
+announce_dev_vars(void)
 {
   euiPacketSettings_t dv_header =  { .internal  = MSG_DEV, 
                                       .ack      = MSG_NACK, 
@@ -214,7 +223,8 @@ void announce_dev_vars(void)
   }
 }
 
-void report_error(uint8_t error)
+void
+report_error(uint8_t error)
 {
   last_error = error;
   send_tracked("er", MSG_INTERNAL);
