@@ -126,20 +126,20 @@ parse_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
 
     case exp_header:
       //Next bytes are the header
-      header_data[active_interface->state.header_bytes_in] = inbound_byte;
+      active_interface->header_data[active_interface->state.header_bytes_in] = inbound_byte;
       active_interface->state.header_bytes_in++;
 
       //finished reading in header data
       if(active_interface->state.header_bytes_in >= sizeof(euiHeader_t))
       {
         //populate the header from recieved data
-        active_interface->inboundHeader.internal  = (header_data[0] >> 7) & 1;
-        active_interface->inboundHeader.ack       = (header_data[0] >> 6) & 1;
-        active_interface->inboundHeader.query     = (header_data[0] >> 5) & 1;
-        active_interface->inboundHeader.offset    = (header_data[0] >> 4) & 1;
-        active_interface->inboundHeader.type      = header_data[0] >> 3
+        active_interface->inboundHeader.internal  = (active_interface->header_data[0] >> 7) & 1;
+        active_interface->inboundHeader.ack       = (active_interface->header_data[0] >> 6) & 1;
+        active_interface->inboundHeader.query     = (active_interface->header_data[0] >> 5) & 1;
+        active_interface->inboundHeader.offset    = (active_interface->header_data[0] >> 4) & 1;
+        active_interface->inboundHeader.type      = active_interface->header_data[0] >> 3;
 
-        uint16_t h_bytes_temp = ((uint16_t)header_data[2] << 8) | header_data[1];
+        uint16_t h_bytes_temp = ((uint16_t)active_interface->header_data[2] << 8) | active_interface->header_data[1];
 
         active_interface->inboundHeader.id_len    = (h_bytes_temp >> 12) + 1;
         active_interface->inboundHeader.data_len  = (h_bytes_temp & 0x0ffc) >> 2;
