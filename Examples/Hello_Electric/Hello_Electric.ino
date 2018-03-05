@@ -99,6 +99,7 @@ void loop()
   if(led_status_counter++ >= 200)
   {
     digitalWrite(13, !digitalRead(13));
+    led_status_counter = 0;
   }
 
   delay(1);
