@@ -44,7 +44,7 @@ handle_packet(struct eui_interface *valid_packet)
   euiMessage_t *msgObjPtr = find_message_object((char*)valid_packet->inboundID, header.internal);  
   
   //Check that the searched ID was found
-  if(msgObjPtr != 0)
+  if(msgObjPtr)
   {
     switch(msgObjPtr->type)
     {
@@ -66,16 +66,14 @@ handle_packet(struct eui_interface *valid_packet)
       break;
 
       default:
-        if(header.type >= TYPE_CUSTOM_MARKER)
+        //Ensure some data was recieved from the inbound packet
+        if(valid_packet->state.data_bytes_in)
         {
-          //TODO add handling or callbacks for not-default types if needed?
-        }
-
-        //copy payload data into the object blindly providing we actually have data
-        if(valid_packet->state.data_bytes_in != 0)
-        {
+          //work out the correct length of the write (clamp length to internal variable size)
           uint8_t bytes_to_write = (valid_packet->state.data_bytes_in <= msgObjPtr->size) ? valid_packet->state.data_bytes_in : msgObjPtr->size;
-          memcpy(msgObjPtr->payload, valid_packet->inboundData, bytes_to_write);
+
+          //copy payload data into (memory + offset from address) 'blindly'
+          memcpy(msgObjPtr->payload + valid_packet->inboundOffset, valid_packet->inboundData, bytes_to_write);
         }
       break;
     }
