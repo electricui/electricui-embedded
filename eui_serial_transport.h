@@ -29,8 +29,8 @@ typedef struct {
   unsigned query      : 1;
   unsigned offset     : 1;
   unsigned type       : 4;
-  unsigned id_len     : MESSAGEID_BITS;
   unsigned data_len   : 10;
+  unsigned id_len     : MESSAGEID_BITS;
   unsigned seq        : 2;
 } euiHeader_t;
 
