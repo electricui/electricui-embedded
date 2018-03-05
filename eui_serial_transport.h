@@ -83,6 +83,7 @@ struct eui_interface {
 
     //buffer incoming data
     euiHeader_t inboundHeader;
+    uint8_t header_data[2];
     uint8_t inboundID[MESSAGEID_SIZE+1];
     uint16_t inboundOffset;
     uint8_t inboundData[PAYLOAD_SIZE_MAX];

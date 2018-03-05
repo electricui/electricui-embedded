@@ -61,10 +61,10 @@ write_packet(CallBackwithUINT8 output_function, euiHeader_t * header, const char
   packetBuffer[p++] = stHeader;
 
   //header
-  packetBuffer[p] |= header->internal << 8;
-  packetBuffer[p] |= header->ack      << 7;
-  packetBuffer[p] |= header->query    << 6;
-  packetBuffer[p] |= header->offset   << 5;
+  packetBuffer[p] |= header->internal << 7;
+  packetBuffer[p] |= header->ack      << 6;
+  packetBuffer[p] |= header->query    << 5;
+  packetBuffer[p] |= header->offset   << 4;
   packetBuffer[p] |= header->type;
   p++;
 
@@ -125,12 +125,25 @@ parse_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
 
     case exp_header:
       //Next bytes are the header
-      memcpy(&active_interface->inboundHeader + active_interface->state.header_bytes_in, inbound_byte, sizeof(inbound_byte));
+      header_data[active_interface->state.header_bytes_in] = inbound_byte;
       active_interface->state.header_bytes_in++;
 
       //finished reading in header data
       if(active_interface->state.header_bytes_in >= sizeof(euiHeader_t))
       {
+        //populate the header from recieved data
+        active_interface->inboundHeader.internal  = (header_data[0] >> 7) & 1;
+        active_interface->inboundHeader.ack       = (header_data[0] >> 6) & 1;
+        active_interface->inboundHeader.query     = (header_data[0] >> 5) & 1;
+        active_interface->inboundHeader.offset    = (header_data[0] >> 4) & 1;
+        active_interface->inboundHeader.type      = header_data[0] >> 3
+
+        uint16_t h_bytes_temp = ((uint16_t)header_data[2] << 8) | header_data[1];
+
+        active_interface->inboundHeader.id_len    = (h_bytes_temp >> 12) + 1;
+        active_interface->inboundHeader.data_len  = (h_bytes_temp & 0x0ffc) >> 2;
+        active_interface->inboundHeader.seq       = h_bytes_temp & 0x03;
+
         active_interface->state.parser_s = exp_message_id;
       }
     break;
