@@ -61,17 +61,18 @@ write_packet(CallBackwithUINT8 output_function, euiHeader_t * header, const char
   packetBuffer[p++] = stHeader;
 
   //header
-  packetBuffer[p] |= header->internal << 7;
-  packetBuffer[p] |= header->ack      << 6;
-  packetBuffer[p] |= header->query    << 5;
-  packetBuffer[p] |= header->offset   << 4;
-  packetBuffer[p] |= header->type;
+  packetBuffer[p] = 0;
+  packetBuffer[p] |= header->internal << 0;
+  packetBuffer[p] |= header->ack      << 1;
+  packetBuffer[p] |= header->query    << 2;
+  packetBuffer[p] |= header->offset   << 3;
+  packetBuffer[p] |= header->type     << 4;
   p++;
 
   uint16_t header_tail;
-  header_tail |= (header->id_len - 1) << 12;
-  header_tail |= header->data_len     << 2;
-  header_tail |= header->seq;
+  header_tail |= header->seq << 14;
+  header_tail |= header->id_len  << 10;
+  header_tail |= (header->data_len);
 
   packetBuffer[p++] = header_tail & 0xFF;
   packetBuffer[p++] = header_tail >> 8;
