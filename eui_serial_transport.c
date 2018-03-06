@@ -1,20 +1,13 @@
 #include "eui_serial_transport.h"
 
-uint16_t
-crc16(uint8_t *data, uint8_t len)
+void
+crc16(uint8_t data, uint16_t *crc)
 {
-    uint16_t crc = 0xffff;
-
-    while (len-- > 0) 
-    {
-      crc  = (uint8_t)(crc >> 8) | (crc << 8);
-      crc ^= *data++;
-      crc ^= (uint8_t)(crc & 0xff) >> 4;
-      crc ^= (crc << 8) << 4;
-      crc ^= ((crc & 0xff) << 4) << 1;
-    }
-
-    return(crc);
+  *crc  = (uint8_t)(*crc >> 8) | (*crc << 8);
+  *crc ^= data;
+  *crc ^= (uint8_t)(*crc & 0xff) >> 4;
+  *crc ^= (*crc << 8) << 4;
+  *crc ^= ((*crc & 0xff) << 4) << 1;
 }
 
 euiHeader_t *
@@ -54,60 +47,62 @@ form_offset_packet_simple(CallBackwithUINT8 output_function, euiPacketSettings_t
 void
 write_packet(CallBackwithUINT8 output_function, euiHeader_t * header, const char * msg_id, uint16_t offset, void* payload)
 {
-  uint8_t packetBuffer[PACKET_BASE_SIZE + header->id_len + header->data_len];  //holding array large enough to fit the entire packet
-  uint8_t p = 0;
+  if(output_function)  //todo ASSERT if not valid?
+  {  
+    //preamble
+    output_function( stHeader );
+    
+    uint16_t outbound_crc = 0xffff;
 
-  //preamble
-  packetBuffer[p++] = stHeader;
+    //header
+    uint16_t header_buffer = 0;
+    header_buffer |= header->internal << 0;
+    header_buffer |= header->ack      << 1;
+    header_buffer |= header->query    << 2;
+    header_buffer |= header->offset   << 3;
+    header_buffer |= header->type     << 4;
+    output_function( header_buffer );
+    crc16(header_buffer, &outbound_crc); 
 
-  //header
-  packetBuffer[p] = 0;
-  packetBuffer[p] |= header->internal << 0;
-  packetBuffer[p] |= header->ack      << 1;
-  packetBuffer[p] |= header->query    << 2;
-  packetBuffer[p] |= header->offset   << 3;
-  packetBuffer[p] |= header->type     << 4;
-  p++;
+    header_buffer = 0;  //reuse the buffer for the remaining 2-bytes
+    header_buffer |= header->seq << 14;
+    header_buffer |= header->id_len  << 10;
+    header_buffer |= (header->data_len);
+    output_function( header_buffer & 0xFF );
+    crc16(header_buffer & 0xFF , &outbound_crc); 
+    output_function( header_buffer >> 8 );
+    crc16(header_buffer >> 8 , &outbound_crc); 
 
-  uint16_t header_tail;
-  header_tail |= header->seq << 14;
-  header_tail |= header->id_len  << 10;
-  header_tail |= (header->data_len);
-
-  packetBuffer[p++] = header_tail & 0xFF;
-  packetBuffer[p++] = header_tail >> 8;
-
-  //copy the message ID in
-  memcpy(packetBuffer+p, msg_id, header->id_len);
-  p += header->id_len;
-
-  //data offset if used
-  if(header->offset)
-  {
-    memcpy(packetBuffer+p, offset, sizeof(offset));
-    p += sizeof(offset);
-  }
-  
-  //payload
-  memcpy(packetBuffer+p, payload, header->data_len);
-  p += header->data_len;
-
-  //checksum between the preamble and CRC
-  uint16_t crc = crc16(&packetBuffer[sizeof(stHeader)], p - sizeof(stHeader) );
-  packetBuffer[p++] = crc & 0xFF;
-  packetBuffer[p++] = crc >> 8;
-
-  //end of packet character, and null-terminate the array
-  packetBuffer[p++] = enTransmission;
-  packetBuffer[p] = '\0';
-
-  //pass the message to the output function
-  for (uint8_t i = 0; i < p; i++) 
-  {
-    if(output_function)  //todo ASSERT if not valid?
+    //message identifier
+    for(int i = 0; i < header->id_len; i++)
     {
-      output_function(packetBuffer[i]);
+      output_function( msg_id[i] );
+      crc16(msg_id[i], &outbound_crc); 
     }
+
+    //data offset if used
+    if(header->offset)
+    {
+      output_function( offset & 0xFF );
+      crc16(offset & 0xFF, &outbound_crc); 
+
+      output_function( offset >> 8 );
+      crc16(offset >> 8, &outbound_crc); 
+    }
+    
+    //payload data
+    for(int i = 0; i < header->data_len; i++)
+    {
+      output_function( *((uint8_t *)payload + i) );
+      crc16(*((uint8_t *)payload + i), &outbound_crc); 
+    }
+
+    //checksum between the preamble and CRC
+    output_function( outbound_crc & 0xFF );
+    output_function( outbound_crc >> 8 );
+
+    //packet terminator
+    output_function( enTransmission );
   }
 }
 
@@ -116,11 +111,7 @@ parse_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
 {
   if(active_interface->state.parser_s < exp_crc)    //only CRC the data between preamble and the CRC (exclusive)
   {
-    active_interface->runningCRC  = (uint8_t)(active_interface->runningCRC >> 8) | (active_interface->runningCRC << 8);
-    active_interface->runningCRC ^= inbound_byte;
-    active_interface->runningCRC ^= (uint8_t)(active_interface->runningCRC & 0xff) >> 4;
-    active_interface->runningCRC ^= (active_interface->runningCRC << 8) << 4;
-    active_interface->runningCRC ^= ((active_interface->runningCRC & 0xff) << 4) << 1;
+    crc16(inbound_byte, &(active_interface->runningCRC)); 
   }
 
   switch(active_interface->state.parser_s)

@@ -100,7 +100,7 @@ struct eui_interface {
     CallBackwithUINT8 output_char_fnPtr;
 };
 
-uint16_t        crc16(uint8_t *data, uint8_t len);
+void            crc16(uint8_t data, uint16_t *crc);
 euiHeader_t *   generate_header(uint8_t internal, uint8_t ack, uint8_t query, uint8_t offset_packet, uint8_t data_type, uint8_t msgID_len, uint8_t data_length, uint8_t sequence_num);
 void            form_offset_packet_simple(CallBackwithUINT8 output_function, euiPacketSettings_t *settings, const char * msg_id, uint16_t offset_addr, uint8_t payload_len, void* payload);
 void            write_packet(CallBackwithUINT8 output_function, euiHeader_t * header, const char * msg_id, uint16_t offset, void* payload);
