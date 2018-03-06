@@ -88,6 +88,7 @@ struct eui_interface {
     uint16_t inboundOffset;
     uint8_t inboundData[PAYLOAD_SIZE_MAX];
     uint16_t inboundCRC;
+    uint16_t runningCRC;
 
     //maintain a pointer to the output function for this interface
     CallBackwithUINT8 output_char_fnPtr;

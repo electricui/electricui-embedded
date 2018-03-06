@@ -114,6 +114,15 @@ write_packet(CallBackwithUINT8 output_function, euiHeader_t * header, const char
 void
 parse_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
 {
+  if(active_interface->state.parser_s < exp_crc)    //only CRC the data between preamble and the CRC (exclusive)
+  {
+    active_interface->runningCRC  = (uint8_t)(active_interface->runningCRC >> 8) | (active_interface->runningCRC << 8);
+    active_interface->runningCRC ^= inbound_byte;
+    active_interface->runningCRC ^= (uint8_t)(active_interface->runningCRC & 0xff) >> 4;
+    active_interface->runningCRC ^= (active_interface->runningCRC << 8) << 4;
+    active_interface->runningCRC ^= ((active_interface->runningCRC & 0xff) << 4) << 1;
+  }
+
   switch(active_interface->state.parser_s)
   {
     case find_preamble:
@@ -121,6 +130,7 @@ parse_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
       if(inbound_byte == stHeader)
       {
         active_interface->state.parser_s = exp_header;
+        active_interface->runningCRC = 0xffff;
       }
     break;
 
@@ -226,12 +236,8 @@ parse_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
       //we've seen the checksum byte and are waiting for end of packet indication
       if(inbound_byte == enTransmission)
       {
-        //crc the data that falls between the SOH and CRC data (header, msgID, offset, payload)
-        uint8_t length_to_crc = sizeof(euiHeader_t) + active_interface->inboundHeader.id_len + sizeof(active_interface->inboundOffset) + active_interface->inboundHeader.data_len;
-        uint16_t calculated_crc = crc16(&active_interface->inboundHeader, length_to_crc );
-
         //when parsed and calculated checksum match, its a valid packet
-        if(calculated_crc == active_interface->inboundCRC)
+        if(active_interface->runningCRC == active_interface->inboundCRC)
         {
           handle_packet(active_interface);
         }
@@ -241,6 +247,7 @@ parse_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
         }
 
         //done handling the message, clear out the state info (but leave the output pointer alone)
+        //todo clean this up
         memset( active_interface, 0, sizeof(struct eui_interface) - sizeof(CallBackwithUINT8) );
       }
       else
