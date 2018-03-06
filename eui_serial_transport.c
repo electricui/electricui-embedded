@@ -133,17 +133,17 @@ parse_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
       if(active_interface->state.header_bytes_in >= sizeof(euiHeader_t))
       {
         //populate the header from recieved data
-        active_interface->inboundHeader.internal  = (active_interface->header_data[0] >> 7) & 1;
-        active_interface->inboundHeader.ack       = (active_interface->header_data[0] >> 6) & 1;
-        active_interface->inboundHeader.query     = (active_interface->header_data[0] >> 5) & 1;
-        active_interface->inboundHeader.offset    = (active_interface->header_data[0] >> 4) & 1;
-        active_interface->inboundHeader.type      = active_interface->header_data[0] >> 3;
+        active_interface->inboundHeader.internal  = (active_interface->header_data[0] >> 0) & 1;
+        active_interface->inboundHeader.ack       = (active_interface->header_data[0] >> 1) & 1;
+        active_interface->inboundHeader.query     = (active_interface->header_data[0] >> 2) & 1;
+        active_interface->inboundHeader.offset    = (active_interface->header_data[0] >> 3) & 1;
+        active_interface->inboundHeader.type      = active_interface->header_data[0] >> 4;
 
         uint16_t h_bytes_temp = ((uint16_t)active_interface->header_data[2] << 8) | active_interface->header_data[1];
 
-        active_interface->inboundHeader.id_len    = (h_bytes_temp >> 12) + 1;
-        active_interface->inboundHeader.data_len  = (h_bytes_temp & 0x0ffc) >> 2;
-        active_interface->inboundHeader.seq       = h_bytes_temp & 0x03;
+        active_interface->inboundHeader.seq       = (h_bytes_temp >> 14);         //shift 14 bits
+        active_interface->inboundHeader.id_len    = (h_bytes_temp >> 10) & 0x0F;  //shift 10-bits, and mask lowest 4
+        active_interface->inboundHeader.data_len  = h_bytes_temp & 0x03FF;        //mask for lowest 10 bits
 
         active_interface->state.parser_s = exp_message_id;
       }
@@ -200,7 +200,7 @@ parse_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
       active_interface->state.data_bytes_in++;
 
       //prepare for the crc data
-      if(active_interface->state.data_bytes_in >= active_interface->inboundHeader.id_len)
+      if(active_interface->state.data_bytes_in >= active_interface->inboundHeader.data_len)
       {
         active_interface->state.parser_s = exp_crc;
       }
@@ -210,15 +210,14 @@ parse_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
       //ingest the two bytes for the CRC
       if(!active_interface->state.crc_bytes_in)
       {
-          //ingest first byte into LSB
-          active_interface->inboundCRC = inbound_byte;
-          active_interface->inboundCRC << 8;
-          active_interface->state.crc_bytes_in++;
+        //ingest first byte into LSB
+        active_interface->inboundCRC = inbound_byte;
+        active_interface->state.crc_bytes_in++;          
       }
       else
       {
         //ingest second byte as the MSB
-        active_interface->inboundCRC |= inbound_byte;
+        active_interface->inboundCRC |= (uint16_t)inbound_byte << 8;
         active_interface->state.parser_s = exp_eot;
       }
     break;
