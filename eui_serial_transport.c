@@ -218,17 +218,20 @@ parse_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
     
     case exp_crc:
       //ingest the two bytes for the CRC
-      if(!active_interface->state.crc_bytes_in)
+      if(active_interface->state.crc == crc_no_data)
       {
-        //ingest first byte into LSB
-        active_interface->inboundCRC = inbound_byte;
-        active_interface->state.crc_bytes_in++;          
+        //ingest first byte into a buffer
+        active_interface->crc_buffer = inbound_byte;
+        active_interface->state.crc = crc_half_ingested;          
       }
       else
       {
-        //ingest second byte as the MSB
-        active_interface->inboundCRC |= (uint16_t)inbound_byte << 8;
-        active_interface->state.parser_s = exp_eot;
+        //ingest second byte as the MSB, and compare against the running CRC
+        if(active_interface->runningCRC == ( ((uint16_t)inbound_byte << 8) | active_interface->crc_buffer )) 
+        {
+          active_interface->state.crc = crc_validated;
+          active_interface->state.parser_s = exp_eot;
+        }
       }
     break;
     
@@ -237,7 +240,7 @@ parse_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
       if(inbound_byte == enTransmission)
       {
         //when parsed and calculated checksum match, its a valid packet
-        if(active_interface->runningCRC == active_interface->inboundCRC)
+        if(active_interface->state.crc == crc_validated)
         {
           handle_packet(active_interface);
         }

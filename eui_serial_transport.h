@@ -62,7 +62,7 @@ typedef struct {
   unsigned parser_s         : 3;
   unsigned header_bytes_in  : 2;
   unsigned offset_bytes_in  : 1;
-  unsigned crc_bytes_in     : 1;
+  unsigned crc              : 2;
   unsigned data_bytes_in    : 10;
   unsigned id_bytes_in      : MESSAGEID_BITS;
 } eui_interface_state_t;
@@ -77,6 +77,12 @@ enum parseStates {
     exp_eot,
 };
 
+enum crcState {
+    crc_no_data = 0,
+    crc_half_ingested,
+    crc_validated,
+};
+
 struct eui_interface {
     //hold the inbound parser state information
     eui_interface_state_t state;
@@ -87,7 +93,7 @@ struct eui_interface {
     uint8_t inboundID[MESSAGEID_SIZE+1];
     uint16_t inboundOffset;
     uint8_t inboundData[PAYLOAD_SIZE_MAX];
-    uint16_t inboundCRC;
+    uint8_t crc_buffer;
     uint16_t runningCRC;
 
     //maintain a pointer to the output function for this interface
