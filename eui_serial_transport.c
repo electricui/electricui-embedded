@@ -172,7 +172,14 @@ parse_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
         }
         else
         {
-          active_interface->state.parser_s = exp_data;
+          if(active_interface->inboundHeader.data_len)
+          {
+            active_interface->state.parser_s = exp_data;            
+          }
+          else
+          {
+            active_interface->state.parser_s = exp_crc;            
+          }
         }
       }
     break;
