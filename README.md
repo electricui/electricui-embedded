@@ -64,8 +64,8 @@ The header field spans 3 bytes which contain the following information through u
 | 2             | 1 if query requested       |
 | 3             | 1 if offset address inc    |
 | 4-7           | Payload type enum          |
-| 8-11          | Length of message ID       |
-| 12-22         | Length of payload data     |
+| 8-18          | Length of payload data     |
+| 19-23         | Length of msgID            |
 | 23-24         | sequence number            |
 
 This is defined with the custom structure in C
@@ -77,12 +77,28 @@ typedef struct {
   unsigned query      : 1;
   unsigned offset     : 1;
   unsigned type       : 4;
-  unsigned id_len     : 4;
   unsigned data_len   : 10;
+  unsigned id_len     : 4;
   unsigned seq        : 2;
 } euiHeader_t;
 
 `
+
+### Ack Behaviour
+
+If an ingested message has a high ack bit, we use the 2-bit seq field to provide some level of sequence numbering.
+
+The library will then respond with a message (at minimum, header and msgID, null payload) with the same seq number we recieved.
+
+### Query Behaviour
+
+If the query bit is high, we send back a message for the same msgID, with the _current_ value of that variable. This allows the UI to request variables without writing, or to confirm the recently-set value.
+
+### Payload Length
+
+10-bits are allocated for payload length to provide payloads up to 1kB in size. As long running messages aren't best practice, restricting this to the size of the inbound message buffer size is recommended.
+
+Any messages longer than the limit should be handled somewhat automatically by the offset functionality for large data-structures.
 
 ### Handling Types
 
@@ -120,19 +136,9 @@ While the protocol is binary in design, the developer will see these as a 1 to 1
 
 `btn` or `switch_left` for example.
 
-This is allowed to be any char/byte array with length ranging from 1 to the defined max message ID length in electricui.h. The library relies on null-terminated strings if the length is less than max.
-
-For this reason, null-termination characters are illegal in the actual messageID.
+This is allowed to be any char/byte array with length ranging from 1 to the defined max message ID length in electricui.h. While the protocol has no reliance on null-terminated strings for the messageID and allows any byte value for these fields, the library will terminate on null characters for ascii based messageID's.
 
 As the header provides a internal/developer bit, we don't need to worry about collisions with userspace message IDs.
-
-## Payload Length
-
-10-bits are allocated for payload length to provide payloads up to 1kB in size. 
-
-As long running messages aren't best practice, restricting this to the size of the inbound message buffer size is recommended.
-
-Any messages longer than the limit should be handled somewhat automatically by the offset functionality for large data-structures.
 
 ## Address Offsets
 
@@ -158,11 +164,13 @@ The payload length defines the total number of bytes being sent, and type define
 
 As an array (or structure) is just a series of consecutive bytes in memory, plainly reading these out and copying in is fine providing the correct formatting (UI is responsible for decoding and encoding correctly).
 
-Generally there shouldn't be any issues with this providing the total payload size (arrayElements * elementSize) doesn't exceed the max payload length.
+Generally there shouldn't be any issues with this providing the total payload size (arrayElements * elementSize) doesn't exceed the max payload length. Future offset based messaging should handle this down the track.
 
 ## Checksum
 
 The checksum uses the CRC16 method defined at http://www.sal.wisc.edu/st5000/documents/tables/crc16.c and covers all data between (but not including) the preamble and checksum value/EOT.
+
+The embedded library uses a running CRC approach, where each byte is computed on ingest and a copy of the CRC held across the encode or decode of a given packet.
 
 ___
 
@@ -256,23 +264,9 @@ This section will be written once the end-user API is fully defined and written.
 Follow the example code for reference.
 
 
-
-
 ___
 
 # Overheads and Benchmarks
-
-TODO UPDATE THIS WITH VALID PERFORMANCE INFORMATION FOR THE NEW PROTOCOL IMPLEMENTATION.
-
-V0.2 protocol consumes the following resources:
-
-|                       | Flash           | Global Vars       |
-| --------------------- | --------------- | ----------------- |
-| +track all vars       | 8644            | 908               |
-
-which can be compared to the previous below:
-
-OUTDATED INFORMATION
 
 The baseline "starting consumption without eUI" is shown first, subsequent rows are adding something to the previous setup.
 
