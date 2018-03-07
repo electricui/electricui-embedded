@@ -88,9 +88,11 @@ handle_packet(struct eui_interface *valid_packet)
                                         };
       //queries send back the current variable contents, otherwise we don't need any data
       uint8_t res_size = (header.query) ? msgObjPtr->size : 0;
+      //ack packets return the seq# sent to us from the host
+      uint8_t seq_num  = (header.ack)   ? header.seq      : 0;
 
       //respond to the ack with internal value of the requested messageID as confirmation
-      form_packet_simple(parserOutputFunc, &res_header, msgObjPtr->msgID, res_size, msgObjPtr->payload);
+      form_packet_full(parserOutputFunc, &res_header, seq_num, msgObjPtr->msgID, 0x00, res_size, msgObjPtr->payload);
     }
 
   }
