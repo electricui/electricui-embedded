@@ -90,7 +90,7 @@ handle_packet(struct eui_interface *valid_packet)
       uint8_t res_size = (header.query) ? msgObjPtr->size : 0;
 
       //respond to the ack with internal value of the requested messageID as confirmation
-      form_offset_packet_simple(parserOutputFunc, &res_header, msgObjPtr->msgID, 0x00, res_size, msgObjPtr->payload);
+      form_packet_simple(parserOutputFunc, &res_header, msgObjPtr->msgID, res_size, msgObjPtr->payload);
     }
 
   }
@@ -118,7 +118,7 @@ send_tracked(const char * msg_id, uint8_t is_internal)
                                       .type     = msgObjPtr->type 
                                       };
 
-  form_offset_packet_simple(parserOutputFunc, &temp_header, msgObjPtr->msgID, 0x00, msgObjPtr->size, msgObjPtr->payload);
+  form_packet_simple(parserOutputFunc, &temp_header, msgObjPtr->msgID, msgObjPtr->size, msgObjPtr->payload);
 }
 
 void
@@ -166,7 +166,7 @@ announce_dev_msg(void)
                                     };
 
   //tell the UI we are starting the index handshake process
-  form_offset_packet_simple(parserOutputFunc, &dm_header, "dms", 0x00, sizeof(numMessages), &numMessages);
+  form_packet_simple(parserOutputFunc, &dm_header, "dms", sizeof(numMessages), &numMessages);
 
   //fill a buffer which contains the developer message ID's
   uint8_t msgBuffer[ (MESSAGEID_SIZE+1)*(PAYLOAD_SIZE_MAX / PACKET_BASE_SIZE) ];
@@ -187,7 +187,7 @@ announce_dev_msg(void)
     //send messages and clear buffer to break list into shorter messagaes
     if(msgIDPacked >= (PAYLOAD_SIZE_MAX / PACKET_BASE_SIZE) || i >= numMessages)
     {
-      form_offset_packet_simple(parserOutputFunc, &dm_header, "dml", 0x00, msgBufferPos, &msgBuffer);
+      form_packet_simple(parserOutputFunc, &dm_header, "dml", msgBufferPos, &msgBuffer);
 
       //cleanup
       memset(msgBuffer, 0, sizeof(msgBuffer));
@@ -211,13 +211,12 @@ announce_dev_vars(void)
     //reuse the header, but use the appropriate type for each var
     dv_header.type = devObjectArray[i].type;
 
-    form_offset_packet_simple(parserOutputFunc, 
-                              &dv_header, 
-                              devObjectArray[i].msgID, 
-                              0x00, 
-                              devObjectArray[i].size, 
-                              devObjectArray[i].payload
-                            );
+    form_packet_simple(parserOutputFunc, 
+                      &dv_header, 
+                      devObjectArray[i].msgID, 
+                      devObjectArray[i].size, 
+                      devObjectArray[i].payload
+                      );
   }
 }
 
