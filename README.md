@@ -274,18 +274,14 @@ Uses the Arduino avr-g++ compiler with default settings (-0s, C++11)
 
 |                       | Flash           | Global Vars       |
 | --------------------- | --------------- | ----------------- |
-| No eUI                | 5466            | 329               |
-| eUI, 1 conn           | 7410            | 561               |
-| +extra conn           | 7452      	  | 696               |
-| +dev uint8            | 7452      	  | 696               |
-| +analogWrite()        | 7808            | 696               |
-| +track the uint8      | 7848            | 706               |
-| +all type test vars   | 7872            | 708               |
-| +enum for cust types  | 7872            | 708               |
-| +track all vars       | 8084            | 900               |
+| No eUI                | 5354            | 327               |
+| eUI, 1 conn           | 7956            | 563               |
+| +extra conn           | 8054      	  | 706               |
+| +track the uint8      | 8084      	  | 716               |
+| +track all vars       | 8296            | 908               |
 
-Cost of adding eUI to project               = 1944 bytes of PROGMEM, 232 bytes of RAM
-Cost of additional eUI connection methods   = 42 bytes of PROGMEM,   135 bytes of RAM each
-Cost of tracking a variable with eUI        = 40 bytes of PROGMEM,   10 bytes of RAM.
+Cost of adding eUI to project               = 2602 bytes of PROGMEM, 236 bytes of RAM
+Cost of additional eUI connection methods   = 98 bytes of PROGMEM,   143 bytes of RAM each
+Cost of tracking a variable with eUI        = 30 bytes of PROGMEM,   10 bytes of RAM.
 
 These results will vary with quantity and type due to alignment of flash words/pages, compiler optimisation etc.
