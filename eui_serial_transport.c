@@ -254,8 +254,9 @@ parse_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
   if(active_interface->state.parser_s == exp_reset)
   {
     //done handling the message, clear out the state info (but leave the output pointer alone)
-    //todo clean this up
-    memset( active_interface, 0, sizeof(struct eui_interface) - sizeof(CallBackwithUINT8) );
+    CallBackwithUINT8 keep_pointer = active_interface->output_char_fnPtr;
+    memset( active_interface, 0, sizeof(active_interface) );
+    active_interface->output_char_fnPtr = keep_pointer;
   }
   
 }
