@@ -60,17 +60,18 @@ typedef void (*CallBackwithUINT8)(uint8_t); //callback with single char of data
 
 typedef struct {
   unsigned parser_s         : 4;
-  unsigned header_bytes_in  : 2;
-  unsigned offset_bytes_in  : 1;
-  unsigned data_bytes_in    : 10;
   unsigned id_bytes_in      : MESSAGEID_BITS;
+  unsigned data_bytes_in    : 10;
 } eui_interface_state_t;
 
 enum parseStates {
     find_preamble = 0,
-    exp_header,
+    exp_header_b1,
+    exp_header_b2,
+    exp_header_b3,   
     exp_message_id,
-    exp_offset,
+    exp_offset_b1,
+    exp_offset_b2,
     exp_data,
     exp_crc_b1,
     exp_crc_b2,
