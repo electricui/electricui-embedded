@@ -59,10 +59,9 @@ typedef enum {
 typedef void (*CallBackwithUINT8)(uint8_t); //callback with single char of data
 
 typedef struct {
-  unsigned parser_s         : 3;
+  unsigned parser_s         : 4;
   unsigned header_bytes_in  : 2;
   unsigned offset_bytes_in  : 1;
-  unsigned crc              : 2;
   unsigned data_bytes_in    : 10;
   unsigned id_bytes_in      : MESSAGEID_BITS;
 } eui_interface_state_t;
@@ -73,14 +72,10 @@ enum parseStates {
     exp_message_id,
     exp_offset,
     exp_data,
-    exp_crc,
+    exp_crc_b1,
+    exp_crc_b2,
     exp_eot,
-};
-
-enum crcState {
-    crc_no_data = 0,
-    crc_half_ingested,
-    crc_validated,
+    exp_reset,
 };
 
 struct eui_interface {
@@ -89,11 +84,9 @@ struct eui_interface {
 
     //buffer incoming data
     euiHeader_t inboundHeader;
-    uint8_t header_data[2];
     uint8_t inboundID[MESSAGEID_SIZE];
     uint16_t inboundOffset;
     uint8_t inboundData[PAYLOAD_SIZE_MAX];
-    uint8_t crc_buffer;
     uint16_t runningCRC;
 
     //maintain a pointer to the output function for this interface

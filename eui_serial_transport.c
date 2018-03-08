@@ -116,7 +116,7 @@ write_packet(CallBackwithUINT8 output_function, euiHeader_t * header, const char
 void
 parse_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
 {
-  if(active_interface->state.parser_s < exp_crc)    //only CRC the data between preamble and the CRC (exclusive)
+  if(active_interface->state.parser_s < exp_crc_b1)    //only CRC the data between preamble and the CRC (exclusive)
   {
     crc16(inbound_byte, &(active_interface->runningCRC)); 
   }
@@ -133,25 +133,28 @@ parse_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
     break;
 
     case exp_header:
-      //Next bytes are the header
-      active_interface->header_data[active_interface->state.header_bytes_in] = inbound_byte;
-      active_interface->state.header_bytes_in++;
-
-      //finished reading in header data
-      if(active_interface->state.header_bytes_in >= sizeof(euiHeader_t))
+      //populate the header values from recieved data
+      if(active_interface->state.header_bytes_in == 0)
       {
-        //populate the header from recieved data
-        active_interface->inboundHeader.internal  = (active_interface->header_data[0] >> 0) & 1;
-        active_interface->inboundHeader.ack       = (active_interface->header_data[0] >> 1) & 1;
-        active_interface->inboundHeader.query     = (active_interface->header_data[0] >> 2) & 1;
-        active_interface->inboundHeader.offset    = (active_interface->header_data[0] >> 3) & 1;
-        active_interface->inboundHeader.type      = active_interface->header_data[0] >> 4;
+        active_interface->inboundHeader.internal  = (inbound_byte >> 0) & 1;
+        active_interface->inboundHeader.ack       = (inbound_byte >> 1) & 1;
+        active_interface->inboundHeader.query     = (inbound_byte >> 2) & 1;
+        active_interface->inboundHeader.offset    = (inbound_byte >> 3) & 1;
+        active_interface->inboundHeader.type      = inbound_byte >> 4;
 
-        uint16_t h_bytes_temp = ((uint16_t)active_interface->header_data[2] << 8) | active_interface->header_data[1];
-
-        active_interface->inboundHeader.seq       = (h_bytes_temp >> 14);         //shift 14 bits
-        active_interface->inboundHeader.id_len    = (h_bytes_temp >> 10) & 0x0F;  //shift 10-bits, and mask lowest 4
-        active_interface->inboundHeader.data_len  = h_bytes_temp & 0x03FF;        //mask for lowest 10 bits
+        active_interface->state.header_bytes_in++;
+      }
+      else if(active_interface->state.header_bytes_in == 1)
+      {
+        active_interface->inboundHeader.data_len = inbound_byte;
+        
+        active_interface->state.header_bytes_in++;
+      }
+      else if(active_interface->state.header_bytes_in == 2)
+      {
+        active_interface->inboundHeader.seq       = (inbound_byte >> 6);         //read last two bits
+        active_interface->inboundHeader.id_len    = (inbound_byte >> 2) & 0x0F;  //shift 2-bits, mask lowest 4
+        active_interface->inboundHeader.data_len |= ((uint16_t)inbound_byte << 8) & 0x0300; //the 'last' two length bits = first 2b of this byte
 
         active_interface->state.parser_s = exp_message_id;
       }
@@ -185,7 +188,7 @@ parse_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
           }
           else
           {
-            active_interface->state.parser_s = exp_crc;            
+            active_interface->state.parser_s = exp_crc_b1;            
           }
         }
       }
@@ -196,10 +199,10 @@ parse_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
       //TODO rewrite this to be less type/size specific and generally more consistent counting behaviour
       if(!active_interface->state.offset_bytes_in)
       {
-          //ingest first byte of offset into LSB
-          active_interface->inboundOffset = inbound_byte;
-          active_interface->inboundOffset << 8;
-          active_interface->state.offset_bytes_in++;
+        //ingest first byte of offset into LSB
+        active_interface->inboundOffset = inbound_byte;
+        active_interface->inboundOffset << 8;
+        active_interface->state.offset_bytes_in++;
       }
       else
       {
@@ -217,51 +220,50 @@ parse_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
       //prepare for the crc data
       if(active_interface->state.data_bytes_in >= active_interface->inboundHeader.data_len)
       {
-        active_interface->state.parser_s = exp_crc;
+        active_interface->state.parser_s = exp_crc_b1;
       }
     break;
     
-    case exp_crc:
-      //ingest the two bytes for the CRC
-      if(active_interface->state.crc == crc_no_data)
+    case exp_crc_b1:
+      //check the inbound byte against the corresponding CRC byte
+      if(inbound_byte == (active_interface->runningCRC & 0xFF) )
       {
-        //ingest first byte into a buffer
-        active_interface->crc_buffer = inbound_byte;
-        active_interface->state.crc = crc_half_ingested;          
+        active_interface->state.parser_s = exp_crc_b2;        
       }
-      else
+      else  //first byte didn't match CRC, fail early
       {
-        //ingest second byte as the MSB, and compare against the running CRC
-        if(active_interface->runningCRC == ( ((uint16_t)inbound_byte << 8) | active_interface->crc_buffer )) 
-        {
-          active_interface->state.crc = crc_validated;
-          active_interface->state.parser_s = exp_eot;
-        }
+        active_interface->state.parser_s = exp_reset;
       }
     break;
-    
+
+    case exp_crc_b2:
+      if(inbound_byte == (active_interface->runningCRC >> 8) )  //CRC is correct 
+      {
+        active_interface->state.parser_s = exp_eot;  
+      }
+      else  //second byte didn't match CRC
+      {
+        active_interface->state.parser_s = exp_reset;
+      }
+    break;
+
     case exp_eot:
-      //we've seen the checksum byte and are waiting for end of packet indication
+      //we've recieved the end of packet indication
       if(inbound_byte == enTransmission)
       {
-        //when parsed and calculated checksum match, its a valid packet
-        if(active_interface->state.crc == crc_validated)
-        {
-          handle_packet(active_interface);
-        }
-        else
-        {
-          //invalid crc (TODO, add error reporting)
-        }
+        handle_packet(active_interface);
+      }
 
-        //done handling the message, clear out the state info (but leave the output pointer alone)
-        //todo clean this up
-        memset( active_interface, 0, sizeof(struct eui_interface) - sizeof(CallBackwithUINT8) );
-      }
-      else
-      {
-        //unknown data after CRC and before EOT char
-      }
+      active_interface->state.parser_s = exp_reset;
     break;  
   }
+
+  //wipe out the parser state to setup/recover for new packets
+  if(active_interface->state.parser_s == exp_reset)
+  {
+    //done handling the message, clear out the state info (but leave the output pointer alone)
+    //todo clean this up
+    memset( active_interface, 0, sizeof(struct eui_interface) - sizeof(CallBackwithUINT8) );
+  }
+  
 }
