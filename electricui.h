@@ -23,6 +23,7 @@ typedef struct {
 enum error_codes {
     err_none = 0,
     err_crc,
+    err_parser_generic,
     err_invalid_internal,
     err_invalid_developer,
     err_missing_callback,

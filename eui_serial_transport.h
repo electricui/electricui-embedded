@@ -94,6 +94,11 @@ struct eui_interface {
     CallBackwithUINT8 output_char_fnPtr;
 };
 
+enum packet_signals {
+    parser_idle = 0,
+    packet_valid,
+    packet_error_generic,
+};
 void            crc16(uint8_t data, uint16_t *crc);
 euiHeader_t *   generate_header(uint8_t internal, uint8_t ack, uint8_t query, uint8_t offset_packet, uint8_t data_type, uint8_t msgID_len, uint8_t data_length, uint8_t sequence_num);
 uint8_t         form_packet_simple(CallBackwithUINT8 output_function, euiPacketSettings_t *settings, const char * msg_id, uint8_t payload_len, void* payload);

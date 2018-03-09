@@ -126,11 +126,16 @@ decode_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
   switch(active_interface->state.parser_s)
   {
     case find_preamble:
+    case exp_reset:
       //Ignore random bytes prior to preamble
       if(inbound_byte == stHeader)
       {
         active_interface->runningCRC = 0xFFFF;
         active_interface->state.parser_s = exp_header_b1;
+      }
+      else if(exp_reset)
+      {
+        //wipe out the array
       }
     break;
 
@@ -227,6 +232,7 @@ decode_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
       else  //first byte didn't match CRC, fail early
       {
         active_interface->state.parser_s = exp_reset;
+        return packet_error_generic;
       }
     break;
 
@@ -238,28 +244,20 @@ decode_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
       else  //second byte didn't match CRC
       {
         active_interface->state.parser_s = exp_reset;
+        return packet_error_generic;
       }
     break;
 
     case exp_eot:
+      active_interface->state.parser_s = exp_reset;
+
       //we've recieved the end of packet indication
       if(inbound_byte == enTransmission)
       {
-        handle_packet(active_interface);
+        return packet_valid; //signal to the application layer that a valid packet is waiting
       }
-
-      active_interface->state.parser_s = exp_reset;
     break;  
   }
-
-  //wipe out the parser state to setup/recover for new packets
-  if(active_interface->state.parser_s == exp_reset)
-  {
-    //done handling the message, clear out the state info (but leave the output pointer alone)
-    CallBackwithUINT8 keep_pointer = active_interface->output_char_fnPtr;
-    memset( active_interface, 0, sizeof(active_interface) );
-    active_interface->output_char_fnPtr = keep_pointer;
-  }
   
-  return 0;
+  return parser_idle;
 }
