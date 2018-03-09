@@ -33,7 +33,27 @@ find_message_object(const char * msg_id, uint8_t is_internal)
 
 void parse_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
 {
-  decode_packet(inbound_byte, active_interface);
+  uint8_t parsing_progress = decode_packet(inbound_byte, active_interface);
+
+  switch(parsing_progress)
+  {
+    case packet_valid:
+      handle_packet(active_interface);
+
+      //done handling the message, clear out the state info (but leave the output pointer alone)
+      parserOutputFunc = active_interface->output_char_fnPtr;
+      memset( active_interface, 0, sizeof(active_interface) );
+      active_interface->output_char_fnPtr = parserOutputFunc;    
+    break;
+
+    case packet_error_generic:
+      report_error(err_parser_generic);
+
+      parserOutputFunc = active_interface->output_char_fnPtr;
+      memset( active_interface, 0, sizeof(active_interface) );
+      active_interface->output_char_fnPtr = parserOutputFunc;    
+    break;
+  }
 }
 
 void
