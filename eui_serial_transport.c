@@ -27,14 +27,14 @@ generate_header(uint8_t internal, uint8_t ack, uint8_t query, uint8_t offset_pac
   return &temp_header;
 }
 
-void
+uint8_t
 form_packet_simple(CallBackwithUINT8 output_function, euiPacketSettings_t *settings, const char * msg_id, uint8_t payload_len, void* payload)
 {
   //just call the full one with default seq# and offset values
-  form_packet_full(output_function, settings, 0, msg_id, 0x00, payload_len, payload);
+  return form_packet_full(output_function, settings, 0, msg_id, 0x00, payload_len, payload);
 }
 
-void
+uint8_t
 form_packet_full(CallBackwithUINT8 output_function, euiPacketSettings_t *settings, uint8_t sequence_num, const char * msg_id, uint16_t offset_addr, uint8_t payload_len, void* payload)
 {
   euiHeader_t temp_header;
@@ -48,11 +48,11 @@ form_packet_full(CallBackwithUINT8 output_function, euiPacketSettings_t *setting
   temp_header.data_len   = payload_len;
   temp_header.seq        = sequence_num;  //todo implement this properly
 
-  write_packet(output_function, &temp_header, msg_id, offset_addr, payload);
+  return encode_packet(output_function, &temp_header, msg_id, offset_addr, payload);
 }
 
-void
-write_packet(CallBackwithUINT8 output_function, euiHeader_t * header, const char * msg_id, uint16_t offset, void* payload)
+uint8_t
+encode_packet(CallBackwithUINT8 output_function, euiHeader_t * header, const char * msg_id, uint16_t offset, void* payload)
 {
   if(output_function)  //todo ASSERT if not valid?
   {  
@@ -111,10 +111,12 @@ write_packet(CallBackwithUINT8 output_function, euiHeader_t * header, const char
     //packet terminator
     output_function( enTransmission );
   }
+
+  return 0;
 }
 
-void
-parse_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
+uint8_t
+decode_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
 {
   if(active_interface->state.parser_s < exp_crc_b1)    //only CRC the data between preamble and the CRC (exclusive)
   {
@@ -259,4 +261,5 @@ parse_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
     active_interface->output_char_fnPtr = keep_pointer;
   }
   
+  return 0;
 }

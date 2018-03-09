@@ -29,6 +29,7 @@ enum error_codes {
 };
 
 euiMessage_t * find_message_object(const char * msg_id, uint8_t is_internal);
+void parse_packet(uint8_t inbound_byte, struct eui_interface *active_interface);
 void handle_packet(struct eui_interface *valid_packet);
 void send_tracked(const char * msg_id, uint8_t is_internal);
 void report_error(uint8_t error);
