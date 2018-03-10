@@ -16,7 +16,7 @@ typedef void (*CallBackType)();            //callback with no data
 typedef struct {
     const char*   msgID;
     uint8_t       type;
-    uint8_t       size;
+    uint16_t      size;
     void          *payload;
 } euiMessage_t;
 
