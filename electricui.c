@@ -110,15 +110,15 @@ handle_packet(struct eui_interface *valid_packet)
       euiPacketSettings_t res_header =  { .internal = header.internal, 
                                           .ack      = MSG_NACK, 
                                           .query    = MSG_NQUERY, 
-                                          .type     = msgObjPtr->type 
+                                          .type     = msgObjPtr->type,
+                                          .seq_num  = (header.ack) ? header.seq : 0
                                         };
       //queries send back the current variable contents, otherwise we don't need any data
       uint8_t res_size = (header.query) ? msgObjPtr->size : 0;
-      //ack packets return the seq# sent to us from the host
-      uint8_t seq_num  = (header.ack)   ? header.seq      : 0;
 
       //respond to the ack with internal value of the requested messageID as confirmation
-      form_packet_full(parserOutputFunc, &res_header, seq_num, msgObjPtr->msgID, 0x00, res_size, msgObjPtr->payload);
+      send_tracked(msgObjPtr, &res_header);
+      //form_packet_full(parserOutputFunc, &res_header, seq_num, msgObjPtr->msgID, 0x00, res_size, msgObjPtr->payload);
     }
 
   }
@@ -136,24 +136,45 @@ handle_packet(struct eui_interface *valid_packet)
 }
 
 void
-send_tracked(const char * msg_id, uint8_t is_internal)
+send_tracked(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings)
 {
-  euiMessage_t *msgObjPtr = find_message_object( msg_id, is_internal );  
+  uint16_t to_send = msgObjPtr->size; //todo clean this up
 
-  euiPacketSettings_t temp_header =  {.internal = is_internal, 
-                                      .ack      = MSG_NACK, 
-                                      .query    = MSG_STANDARD_PACKET, 
-                                      .type     = msgObjPtr->type 
-                                      };
+  settings->type = msgObjPtr->type;
 
-  form_packet_simple(parserOutputFunc, &temp_header, msgObjPtr->msgID, msgObjPtr->size, msgObjPtr->payload);
+  //decide if data will fit in a normal message, or requires multi-packet output
+  if(msgObjPtr->size < PAYLOAD_SIZE_MAX)
+  {
+    form_packet_simple(parserOutputFunc, settings, msgObjPtr->msgID, msgObjPtr->size, msgObjPtr->payload);
+  }
+  else
+  {
+    while( to_send > 0 )
+    {
+      uint16_t bytes_to_write = (to_send > PAYLOAD_SIZE_MAX) ? PAYLOAD_SIZE_MAX: to_send;
+      to_send -= bytes_to_write;  //by working back from the end, we can reuse this value as the offset
+
+      form_packet_full(parserOutputFunc, settings, msgObjPtr->msgID, to_send, bytes_to_write, msgObjPtr->payload);
+    }
+    //final byte to confirm offset data was completed
+    form_packet_full(parserOutputFunc, settings, msgObjPtr->msgID, 0x00, 0, 0);
+  }
+
 }
 
 void
 send_message(const char * msg_id, struct eui_interface *active_interface)
 {
   parserOutputFunc = active_interface->output_char_fnPtr;
-  send_tracked(msg_id, MSG_DEV);
+
+  euiPacketSettings_t temp_header =  { .internal  = MSG_INTERNAL, 
+                                       .ack       = MSG_NACK, 
+                                       .query     = MSG_STANDARD_PACKET, 
+                                       .type      = TYPE_UINT8,
+                                       .seq_num   = 0,
+                                      };
+
+  send_tracked( find_message_object( msg_id, MSG_DEV ), &temp_header);
 }
 
 //application layer developer setup helpers
@@ -176,9 +197,16 @@ void
 announce_board(void)
 {
   //repond to search request with board info
-  send_tracked("lv", MSG_INTERNAL);
-  send_tracked("bi", MSG_INTERNAL);
-  send_tracked("si", MSG_INTERNAL);
+  euiPacketSettings_t temp_header =  { .internal  = MSG_INTERNAL, 
+                                       .ack       = MSG_NACK, 
+                                       .query     = MSG_STANDARD_PACKET, 
+                                       .type      = TYPE_UINT8,
+                                       .seq_num   = 0,
+                                      };
+
+  send_tracked(find_message_object("lv", MSG_INTERNAL), &temp_header);
+  send_tracked(find_message_object("bi", MSG_INTERNAL), &temp_header);
+  send_tracked(find_message_object("si", MSG_INTERNAL), &temp_header);
 }
 
 void
@@ -186,11 +214,11 @@ announce_dev_msg(void)
 {
   const uint8_t numMessages = numDevObjects;
 
-  //create a generic header for these messages
   euiPacketSettings_t dm_header =  { .internal  = MSG_INTERNAL, 
                                      .ack       = MSG_NACK, 
                                      .query     = MSG_STANDARD_PACKET, 
-                                     .type      = TYPE_UINT8 
+                                     .type      = TYPE_UINT8,
+                                     .seq_num   = 0,
                                     };
 
   //tell the UI we are starting the index handshake process
@@ -231,7 +259,8 @@ announce_dev_vars(void)
   euiPacketSettings_t dv_header =  { .internal  = MSG_DEV, 
                                       .ack      = MSG_NACK, 
                                       .query    = MSG_STANDARD_PACKET, 
-                                      .type     = TYPE_BYTE 
+                                      .type     = TYPE_BYTE,
+                                      .seq_num  = 0,
                                     };
 
   for(int i = 0; i <= numDevObjects; i++)
@@ -252,5 +281,14 @@ void
 report_error(uint8_t error)
 {
   last_error = error;
-  send_tracked("er", MSG_INTERNAL);
+
+  euiPacketSettings_t temp_header =  { .internal  = MSG_INTERNAL, 
+                                       .ack       = MSG_NACK, 
+                                       .query     = MSG_STANDARD_PACKET, 
+                                       .type      = TYPE_UINT8,
+                                       .seq_num   = 0,
+                                      };
+
+  send_tracked(find_message_object("er", MSG_INTERNAL), &temp_header);
+
 }
