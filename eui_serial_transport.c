@@ -11,7 +11,7 @@ crc16(uint8_t data, uint16_t *crc)
 }
 
 euiHeader_t *
-generate_header(uint8_t internal, uint8_t ack, uint8_t query, uint8_t offset_packet, uint8_t data_type, uint8_t msgID_len, uint8_t data_length, uint8_t sequence_num)
+generate_header(uint8_t internal, uint8_t ack, uint8_t query, uint8_t offset_packet, uint8_t data_type, uint8_t msgID_len, uint16_t data_length, uint8_t sequence_num)
 {
   euiHeader_t temp_header; 
 
@@ -28,14 +28,14 @@ generate_header(uint8_t internal, uint8_t ack, uint8_t query, uint8_t offset_pac
 }
 
 uint8_t
-form_packet_simple(CallBackwithUINT8 output_function, euiPacketSettings_t *settings, const char * msg_id, uint8_t payload_len, void* payload)
+form_packet_simple(CallBackwithUINT8 output_function, euiPacketSettings_t *settings, const char * msg_id, uint16_t payload_len, void* payload)
 {
   //just call the full one with default seq# and offset values
-  return form_packet_full(output_function, settings, 0, msg_id, 0x00, payload_len, payload);
+  return form_packet_full(output_function, settings, msg_id, 0x00, payload_len, payload);
 }
 
 uint8_t
-form_packet_full(CallBackwithUINT8 output_function, euiPacketSettings_t *settings, uint8_t sequence_num, const char * msg_id, uint16_t offset_addr, uint8_t payload_len, void* payload)
+form_packet_full(CallBackwithUINT8 output_function, euiPacketSettings_t *settings, const char * msg_id, uint16_t offset_addr, uint16_t payload_len, void* payload)
 {
   euiHeader_t temp_header;
 
@@ -46,7 +46,7 @@ form_packet_full(CallBackwithUINT8 output_function, euiPacketSettings_t *setting
   temp_header.type       = settings->type;
   temp_header.id_len     = strlen(msg_id);
   temp_header.data_len   = payload_len;
-  temp_header.seq        = sequence_num;  //todo implement this properly
+  temp_header.seq        = settings->seq_num;  //todo implement this properly
 
   return encode_packet(output_function, &temp_header, msg_id, offset_addr, payload);
 }
