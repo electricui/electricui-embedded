@@ -100,8 +100,8 @@ encode_packet(CallBackwithUINT8 output_function, euiHeader_t * header, const cha
     //payload data
     for(int i = 0; i < header->data_len; i++)
     {
-      output_function( *((uint8_t *)payload + i) );
-      crc16(*((uint8_t *)payload + i), &outbound_crc); 
+      output_function( *((uint8_t *)payload + i + offset) );
+      crc16(*((uint8_t *)payload + i + offset), &outbound_crc); 
     }
 
     //checksum between the preamble and CRC
