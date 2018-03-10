@@ -97,6 +97,7 @@ struct eui_interface {
 enum packet_signals {
     parser_idle = 0,
     packet_valid,
+    packet_error_crc,
     packet_error_generic,
 };
 void            crc16(uint8_t data, uint16_t *crc);

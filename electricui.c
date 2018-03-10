@@ -47,6 +47,7 @@ void parse_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
     break;
 
     case packet_error_generic:
+    case packet_error_crc:
       report_error(err_parser_generic);
 
       parserOutputFunc = active_interface->output_char_fnPtr;

@@ -232,7 +232,7 @@ decode_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
       else  //first byte didn't match CRC, fail early
       {
         active_interface->state.parser_s = exp_reset;
-        return packet_error_generic;
+        return packet_error_crc;
       }
     break;
 
@@ -244,7 +244,7 @@ decode_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
       else  //second byte didn't match CRC
       {
         active_interface->state.parser_s = exp_reset;
-        return packet_error_generic;
+        return packet_error_crc;
       }
     break;
 
