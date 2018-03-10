@@ -25,6 +25,20 @@ uint16_t  example_uint16_arr[] = { 321, 320, 319 };
 uint32_t  example_uint32_arr[] = { 654321, 654320, 654319 };
 float     example_float_arr[]  = { 1.60217, 9.1093, -1.0015 };
 
+//a 100-element array of 32-bit ints is 400B of data
+uint32_t  large_int_array[] = { 
+   0,  1,  2,  3,  4,  5,  6,  7,  8,  9,
+  10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+  20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+  30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
+  40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
+  50, 51, 52, 53, 54, 55, 56, 57, 58, 59,
+  60, 61, 62, 63, 64, 65, 66, 67, 68, 69,
+  70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+  80, 81, 82, 83, 84, 85, 86, 87, 88, 89,
+  90, 91, 92, 93, 94, 95, 96, 97, 98, 99,
+};
+
 //example custom type
 typedef struct {
   int red;
@@ -62,6 +76,8 @@ const euiMessage_t dev_msg_store[] = {
     {.msgID = "ia6", .type = TYPE_UINT16, .size = sizeof(example_uint16_arr), .payload = &example_uint16_arr  },
     {.msgID = "ia2", .type = TYPE_UINT32, .size = sizeof(example_uint32_arr), .payload = &example_uint32_arr  },
     {.msgID = "fpA", .type = TYPE_FLOAT,  .size = sizeof(example_float_arr),  .payload = &example_float_arr   },
+
+    {.msgID = "lat", .type = TYPE_UINT32, .size = sizeof(large_int_array),    .payload = &large_int_array     },
 
     //custom type examples
     {.msgID = "rgb", .type = TYPE_RGB, .size = sizeof(example_rgb), .payload = &example_rgb },
