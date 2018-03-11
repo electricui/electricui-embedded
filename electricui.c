@@ -266,7 +266,7 @@ announce_dev_vars(void)
   temp_header.query     = MSG_STANDARD_PACKET;
   temp_header.type      = TYPE_UINT8;
 
-  for(int i = 0; i <= numDevObjects; i++)
+  for(int i = 0; i < numDevObjects; i++)
   {
     //reuse the header, but use the appropriate type for each var
     temp_header.type = devObjectArray[i].type;
