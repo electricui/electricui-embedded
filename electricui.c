@@ -104,21 +104,22 @@ handle_packet(struct eui_interface *valid_packet)
       break;
     }
 
-    //form responses if required
+    //respond as requested by the inbound packet
     if(header.ack || header.query)
     {
       euiPacketSettings_t res_header =  { .internal = header.internal, 
                                           .ack      = MSG_NACK, 
                                           .query    = MSG_NQUERY, 
                                           .type     = msgObjPtr->type,
-                                          .seq_num  = (header.ack) ? header.seq : 0
                                         };
+
       //queries send back the current variable contents, otherwise we don't need any data
       uint8_t res_size = (header.query) ? msgObjPtr->size : 0;
 
-      //respond to the ack with internal value of the requested messageID as confirmation
+      //send back the sequence number if an ack was requested
+      seq_num_buffer = (header.ack) ? header.seq : 0;
+
       send_tracked(msgObjPtr, &res_header);
-      //form_packet_full(parserOutputFunc, &res_header, seq_num, msgObjPtr->msgID, 0x00, res_size, msgObjPtr->payload);
     }
 
   }
@@ -138,26 +139,38 @@ handle_packet(struct eui_interface *valid_packet)
 void
 send_tracked(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings)
 {
-  uint16_t to_send = msgObjPtr->size; //todo clean this up
+  euiHeader_t temp_header;
 
-  settings->type = msgObjPtr->type;
+  //these values are the same for either type of packet
+  temp_header.internal   = settings->internal;
+  temp_header.ack        = settings->ack;
+  temp_header.query      = settings->query;
+  temp_header.type       = msgObjPtr->type;
+  temp_header.id_len     = strlen(msgObjPtr->msgID);
+  temp_header.seq        = seq_num_buffer;
 
   //decide if data will fit in a normal message, or requires multi-packet output
   if(msgObjPtr->size < PAYLOAD_SIZE_MAX)
   {
-    form_packet_simple(parserOutputFunc, settings, msgObjPtr->msgID, msgObjPtr->size, msgObjPtr->payload);
+    temp_header.offset = 0;
+    temp_header.data_len = msgObjPtr->size;
+    encode_packet(parserOutputFunc, &temp_header, msgObjPtr->msgID, 0x00, msgObjPtr->payload);
   }
   else
   {
-    while( to_send > 0 )
-    {
-      uint16_t bytes_to_write = (to_send > PAYLOAD_SIZE_MAX) ? PAYLOAD_SIZE_MAX: to_send;
-      to_send -= bytes_to_write;  //by working back from the end, we can reuse this value as the offset
+    temp_header.offset = 1;
 
-      form_packet_full(parserOutputFunc, settings, msgObjPtr->msgID, to_send, bytes_to_write, msgObjPtr->payload);
+    for(uint16_t to_send = msgObjPtr->size; to_send > 0; )
+    {
+      temp_header.data_len = (to_send > PAYLOAD_SIZE_MAX) ? PAYLOAD_SIZE_MAX: to_send;
+      to_send -= temp_header.data_len;  //the current position through the buffer in bytes is also the offset
+
+      encode_packet(parserOutputFunc, &temp_header, msgObjPtr->msgID, to_send, msgObjPtr->payload);
     }
-    //final byte to confirm offset data was completed
-    form_packet_full(parserOutputFunc, settings, msgObjPtr->msgID, 0x00, 0, 0);
+
+    //final message to confirm offset data was completed (offset packet with no data)
+    temp_header.data_len = 0;
+    encode_packet(parserOutputFunc, &temp_header, msgObjPtr->msgID, 0x00, msgObjPtr->payload);
   }
 
 }
@@ -167,11 +180,10 @@ send_message(const char * msg_id, struct eui_interface *active_interface)
 {
   parserOutputFunc = active_interface->output_char_fnPtr;
 
-  euiPacketSettings_t temp_header =  { .internal  = MSG_INTERNAL, 
+  euiPacketSettings_t temp_header =  { .internal  = MSG_DEV, 
                                        .ack       = MSG_NACK, 
                                        .query     = MSG_STANDARD_PACKET, 
-                                       .type      = TYPE_UINT8,
-                                       .seq_num   = 0,
+                                       .type      = TYPE_UINT8, //placeholder, gets overwritten later on. TODO cleanup
                                       };
 
   send_tracked( find_message_object( msg_id, MSG_DEV ), &temp_header);
@@ -201,7 +213,6 @@ announce_board(void)
                                        .ack       = MSG_NACK, 
                                        .query     = MSG_STANDARD_PACKET, 
                                        .type      = TYPE_UINT8,
-                                       .seq_num   = 0,
                                       };
 
   send_tracked(find_message_object("lv", MSG_INTERNAL), &temp_header);
@@ -218,7 +229,6 @@ announce_dev_msg(void)
                                      .ack       = MSG_NACK, 
                                      .query     = MSG_STANDARD_PACKET, 
                                      .type      = TYPE_UINT8,
-                                     .seq_num   = 0,
                                     };
 
   //tell the UI we are starting the index handshake process
@@ -260,7 +270,6 @@ announce_dev_vars(void)
                                       .ack      = MSG_NACK, 
                                       .query    = MSG_STANDARD_PACKET, 
                                       .type     = TYPE_BYTE,
-                                      .seq_num  = 0,
                                     };
 
   for(int i = 0; i <= numDevObjects; i++)
@@ -286,7 +295,6 @@ report_error(uint8_t error)
                                        .ack       = MSG_NACK, 
                                        .query     = MSG_STANDARD_PACKET, 
                                        .type      = TYPE_UINT8,
-                                       .seq_num   = 0,
                                       };
 
   send_tracked(find_message_object("er", MSG_INTERNAL), &temp_header);

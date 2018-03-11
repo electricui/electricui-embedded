@@ -31,24 +31,18 @@ uint8_t
 form_packet_simple(CallBackwithUINT8 output_function, euiPacketSettings_t *settings, const char * msg_id, uint16_t payload_len, void* payload)
 {
   //just call the full one with default seq# and offset values
-  return form_packet_full(output_function, settings, msg_id, 0x00, payload_len, payload);
-}
-
-uint8_t
-form_packet_full(CallBackwithUINT8 output_function, euiPacketSettings_t *settings, const char * msg_id, uint16_t offset_addr, uint16_t payload_len, void* payload)
-{
   euiHeader_t temp_header;
 
   temp_header.internal   = settings->internal;
   temp_header.ack        = settings->ack;
   temp_header.query      = settings->query;
-  temp_header.offset     = (offset_addr) ? MSG_OFFSET_PACKET : MSG_STANDARD_PACKET;
   temp_header.type       = settings->type;
+  temp_header.seq        = 0;
+  temp_header.offset     = 0;
   temp_header.id_len     = strlen(msg_id);
   temp_header.data_len   = payload_len;
-  temp_header.seq        = settings->seq_num;  //todo implement this properly
 
-  return encode_packet(output_function, &temp_header, msg_id, offset_addr, payload);
+  return encode_packet(output_function, &temp_header, msg_id, 0x00, payload);
 }
 
 uint8_t
