@@ -53,6 +53,8 @@ uint8_t session_identifier;
 
 uint8_t last_error;
 
+euiPacketSettings_t temp_header;
+
 void announce_board(void);
 void announce_dev_msg(void);
 void announce_dev_vars(void);
