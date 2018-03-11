@@ -13,36 +13,36 @@ crc16(uint8_t data, uint16_t *crc)
 euiHeader_t *
 generate_header(uint8_t internal, uint8_t ack, uint8_t query, uint8_t offset_packet, uint8_t data_type, uint8_t msgID_len, uint16_t data_length, uint8_t sequence_num)
 {
-  euiHeader_t temp_header; 
+  euiHeader_t gen_header; 
 
-  temp_header.internal   = internal;
-  temp_header.ack        = ack;
-  temp_header.query      = query;
-  temp_header.offset     = offset_packet;
-  temp_header.type       = data_type;
-  temp_header.id_len     = msgID_len;
-  temp_header.data_len   = data_length;
-  temp_header.seq        = sequence_num;
+  gen_header.internal   = internal;
+  gen_header.ack        = ack;
+  gen_header.query      = query;
+  gen_header.offset     = offset_packet;
+  gen_header.type       = data_type;
+  gen_header.id_len     = msgID_len;
+  gen_header.data_len   = data_length;
+  gen_header.seq        = sequence_num;
 
-  return &temp_header;
+  return &gen_header;
 }
 
 uint8_t
 form_packet_simple(CallBackwithUINT8 output_function, euiPacketSettings_t *settings, const char * msg_id, uint16_t payload_len, void* payload)
 {
   //just call the full one with default seq# and offset values
-  euiHeader_t temp_header;
+  euiHeader_t expanded_header;
 
-  temp_header.internal   = settings->internal;
-  temp_header.ack        = settings->ack;
-  temp_header.query      = settings->query;
-  temp_header.type       = settings->type;
-  temp_header.seq        = 0;
-  temp_header.offset     = 0;
-  temp_header.id_len     = strlen(msg_id);
-  temp_header.data_len   = payload_len;
+  expanded_header.internal   = settings->internal;
+  expanded_header.ack        = settings->ack;
+  expanded_header.query      = settings->query;
+  expanded_header.type       = settings->type;
+  expanded_header.seq        = 0;
+  expanded_header.offset     = 0;
+  expanded_header.id_len     = strlen(msg_id);
+  expanded_header.data_len   = payload_len;
 
-  return encode_packet(output_function, &temp_header, msg_id, 0x00, payload);
+  return encode_packet(output_function, &expanded_header, msg_id, 0x00, payload);
 }
 
 uint8_t
