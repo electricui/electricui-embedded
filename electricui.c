@@ -219,15 +219,13 @@ announce_board(void)
 void
 announce_dev_msg(void)
 {
-  const uint8_t numMessages = numDevObjects;
-
   temp_header.internal  = MSG_INTERNAL;
   temp_header.ack       = MSG_NACK;
   temp_header.query     = MSG_STANDARD_PACKET;
   temp_header.type      = TYPE_UINT8;
 
   //tell the UI we are starting the index handshake process
-  form_packet_simple(parserOutputFunc, &temp_header, "dms", sizeof(numMessages), &numMessages);
+  form_packet_simple(parserOutputFunc, &temp_header, "dms", sizeof(numDevObjects), &numDevObjects);
 
   //fill a buffer which contains the developer message ID's
   uint8_t msgBuffer[ (MESSAGEID_SIZE+1)*(PAYLOAD_SIZE_MAX / PACKET_BASE_SIZE) ];
@@ -237,7 +235,7 @@ announce_dev_msg(void)
 
   temp_header.type = TYPE_CHAR;
 
-  for(int i = 0; i <= numMessages; i++)
+  for(int i = 0; i <= numDevObjects; i++)
   {
     //copy messageID into the buffer, use null termination characters as delimiter
     msgIDlen = strlen(devObjectArray[i].msgID) + 1; //+1 to account for null character
@@ -246,7 +244,7 @@ announce_dev_msg(void)
     msgIDPacked++;  
 
     //send messages and clear buffer to break list into shorter messagaes
-    if(msgIDPacked >= (PAYLOAD_SIZE_MAX / PACKET_BASE_SIZE) || i >= numMessages)
+    if(msgIDPacked >= (PAYLOAD_SIZE_MAX / PACKET_BASE_SIZE) || i >= numDevObjects)
     {
       form_packet_simple(parserOutputFunc, &temp_header, "dml", msgBufferPos, &msgBuffer);
 
