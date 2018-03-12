@@ -170,7 +170,7 @@ decode_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
         //terminate msgID string if shorter than max size
         if(active_interface->state.id_bytes_in < MESSAGEID_SIZE)
         {
-          active_interface->inboundID[active_interface->state.id_bytes_in + 1] = '\0';
+          active_interface->inboundID[active_interface->state.id_bytes_in] = '\0';
         }
 
         //start reading in the offset or data based on header guide
