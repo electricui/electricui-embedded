@@ -163,9 +163,8 @@ decode_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
       active_interface->inboundID[active_interface->state.id_bytes_in] = inbound_byte;
       active_interface->state.id_bytes_in++;
 
-      //we've read the number of bytes specified by the header count OR
-      //we've ingested the maximum allowable length of the message ID
-      if(active_interface->state.id_bytes_in >= active_interface->inboundHeader.id_len || active_interface->state.id_bytes_in >= MESSAGEID_SIZE)
+      //we've read the number of message ID bytes specified by the header
+      if(active_interface->state.id_bytes_in >= active_interface->inboundHeader.id_len)
       {
         //terminate msgID string if shorter than max size
         if(active_interface->state.id_bytes_in < MESSAGEID_SIZE)
