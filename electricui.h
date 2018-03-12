@@ -39,7 +39,6 @@ void report_error(uint8_t error);
 euiMessage_t *devObjectArray;
 uint8_t numDevObjects;
 CallBackwithUINT8 parserOutputFunc;  //holding ref for output func
-uint8_t seq_num_buffer;
 
 void setup_dev_msg(euiMessage_t *msgArray, uint8_t numObjects);
 void setup_identifier(void);

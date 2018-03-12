@@ -105,21 +105,30 @@ handle_packet(struct eui_interface *valid_packet)
     }
 
     //respond as requested by the inbound packet
-    if(header.ack || header.query)
-    {
+    if(header.query)
+    {  
       euiPacketSettings_t res_header =  { .internal = header.internal, 
                                           .ack      = MSG_NACK, 
                                           .query    = MSG_NQUERY, 
                                           .type     = msgObjPtr->type,
                                         };
 
-      //queries send back the current variable contents, otherwise we don't need any data
-      uint8_t res_size = (header.query) ? msgObjPtr->size : 0;
+      send_tracked(msgObjPtr, &res_header);      
+    }
 
-      //send back the sequence number if an ack was requested
-      seq_num_buffer = (header.ack) ? header.seq : 0;
+    if(header.ack)
+    {  
+      euiHeader_t detail_header;
+      detail_header.internal   = header.internal;
+      detail_header.ack        = MSG_NACK;
+      detail_header.query      = MSG_NACK;
+      detail_header.type       = msgObjPtr->type;
+      detail_header.id_len     = strlen(msgObjPtr->msgID);
+      detail_header.seq        = header.seq;
+      detail_header.offset     = 0;
+      detail_header.data_len   = 0;
 
-      send_tracked(msgObjPtr, &res_header);
+      encode_packet(parserOutputFunc, &detail_header, msgObjPtr->msgID, 0x00, msgObjPtr->payload);
     }
 
   }
@@ -147,7 +156,7 @@ send_tracked(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings)
   detail_header.query      = settings->query;
   detail_header.type       = msgObjPtr->type;
   detail_header.id_len     = strlen(msgObjPtr->msgID);
-  detail_header.seq        = seq_num_buffer;
+  detail_header.seq        = 0;
 
   //decide if data will fit in a normal message, or requires multi-packet output
   if(msgObjPtr->size < PAYLOAD_SIZE_MAX)
