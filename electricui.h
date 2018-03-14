@@ -27,6 +27,7 @@ enum error_codes {
     err_invalid_internal,
     err_invalid_developer,
     err_missing_callback,
+    err_invalid_offset,
 };
 
 euiMessage_t * find_message_object(const char * msg_id, uint8_t is_internal);

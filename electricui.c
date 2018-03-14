@@ -104,6 +104,10 @@ handle_packet(struct eui_interface *valid_packet)
             //copy payload data into (memory + offset from address) 'blindly'
             memcpy(msgObjPtr->payload + valid_packet->inboundOffset, valid_packet->inboundData, bytes_to_write);
           }
+          else
+          {
+            report_error(err_invalid_offset);
+          }
         }
       break;
     }
