@@ -98,8 +98,12 @@ handle_packet(struct eui_interface *valid_packet)
           //work out the correct length of the write (clamp length to internal variable size)
           uint8_t bytes_to_write = (valid_packet->state.data_bytes_in <= msgObjPtr->size) ? valid_packet->state.data_bytes_in : msgObjPtr->size;
 
-          //copy payload data into (memory + offset from address) 'blindly'
-          memcpy(msgObjPtr->payload + valid_packet->inboundOffset, valid_packet->inboundData, bytes_to_write);
+          //Ensure the data won't exceed its bounds if invalid offsets are provided
+          if(valid_packet->inboundOffset + bytes_to_write < msgObjPtr->size)
+          {
+            //copy payload data into (memory + offset from address) 'blindly'
+            memcpy(msgObjPtr->payload + valid_packet->inboundOffset, valid_packet->inboundData, bytes_to_write);
+          }
         }
       break;
     }
