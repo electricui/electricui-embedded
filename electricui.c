@@ -165,29 +165,34 @@ send_tracked(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings)
   detail_header.type       = msgObjPtr->type;
   detail_header.id_len     = strlen(msgObjPtr->msgID);
   detail_header.seq        = 0;
+  detail_header.offset     = 0;
 
   //decide if data will fit in a normal message, or requires multi-packet output
   if(msgObjPtr->size < PAYLOAD_SIZE_MAX)
   {
-    detail_header.offset = 0;
     detail_header.data_len = msgObjPtr->size;
     encode_packet(parserOutputFunc, &detail_header, msgObjPtr->msgID, 0x00, msgObjPtr->payload);
   }
   else
   {
+    uint16_t data_range[] = { 0, msgObjPtr->size }; //start, end offsets for data being sent
+
+    //generate metadata message with address range
+    detail_header.data_len = sizeof(data_range);
+    detail_header.type     = TYPE_OFFSET_METADATA;
+    encode_packet(parserOutputFunc, &detail_header, msgObjPtr->msgID, 0x00, &data_range);
+
     detail_header.offset = 1;
+    detail_header.type   = msgObjPtr->type;
 
-    for(uint16_t to_send = msgObjPtr->size; to_send > 0; )
+    //send the offset packets
+    for(; data_range[1] > data_range[0]; )
     {
-      detail_header.data_len = (to_send > PAYLOAD_SIZE_MAX) ? PAYLOAD_SIZE_MAX: to_send;
-      to_send -= detail_header.data_len;  //the current position through the buffer in bytes is also the offset
+      detail_header.data_len = (data_range[1] > PAYLOAD_SIZE_MAX) ? PAYLOAD_SIZE_MAX: data_range[1];
+      data_range[1] -= detail_header.data_len;  //the current position through the buffer in bytes is also the end offset
 
-      encode_packet(parserOutputFunc, &detail_header, msgObjPtr->msgID, to_send, msgObjPtr->payload);
+      encode_packet(parserOutputFunc, &detail_header, msgObjPtr->msgID, data_range[1], msgObjPtr->payload);
     }
-
-    //final message to confirm offset data was completed (offset packet with no data)
-    detail_header.data_len = 0;
-    encode_packet(parserOutputFunc, &detail_header, msgObjPtr->msgID, 0x00, msgObjPtr->payload);
   }
 
 }

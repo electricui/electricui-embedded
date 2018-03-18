@@ -53,7 +53,8 @@ typedef enum {
     TYPE_UINT32,
     TYPE_FLOAT,
     TYPE_DOUBLE,
-    TYPE_CUSTOM_MARKER
+    TYPE_CUSTOM_MARKER,
+    TYPE_OFFSET_METADATA,
 } euiType_t;
 
 typedef void (*CallBackwithUINT8)(uint8_t); //callback with single char of data
