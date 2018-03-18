@@ -39,6 +39,8 @@ uint32_t  large_int_array[] = {
   90, 91, 92, 93, 94, 95, 96, 97, 98, 99,
 };
 
+char demo_string[] = "HelloElectric";
+
 //example custom type
 typedef struct {
   int red;
@@ -62,6 +64,7 @@ imu_t example_imu = { 0.002, 0.003, -9.782 };
 
 //internal index of developer-space message metadata
 const euiMessage_t dev_msg_store[] = {
+
     {.msgID = "led", .type = TYPE_UINT8,    .size = sizeof(led_brightness), .payload = &led_brightness  },
     {.msgID = "tgl", .type = TYPE_CALLBACK, .size = sizeof(toggleLed),      .payload = &toggleLed       },
     {.msgID = "btA", .type = TYPE_UINT8,    .size = sizeof(btn1_state),     .payload = &btn1_state      },
@@ -76,6 +79,7 @@ const euiMessage_t dev_msg_store[] = {
     {.msgID = "ia6", .type = TYPE_UINT16, .size = sizeof(example_uint16_arr), .payload = &example_uint16_arr  },
     {.msgID = "ia2", .type = TYPE_UINT32, .size = sizeof(example_uint32_arr), .payload = &example_uint32_arr  },
     {.msgID = "fpA", .type = TYPE_FLOAT,  .size = sizeof(example_float_arr),  .payload = &example_float_arr   },
+    {.msgID = "dst", .type = TYPE_CHAR,    .size = sizeof(demo_string),     .payload = &demo_string  },
 
     {.msgID = "lat", .type = TYPE_UINT32, .size = sizeof(large_int_array),    .payload = &large_int_array     },
 
