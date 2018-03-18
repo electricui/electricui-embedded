@@ -129,8 +129,8 @@ void loop()
 
   delta_time = micros() - loop_time;  //counter diff between last loop, and now
   loop_time = micros();
-  
-  delay(1);
+
+  delay(rand()%(10-1) + 1); //randomly select loop delay for 1-10ms to simulate varying cpu load
 }
 
 void uart_rx_handler()
