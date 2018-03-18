@@ -7,6 +7,8 @@ extern "C"
 uint8_t led_brightness  = 2;
 uint8_t btn1_state      = 0;
 uint8_t btn2_state      = 0;
+uint16_t delta_time     = 0;
+uint16_t loop_time      = 0;
 
 //example function called by UI
 void toggleLed()
@@ -69,6 +71,7 @@ const euiMessage_t dev_msg_store[] = {
     {.msgID = "tgl", .type = TYPE_CALLBACK, .size = sizeof(toggleLed),      .payload = &toggleLed       },
     {.msgID = "btA", .type = TYPE_UINT8,    .size = sizeof(btn1_state),     .payload = &btn1_state      },
     {.msgID = "btB", .type = TYPE_UINT8,    .size = sizeof(btn2_state),     .payload = &btn2_state      },
+    {.msgID = "lop", .type = TYPE_UINT16,   .size = sizeof(delta_time),     .payload = &delta_time      },
 
     //type examples
     {.msgID = "ui8", .type = TYPE_UINT8,  .size = sizeof(example_uint8),  .payload = &example_uint8       },
@@ -103,6 +106,8 @@ void setup()
   uart_comms.output_char_fnPtr = &uart_tx_putc;
   setup_dev_msg(dev_msg_store, ARR_ELEM(dev_msg_store));
   setup_identifier();
+
+  loop_time = micros(); //loop counter in microseconds
 }
 
 uint8_t led_status_counter = 0;
@@ -122,6 +127,9 @@ void loop()
     led_status_counter = 0;
   }
 
+  delta_time = micros() - loop_time;  //counter diff between last loop, and now
+  loop_time = micros();
+  
   delay(1);
 }
 
