@@ -156,36 +156,39 @@ handle_packet(struct eui_interface *valid_packet)
 void
 send_tracked(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings)
 {
-  euiHeader_t detail_header;
-
-  //these values are the same for either type of packet
-  detail_header.internal   = settings->internal;
-  detail_header.ack        = settings->ack;
-  detail_header.query      = settings->query;
-  detail_header.type       = msgObjPtr->type;
-  detail_header.id_len     = strlen(msgObjPtr->msgID);
-  detail_header.seq        = 0;
-  detail_header.offset     = 0;
-
   //decide if data will fit in a normal message, or requires multi-packet output
-  if(msgObjPtr->size < PAYLOAD_SIZE_MAX)
+  if(msgObjPtr->size <= PAYLOAD_SIZE_MAX)
   {
-    detail_header.data_len = msgObjPtr->size;
-    encode_packet(parserOutputFunc, &detail_header, msgObjPtr->msgID, 0x00, msgObjPtr->payload);
+    encode_packet_simple(parserOutputFunc, settings, msgObjPtr->msgID, msgObjPtr->size, msgObjPtr->payload);
   }
   else
   {
-    uint16_t data_range[] = { 0, msgObjPtr->size }; //start, end offsets for data being sent
+    send_tracked_range(msgObjPtr, settings, 0, msgObjPtr->size);
+  }
+}
+
+void send_tracked_range(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings, uint16_t base_addr, uint16_t end_addr)
+{
+    uint16_t data_range[] = { base_addr, end_addr }; //start, end offsets for data being sent
+
+    euiHeader_t detail_header;
+
+    detail_header.internal   = settings->internal;
+    detail_header.ack        = settings->ack;
+    detail_header.query      = settings->query;
+    detail_header.id_len     = strlen(msgObjPtr->msgID);
+    detail_header.seq        = 0;
+    detail_header.offset     = 0;
 
     //generate metadata message with address range
     detail_header.data_len = sizeof(data_range);
     detail_header.type     = TYPE_OFFSET_METADATA;
     encode_packet(parserOutputFunc, &detail_header, msgObjPtr->msgID, 0x00, &data_range);
 
+    //send the offset packets
     detail_header.offset = 1;
     detail_header.type   = msgObjPtr->type;
 
-    //send the offset packets
     for(; data_range[1] > data_range[0]; )
     {
       detail_header.data_len = (data_range[1] > PAYLOAD_SIZE_MAX) ? PAYLOAD_SIZE_MAX: data_range[1];
@@ -193,8 +196,6 @@ send_tracked(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings)
 
       encode_packet(parserOutputFunc, &detail_header, msgObjPtr->msgID, data_range[1], msgObjPtr->payload);
     }
-  }
-
 }
 
 void
