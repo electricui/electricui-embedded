@@ -28,7 +28,7 @@ generate_header(uint8_t internal, uint8_t ack, uint8_t query, uint8_t offset_pac
 }
 
 uint8_t
-form_packet_simple(CallBackwithUINT8 output_function, euiPacketSettings_t *settings, const char * msg_id, uint16_t payload_len, void* payload)
+encode_packet_simple(CallBackwithUINT8 output_function, euiPacketSettings_t *settings, const char * msg_id, uint16_t payload_len, void* payload)
 {
   //just call the full one with default seq# and offset values
   euiHeader_t expanded_header;
