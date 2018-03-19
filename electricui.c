@@ -133,10 +133,10 @@ handle_packet(struct eui_interface *valid_packet)
       detail_header.type       = msgObjPtr->type;
       detail_header.id_len     = strlen(msgObjPtr->msgID);
       detail_header.seq        = header.seq;
-      detail_header.offset     = 0;
+      detail_header.offset     = header.offset;
       detail_header.data_len   = 0;
 
-      encode_packet(parserOutputFunc, &detail_header, msgObjPtr->msgID, 0x00, msgObjPtr->payload);
+      encode_packet(parserOutputFunc, &detail_header, msgObjPtr->msgID, valid_packet->inboundOffset, msgObjPtr->payload);
     }
 
   }
