@@ -11,12 +11,12 @@ crc16(uint8_t data, uint16_t *crc)
 }
 
 euiHeader_t *
-generate_header(uint8_t internal, uint8_t query, uint8_t offset_packet, uint8_t data_type, uint8_t msgID_len, uint16_t data_length, uint8_t ack_num)
+generate_header(uint8_t internal, uint8_t response, uint8_t offset_packet, uint8_t data_type, uint8_t msgID_len, uint16_t data_length, uint8_t ack_num)
 {
   euiHeader_t gen_header; 
 
   gen_header.internal   = internal;
-  gen_header.query      = query;
+  gen_header.response   = response;
   gen_header.offset     = offset_packet;
   gen_header.type       = data_type;
   gen_header.id_len     = msgID_len;
@@ -33,7 +33,7 @@ encode_packet_simple(CallBackwithUINT8 output_function, euiPacketSettings_t *set
   euiHeader_t expanded_header;
 
   expanded_header.internal   = settings->internal;
-  expanded_header.query      = settings->query;
+  expanded_header.response   = settings->response;
   expanded_header.type       = settings->type;
   expanded_header.acknum     = 0;
   expanded_header.offset     = 0;
@@ -72,8 +72,8 @@ encode_packet(CallBackwithUINT8 output_function, euiHeader_t * header, const cha
     header_buffer = 0;  //reuse the buffer for the remaining byte
 
     header_buffer |= header->id_len;
-    header_buffer |= header->query  << 4;
-    header_buffer |= header->acknum << 5;
+    header_buffer |= header->response  << 4;
+    header_buffer |= header->acknum    << 5;
     
     //write third byte
     output_function( header_buffer );
@@ -155,7 +155,7 @@ decode_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
 
     case exp_header_b3:
       active_interface->inboundHeader.id_len    = (inbound_byte     ) & 0x0F;  //mask lowest 4
-      active_interface->inboundHeader.query     = (inbound_byte >> 4) & 1;
+      active_interface->inboundHeader.response  = (inbound_byte >> 4) & 1;
       active_interface->inboundHeader.acknum    = (inbound_byte >> 5);
       
       active_interface->state.parser_s = exp_message_id;

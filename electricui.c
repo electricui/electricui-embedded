@@ -118,15 +118,15 @@ handle_packet(struct eui_interface *valid_packet)
       break;
     }
 
-    //respond as requested by the inbound packet
-    if(header.query)
+    //inbound packet requested a response on ingest of this packet
+    if(header.response)
     {
       if(!header.acknum)
       {
-        //send ack response
+        //respond with somewhat empty ack response packet
         euiHeader_t detail_header;
         detail_header.internal   = header.internal;
-        detail_header.query      = MSG_NACK;
+        detail_header.response   = MSG_NRESP;
         detail_header.type       = msgObjPtr->type;
         detail_header.id_len     = strlen(msgObjPtr->msgID);
         detail_header.acknum     = header.acknum;
@@ -137,10 +137,10 @@ handle_packet(struct eui_interface *valid_packet)
       }
       else
       {
-        //respond to query
+        //respond with data to fufil query behaviour
         euiPacketSettings_t res_header =  { .internal = header.internal, 
                                             .ack      = MSG_NACK, 
-                                            .query    = MSG_NQUERY, 
+                                            .response = MSG_NRESP, 
                                             .type     = msgObjPtr->type,
                                           };
 
@@ -183,7 +183,7 @@ void send_tracked_range(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings, 
     euiHeader_t detail_header;
 
     detail_header.internal   = settings->internal;
-    detail_header.query      = settings->query;
+    detail_header.response   = settings->response;
     detail_header.id_len     = strlen(msgObjPtr->msgID);
     detail_header.acknum     = 0;
     detail_header.offset     = 0;
@@ -212,7 +212,7 @@ send_message(const char * msg_id, struct eui_interface *active_interface)
   parserOutputFunc = active_interface->output_char_fnPtr;
 
   temp_header.internal  = MSG_DEV;
-  temp_header.query     = MSG_STANDARD_PACKET;
+  temp_header.response     = MSG_NRESP;
 
   send_tracked( find_message_object( msg_id, MSG_DEV ), &temp_header);
 }
@@ -238,7 +238,7 @@ announce_board(void)
 {
   //repond to search request with board info
   temp_header.internal  = MSG_INTERNAL;
-  temp_header.query     = MSG_STANDARD_PACKET;
+  temp_header.response  = MSG_NRESP;
 
   send_tracked(find_message_object("lv", MSG_INTERNAL), &temp_header);
   send_tracked(find_message_object("bi", MSG_INTERNAL), &temp_header);
@@ -249,7 +249,7 @@ void
 announce_dev_msg(void)
 {
   temp_header.internal  = MSG_INTERNAL;
-  temp_header.query     = MSG_STANDARD_PACKET;
+  temp_header.response  = MSG_NRESP;
   temp_header.type      = TYPE_UINT8;
 
   //tell the UI we are starting the index handshake process
@@ -288,7 +288,7 @@ void
 announce_dev_vars(void)
 {
   temp_header.internal  = MSG_DEV;
-  temp_header.query     = MSG_STANDARD_PACKET;
+  temp_header.response  = MSG_NRESP;
 
   for(int i = 0; i < numDevObjects; i++)
   {
@@ -302,7 +302,7 @@ report_error(uint8_t error)
   last_error = error;
 
   temp_header.internal  = MSG_INTERNAL;
-  temp_header.query     = MSG_STANDARD_PACKET;
+  temp_header.response  = MSG_NRESP;
 
   send_tracked(find_message_object("er", MSG_INTERNAL), &temp_header);
 
