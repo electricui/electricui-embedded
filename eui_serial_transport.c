@@ -11,12 +11,11 @@ crc16(uint8_t data, uint16_t *crc)
 }
 
 euiHeader_t *
-generate_header(uint8_t internal, uint8_t ack, uint8_t query, uint8_t offset_packet, uint8_t data_type, uint8_t msgID_len, uint16_t data_length, uint8_t ack_num)
+generate_header(uint8_t internal, uint8_t query, uint8_t offset_packet, uint8_t data_type, uint8_t msgID_len, uint16_t data_length, uint8_t ack_num)
 {
   euiHeader_t gen_header; 
 
   gen_header.internal   = internal;
-  gen_header.ack        = ack;
   gen_header.query      = query;
   gen_header.offset     = offset_packet;
   gen_header.type       = data_type;
@@ -34,7 +33,6 @@ encode_packet_simple(CallBackwithUINT8 output_function, euiPacketSettings_t *set
   euiHeader_t expanded_header;
 
   expanded_header.internal   = settings->internal;
-  expanded_header.ack        = settings->ack;
   expanded_header.query      = settings->query;
   expanded_header.type       = settings->type;
   expanded_header.acknum     = 0;
@@ -136,7 +134,7 @@ decode_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
     case exp_header_b1:
       //populate the header bitfield from recieved byte
       active_interface->inboundHeader.internal  = (inbound_byte >> 0) & 1;
-      active_interface->inboundHeader.ack       = (inbound_byte >> 1) & 1;
+      // active_interface->inboundHeader.ack       = (inbound_byte >> 1) & 1;
       active_interface->inboundHeader.query     = (inbound_byte >> 2) & 1;
       active_interface->inboundHeader.offset    = (inbound_byte >> 3) & 1;
       active_interface->inboundHeader.type      = inbound_byte >> 4;

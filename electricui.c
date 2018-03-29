@@ -124,20 +124,19 @@ handle_packet(struct eui_interface *valid_packet)
       send_tracked(msgObjPtr, &res_header);      
     }
 
-    if(header.ack)
-    {  
-      euiHeader_t detail_header;
-      detail_header.internal   = header.internal;
-      detail_header.ack        = MSG_NACK;
-      detail_header.query      = MSG_NACK;
-      detail_header.type       = msgObjPtr->type;
-      detail_header.id_len     = strlen(msgObjPtr->msgID);
-      detail_header.acknum     = header.acknum;
-      detail_header.offset     = header.offset;
-      detail_header.data_len   = 0;
+    // if(header.ack)
+    // {  
+    //   euiHeader_t detail_header;
+    //   detail_header.internal   = header.internal;
+    //   detail_header.query      = MSG_NACK;
+    //   detail_header.type       = msgObjPtr->type;
+    //   detail_header.id_len     = strlen(msgObjPtr->msgID);
+    //   detail_header.acknum     = header.acknum;
+    //   detail_header.offset     = header.offset;
+    //   detail_header.data_len   = 0;
 
-      encode_packet(parserOutputFunc, &detail_header, msgObjPtr->msgID, valid_packet->inboundOffset, msgObjPtr->payload);
-    }
+    //   encode_packet(parserOutputFunc, &detail_header, msgObjPtr->msgID, valid_packet->inboundOffset, msgObjPtr->payload);
+    // }
 
   }
   else  //search miss
@@ -174,7 +173,6 @@ void send_tracked_range(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings, 
     euiHeader_t detail_header;
 
     detail_header.internal   = settings->internal;
-    detail_header.ack        = settings->ack;
     detail_header.query      = settings->query;
     detail_header.id_len     = strlen(msgObjPtr->msgID);
     detail_header.acknum     = 0;
@@ -204,7 +202,6 @@ send_message(const char * msg_id, struct eui_interface *active_interface)
   parserOutputFunc = active_interface->output_char_fnPtr;
 
   temp_header.internal  = MSG_DEV;
-  temp_header.ack       = MSG_NACK;
   temp_header.query     = MSG_STANDARD_PACKET;
 
   send_tracked( find_message_object( msg_id, MSG_DEV ), &temp_header);
@@ -231,7 +228,6 @@ announce_board(void)
 {
   //repond to search request with board info
   temp_header.internal  = MSG_INTERNAL;
-  temp_header.ack       = MSG_NACK;
   temp_header.query     = MSG_STANDARD_PACKET;
 
   send_tracked(find_message_object("lv", MSG_INTERNAL), &temp_header);
@@ -243,7 +239,6 @@ void
 announce_dev_msg(void)
 {
   temp_header.internal  = MSG_INTERNAL;
-  temp_header.ack       = MSG_NACK;
   temp_header.query     = MSG_STANDARD_PACKET;
   temp_header.type      = TYPE_UINT8;
 
@@ -283,7 +278,6 @@ void
 announce_dev_vars(void)
 {
   temp_header.internal  = MSG_DEV;
-  temp_header.ack       = MSG_NACK;
   temp_header.query     = MSG_STANDARD_PACKET;
 
   for(int i = 0; i < numDevObjects; i++)
@@ -298,7 +292,6 @@ report_error(uint8_t error)
   last_error = error;
 
   temp_header.internal  = MSG_INTERNAL;
-  temp_header.ack       = MSG_NACK;
   temp_header.query     = MSG_STANDARD_PACKET;
 
   send_tracked(find_message_object("er", MSG_INTERNAL), &temp_header);
