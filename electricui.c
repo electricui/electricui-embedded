@@ -201,7 +201,7 @@ send_message(const char * msg_id, struct eui_interface *active_interface)
   parserOutputFunc = active_interface->output_char_fnPtr;
 
   temp_header.internal  = MSG_DEV;
-  temp_header.response     = MSG_NRESP;
+  temp_header.response  = MSG_NRESP;
 
   send_tracked( find_message_object( msg_id, MSG_DEV ), &temp_header);
 }
