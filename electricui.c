@@ -72,50 +72,44 @@ handle_packet(struct eui_interface *valid_packet)
   //Check that the searched ID was found
   if(msgObjPtr)
   {
-    switch(msgObjPtr->type)
+    if(valid_packet->state.data_bytes_in)
     {
-      case TYPE_CALLBACK:
-      {
-        //create a function to call from the internally stored pointer
-        CallBackType parsedCallbackHandler;
-        parsedCallbackHandler = msgObjPtr->payload;
-       
-        if(parsedCallbackHandler) 
-        {
-          parsedCallbackHandler();
-        }
-        else
-        {
-          report_error(err_missing_callback);
-        }
-      }
-      break;
-
-      case TYPE_OFFSET_METADATA:
+      if(msgObjPtr->type == TYPE_OFFSET_METADATA)
       {
         report_error(err_todo_functionality);
       }
-      break;
+      else  //any other type
+      {
+        //work out the correct length of the write (clamp length to internal variable size)
+        uint8_t bytes_to_write = (valid_packet->state.data_bytes_in <= msgObjPtr->size) ? valid_packet->state.data_bytes_in : msgObjPtr->size;
 
-      default:
-        //Ensure some data was recieved from the inbound packet
-        if(valid_packet->state.data_bytes_in)
+        //Ensure the data won't exceed its bounds if invalid offsets are provided
+        if(valid_packet->inboundOffset + bytes_to_write <= msgObjPtr->size)
         {
-          //work out the correct length of the write (clamp length to internal variable size)
-          uint8_t bytes_to_write = (valid_packet->state.data_bytes_in <= msgObjPtr->size) ? valid_packet->state.data_bytes_in : msgObjPtr->size;
-
-          //Ensure the data won't exceed its bounds if invalid offsets are provided
-          if(valid_packet->inboundOffset + bytes_to_write <= msgObjPtr->size)
-          {
-            //copy payload data into (memory + offset from address) 'blindly'
-            memcpy(msgObjPtr->payload + valid_packet->inboundOffset, valid_packet->inboundData, bytes_to_write);
-          }
-          else
-          {
-            report_error(err_invalid_offset);
-          }
+          //copy payload data into (memory + offset from address) 'blindly'
+          memcpy(msgObjPtr->payload + valid_packet->inboundOffset, valid_packet->inboundData, bytes_to_write);
         }
-      break;
+        else
+        {
+          report_error(err_invalid_offset);
+        }
+      }
+    }
+    else  //no payload data
+    {
+      if(msgObjPtr->type == TYPE_CALLBACK)
+      {
+        if( (header.response && header.acknum) || (!header.response && !header.acknum) )
+        {
+          //create a function to call from the internally stored pointer
+          CallBackType parsedCallbackHandler;
+          parsedCallbackHandler = msgObjPtr->payload;
+
+          (parsedCallbackHandler) ? parsedCallbackHandler() : report_error(err_missing_callback);
+        }
+      }
+
+      //todo: handle ack responses here in the future?
     }
 
     //inbound packet requested a response on ingest of this packet
@@ -148,16 +142,9 @@ handle_packet(struct eui_interface *valid_packet)
     }
 
   }
-  else  //search miss
+  else  //search didn't return a pointer to the object
   {
-    if(header.internal)
-    {
-      report_error(err_invalid_internal);
-    } 
-    else 
-    {    
-      report_error(err_invalid_developer);
-    }
+    (header.internal) ? report_error(err_invalid_internal) : report_error(err_invalid_developer);
   }
 }
 
