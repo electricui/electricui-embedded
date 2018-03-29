@@ -114,29 +114,33 @@ handle_packet(struct eui_interface *valid_packet)
 
     //respond as requested by the inbound packet
     if(header.query)
-    {  
-      euiPacketSettings_t res_header =  { .internal = header.internal, 
-                                          .ack      = MSG_NACK, 
-                                          .query    = MSG_NQUERY, 
-                                          .type     = msgObjPtr->type,
-                                        };
+    {
+      if(!header.acknum)
+      {
+        //send ack response
+        euiHeader_t detail_header;
+        detail_header.internal   = header.internal;
+        detail_header.query      = MSG_NACK;
+        detail_header.type       = msgObjPtr->type;
+        detail_header.id_len     = strlen(msgObjPtr->msgID);
+        detail_header.acknum     = header.acknum;
+        detail_header.offset     = header.offset;
+        detail_header.data_len   = 0;
 
-      send_tracked(msgObjPtr, &res_header);      
+        encode_packet(parserOutputFunc, &detail_header, msgObjPtr->msgID, valid_packet->inboundOffset, msgObjPtr->payload); 
+      }
+      else
+      {
+        //respond to query
+        euiPacketSettings_t res_header =  { .internal = header.internal, 
+                                            .ack      = MSG_NACK, 
+                                            .query    = MSG_NQUERY, 
+                                            .type     = msgObjPtr->type,
+                                          };
+
+        send_tracked(msgObjPtr, &res_header);      
+      }
     }
-
-    // if(header.ack)
-    // {  
-    //   euiHeader_t detail_header;
-    //   detail_header.internal   = header.internal;
-    //   detail_header.query      = MSG_NACK;
-    //   detail_header.type       = msgObjPtr->type;
-    //   detail_header.id_len     = strlen(msgObjPtr->msgID);
-    //   detail_header.acknum     = header.acknum;
-    //   detail_header.offset     = header.offset;
-    //   detail_header.data_len   = 0;
-
-    //   encode_packet(parserOutputFunc, &detail_header, msgObjPtr->msgID, valid_packet->inboundOffset, msgObjPtr->payload);
-    // }
 
   }
   else  //search miss
