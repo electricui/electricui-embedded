@@ -55,22 +55,29 @@ encode_packet(CallBackwithUINT8 output_function, euiHeader_t * header, const cha
 
     //header
     uint16_t header_buffer = 0;
-    header_buffer |= header->internal << 0;
-    header_buffer |= header->ack      << 1;
-    header_buffer |= header->query    << 2;
-    header_buffer |= header->offset   << 3;
-    header_buffer |= header->type     << 4;
+
+    header_buffer |= (header->data_len);
+    header_buffer |= header->type     << 10;
+    header_buffer |= header->internal << 14;
+    header_buffer |= header->offset   << 15;
+
+    //write first byte
+    output_function( header_buffer & 0xFF );
+    crc16(header_buffer & 0xFF, &outbound_crc); 
+
+    //write second byte
+    output_function( header_buffer >> 8 );
+    crc16(header_buffer >> 8, &outbound_crc); 
+
+    header_buffer = 0;  //reuse the buffer for the remaining byte
+
+    header_buffer |= header->id_len;
+    header_buffer |= header->query  << 4;
+    header_buffer |= header->acknum << 5;
+    
+    //write third byte
     output_function( header_buffer );
     crc16(header_buffer, &outbound_crc); 
-
-    header_buffer = 0;  //reuse the buffer for the remaining 2-bytes
-    header_buffer |= header->acknum << 14;
-    header_buffer |= header->id_len  << 10;
-    header_buffer |= (header->data_len);
-    output_function( header_buffer & 0xFF );
-    crc16(header_buffer & 0xFF , &outbound_crc); 
-    output_function( header_buffer >> 8 );
-    crc16(header_buffer >> 8 , &outbound_crc); 
 
     //message identifier
     for(int i = 0; i < header->id_len; i++)
