@@ -115,7 +115,7 @@ handle_packet(struct eui_interface *valid_packet)
     //inbound packet requested a response on ingest of this packet
     if(header.response)
     {
-      if(!header.acknum)
+      if(header.acknum)
       {
         //respond with somewhat empty ack response packet
         euiHeader_t detail_header;
