@@ -151,6 +151,9 @@ handle_packet(struct eui_interface *valid_packet)
 void
 send_tracked(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings)
 {
+  //write the correct type into the settings based on the objects internal type, not whatever has been provided by the dev...
+  settings->type = msgObjPtr->type;
+
   //decide if data will fit in a normal message, or requires multi-packet output
   if(msgObjPtr->size <= PAYLOAD_SIZE_MAX)
   {
