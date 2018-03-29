@@ -91,6 +91,12 @@ handle_packet(struct eui_interface *valid_packet)
       }
       break;
 
+      case TYPE_OFFSET_METADATA:
+      {
+        report_error(err_todo_functionality);
+      }
+      break;
+
       default:
         //Ensure some data was recieved from the inbound packet
         if(valid_packet->state.data_bytes_in)
