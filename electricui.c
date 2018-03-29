@@ -139,7 +139,6 @@ handle_packet(struct eui_interface *valid_packet)
       {
         //respond with data to fufil query behaviour
         euiPacketSettings_t res_header =  { .internal = header.internal, 
-                                            .ack      = MSG_NACK, 
                                             .response = MSG_NRESP, 
                                             .type     = msgObjPtr->type,
                                           };

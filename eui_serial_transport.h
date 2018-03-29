@@ -12,8 +12,6 @@
 
 #define MSG_INTERNAL        1
 #define MSG_DEV             0
-#define MSG_ACK             1
-#define MSG_NACK            0
 #define MSG_RESP            1
 #define MSG_NRESP           0
 #define MSG_OFFSET_PACKET   1
@@ -35,7 +33,6 @@ typedef struct {
 
 typedef struct {
   unsigned internal   : 1;
-  unsigned ack        : 1;
   unsigned response   : 1;
   unsigned type       : 4;
 } euiPacketSettings_t;
