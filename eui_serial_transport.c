@@ -139,26 +139,24 @@ decode_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
     break;
 
     case exp_header_b1:
-      //populate the header bitfield from recieved byte
-      active_interface->inboundHeader.internal  = (inbound_byte >> 0) & 1;
-      // active_interface->inboundHeader.ack       = (inbound_byte >> 1) & 1;
-      active_interface->inboundHeader.query     = (inbound_byte >> 2) & 1;
-      active_interface->inboundHeader.offset    = (inbound_byte >> 3) & 1;
-      active_interface->inboundHeader.type      = inbound_byte >> 4;
+      active_interface->inboundHeader.data_len = inbound_byte;
 
       active_interface->state.parser_s = exp_header_b2;
     break;
 
    case exp_header_b2:
-      active_interface->inboundHeader.data_len = inbound_byte;
+      active_interface->inboundHeader.data_len |= ((uint16_t)inbound_byte << 8) & 0x0300; //the 'last' two length bits = first 2b of this byte
+      active_interface->inboundHeader.type      = (inbound_byte >> 2) & 0x0F;  //shift 2 and mask 4 for type
+      active_interface->inboundHeader.internal  = (inbound_byte >> 6) & 1;
+      active_interface->inboundHeader.offset    = (inbound_byte >> 7) & 1;
       
       active_interface->state.parser_s = exp_header_b3;
     break;
 
     case exp_header_b3:
-      active_interface->inboundHeader.acknum    = (inbound_byte >> 6);         //read last two bits
-      active_interface->inboundHeader.id_len    = (inbound_byte >> 2) & 0x0F;  //shift 2-bits, mask lowest 4
-      active_interface->inboundHeader.data_len |= ((uint16_t)inbound_byte << 8) & 0x0300; //the 'last' two length bits = first 2b of this byte
+      active_interface->inboundHeader.id_len    = (inbound_byte     ) & 0x0F;  //mask lowest 4
+      active_interface->inboundHeader.query     = (inbound_byte >> 4) & 1;
+      active_interface->inboundHeader.acknum    = (inbound_byte >> 5);
       
       active_interface->state.parser_s = exp_message_id;
     break;   
