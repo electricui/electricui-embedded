@@ -31,7 +31,7 @@ typedef struct {
   unsigned type       : 4;
   unsigned data_len   : 10;
   unsigned id_len     : MESSAGEID_BITS;
-  unsigned seq        : 2;
+  unsigned acknum     : 2;
 } euiHeader_t;
 
 typedef struct {
@@ -102,7 +102,7 @@ enum packet_signals {
     packet_error_generic,
 };
 void            crc16(uint8_t data, uint16_t *crc);
-euiHeader_t *   generate_header(uint8_t internal, uint8_t ack, uint8_t query, uint8_t offset_packet, uint8_t data_type, uint8_t msgID_len, uint16_t data_length, uint8_t sequence_num);
+euiHeader_t *   generate_header(uint8_t internal, uint8_t ack, uint8_t query, uint8_t offset_packet, uint8_t data_type, uint8_t msgID_len, uint16_t data_length, uint8_t ack_num);
 uint8_t         encode_packet_simple(CallBackwithUINT8 output_function, euiPacketSettings_t *settings, const char * msg_id, uint16_t payload_len, void* payload);
 uint8_t         encode_packet(CallBackwithUINT8 output_function, euiHeader_t * header, const char * msg_id, uint16_t offset, void* payload);
 uint8_t         decode_packet(uint8_t inbound_byte, struct eui_interface *active_interface);

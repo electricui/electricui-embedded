@@ -132,7 +132,7 @@ handle_packet(struct eui_interface *valid_packet)
       detail_header.query      = MSG_NACK;
       detail_header.type       = msgObjPtr->type;
       detail_header.id_len     = strlen(msgObjPtr->msgID);
-      detail_header.seq        = header.seq;
+      detail_header.acknum     = header.acknum;
       detail_header.offset     = header.offset;
       detail_header.data_len   = 0;
 
@@ -177,7 +177,7 @@ void send_tracked_range(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings, 
     detail_header.ack        = settings->ack;
     detail_header.query      = settings->query;
     detail_header.id_len     = strlen(msgObjPtr->msgID);
-    detail_header.seq        = 0;
+    detail_header.acknum     = 0;
     detail_header.offset     = 0;
 
     //generate metadata message with address range

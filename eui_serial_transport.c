@@ -11,7 +11,7 @@ crc16(uint8_t data, uint16_t *crc)
 }
 
 euiHeader_t *
-generate_header(uint8_t internal, uint8_t ack, uint8_t query, uint8_t offset_packet, uint8_t data_type, uint8_t msgID_len, uint16_t data_length, uint8_t sequence_num)
+generate_header(uint8_t internal, uint8_t ack, uint8_t query, uint8_t offset_packet, uint8_t data_type, uint8_t msgID_len, uint16_t data_length, uint8_t ack_num)
 {
   euiHeader_t gen_header; 
 
@@ -22,7 +22,7 @@ generate_header(uint8_t internal, uint8_t ack, uint8_t query, uint8_t offset_pac
   gen_header.type       = data_type;
   gen_header.id_len     = msgID_len;
   gen_header.data_len   = data_length;
-  gen_header.seq        = sequence_num;
+  gen_header.acknum     = ack_num;
 
   return &gen_header;
 }
@@ -30,14 +30,14 @@ generate_header(uint8_t internal, uint8_t ack, uint8_t query, uint8_t offset_pac
 uint8_t
 encode_packet_simple(CallBackwithUINT8 output_function, euiPacketSettings_t *settings, const char * msg_id, uint16_t payload_len, void* payload)
 {
-  //just call the full one with default seq# and offset values
+  //just call the full one with default ack# and offset values
   euiHeader_t expanded_header;
 
   expanded_header.internal   = settings->internal;
   expanded_header.ack        = settings->ack;
   expanded_header.query      = settings->query;
   expanded_header.type       = settings->type;
-  expanded_header.seq        = 0;
+  expanded_header.acknum     = 0;
   expanded_header.offset     = 0;
   expanded_header.id_len     = strlen(msg_id);
   expanded_header.data_len   = payload_len;
@@ -66,7 +66,7 @@ encode_packet(CallBackwithUINT8 output_function, euiHeader_t * header, const cha
     crc16(header_buffer, &outbound_crc); 
 
     header_buffer = 0;  //reuse the buffer for the remaining 2-bytes
-    header_buffer |= header->seq << 14;
+    header_buffer |= header->acknum << 14;
     header_buffer |= header->id_len  << 10;
     header_buffer |= (header->data_len);
     output_function( header_buffer & 0xFF );
@@ -151,7 +151,7 @@ decode_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
     break;
 
     case exp_header_b3:
-      active_interface->inboundHeader.seq       = (inbound_byte >> 6);         //read last two bits
+      active_interface->inboundHeader.acknum    = (inbound_byte >> 6);         //read last two bits
       active_interface->inboundHeader.id_len    = (inbound_byte >> 2) & 0x0F;  //shift 2-bits, mask lowest 4
       active_interface->inboundHeader.data_len |= ((uint16_t)inbound_byte << 8) & 0x0300; //the 'last' two length bits = first 2b of this byte
       
