@@ -29,6 +29,18 @@ uint8_t rgb_brightness = 50;
 uint16_t photosensor_raw = 0;
 rgb_t example_rgb = { 182, 236, 20 };
 
+uint8_t delay_setting = 1;  //in seconds
+
+void delay_stored()
+{
+  delay(delay_setting * 1000);
+}
+
+void delay_random()
+{
+  delay( (rand()%(10-1) + 1) *500 ) //random delay between 500ms and 5sec
+}
+
 const euiMessage_t dev_msg_store[] = {
     {.msgID = "lop", .type = TYPE_UINT16,   .size = sizeof(delta_time),       .payload = &delta_time      },
     {.msgID = "btA", .type = TYPE_UINT8,    .size = sizeof(btn1_state),       .payload = &btn1_state      },
@@ -37,6 +49,10 @@ const euiMessage_t dev_msg_store[] = {
     {.msgID = "pts", .type = TYPE_UINT16,   .size = sizeof(photosensor_raw),  .payload = &photosensor_raw },
     {.msgID = "bright", .type = TYPE_UINT8, .size = sizeof(rgb_brightness),   .payload = &rgb_brightness  },
     {.msgID = "rgb", .type = TYPE_CUSTOM_MARKER, .size = sizeof(example_rgb), .payload = &example_rgb     },
+
+    {.msgID = "dlv", .type = TYPE_UINT8,    .size = sizeof(delay_setting), .payload = &delay_setting    },
+    {.msgID = "dls", .type = TYPE_CALLBACK, .size = sizeof(delay_stored),  .payload = &delay_stored     },
+    {.msgID = "dlr", .type = TYPE_CALLBACK, .size = sizeof(delay_random), . payload = &delay_random     },
 };
 
 void cdc_tx_putc(uint8_t data)
@@ -81,5 +97,5 @@ void loop()
   //loop timing
   delta_time = micros() - loop_time;  //counter diff between last loop, and now
   loop_time = micros();
-  delay(1); //randomly select loop delay for 1-10ms to simulate varying cpu load
+  delay(5);
 }
