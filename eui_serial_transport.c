@@ -1,4 +1,5 @@
 #include "eui_serial_transport.h"
+#include "string.h"
 
 void
 crc16(uint8_t data, uint16_t *crc)

@@ -1,4 +1,5 @@
 #include "electricui.h"
+#include "string.h"
 
 euiMessage_t * 
 find_message_object(const char * msg_id, uint8_t is_internal)
