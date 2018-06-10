@@ -1,6 +1,26 @@
 #include "electricui.h"
 #include "string.h"
 
+//internal
+uint8_t library_version[] = { VER_MAJOR, VER_MINOR, VER_PATCH };
+
+
+
+
+euiMessage_t internal_msg_store[] = {
+    {.msgID = "lv", .type = TYPE_UINT8, .size = sizeof(library_version),    .payload = &library_version     },
+    {.msgID = "bi", .type = TYPE_UINT8, .size = sizeof(board_identifier),   .payload = &board_identifier    },
+    {.msgID = "si", .type = TYPE_UINT8, .size = sizeof(session_identifier), .payload = &session_identifier  },
+
+    {.msgID = "er", .type = TYPE_UINT8, .size = sizeof(last_error),         .payload = &last_error          },
+    {.msgID = "hb", .type = TYPE_UINT8, .size = sizeof(heartbeat),          .payload = &heartbeat           },
+
+    {.msgID = "dm", .type = TYPE_CALLBACK, .size = sizeof(announce_dev_msg),  .payload = &announce_dev_msg  },
+    {.msgID = "dv", .type = TYPE_CALLBACK, .size = sizeof(announce_dev_vars), .payload = &announce_dev_vars },
+    {.msgID = "as", .type = TYPE_CALLBACK, .size = sizeof(announce_board),    .payload = &announce_board    },
+};
+
+
 euiMessage_t * 
 find_message_object(const char * msg_id, uint8_t is_internal)
 {
@@ -43,7 +63,7 @@ void parse_packet(uint8_t inbound_byte, eui_interface *active_interface)
 
       //done handling the message, clear out the state info (but leave the output pointer alone)
       parserOutputFunc = active_interface->output_char_fnPtr;
-      memset( active_interface, 0, sizeof(active_interface) );
+      memset( active_interface, 0, sizeof(&active_interface) );
       active_interface->output_char_fnPtr = parserOutputFunc;    
     break;
 
@@ -52,7 +72,7 @@ void parse_packet(uint8_t inbound_byte, eui_interface *active_interface)
       report_error(err_parser_generic);
 
       parserOutputFunc = active_interface->output_char_fnPtr;
-      memset( active_interface, 0, sizeof(active_interface) );
+      memset( active_interface, 0, sizeof(&active_interface) );
       active_interface->output_char_fnPtr = parserOutputFunc;    
     break;
   }
@@ -261,7 +281,7 @@ announce_dev_msg(void)
     msgBufferPos += msgIDlen;
     msgIDPacked++;  
 
-    //send messages and clear buffer to break list into shorter messagaes
+    //send messages and clear buffer to break list into shorter messages
     if(msgIDPacked >= (PAYLOAD_SIZE_MAX / PACKET_BASE_SIZE) || i >= numDevObjects)
     {
       encode_packet_simple(parserOutputFunc, &temp_header, "dml", msgBufferPos, &msgBuffer);

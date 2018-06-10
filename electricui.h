@@ -5,7 +5,7 @@
 #include <eui_serial_transport.h>
 
 //eUI defines
-#define VER_MAJOR 1     //library versioning follows semvar2 style (implementation limit of 255 per step)
+#define VER_MAJOR 1     //library versions follow semvar2 style (implementation limit of 255 per step)
 #define VER_MINOR 3
 #define VER_PATCH 1
 
@@ -47,8 +47,10 @@ void setup_dev_msg(euiMessage_t *msgArray, uint8_t numObjects);
 void setup_identifier(void);
 void send_message(const char * msg_id, eui_interface *active_interface);
 
-//internal
-const uint8_t library_version[] = { VER_MAJOR, VER_MINOR, VER_PATCH };
+void announce_board(void);
+void announce_dev_msg(void);
+void announce_dev_vars(void);
+
 uint8_t heartbeat;
 uint8_t board_identifier;
 uint8_t session_identifier;
@@ -56,22 +58,5 @@ uint8_t session_identifier;
 uint8_t last_error;
 
 euiPacketSettings_t temp_header;
-
-void announce_board(void);
-void announce_dev_msg(void);
-void announce_dev_vars(void);
-
-const euiMessage_t internal_msg_store[] = {
-    {.msgID = "lv", .type = TYPE_UINT8, .size = sizeof(library_version),    .payload = &library_version     },
-    {.msgID = "bi", .type = TYPE_UINT8, .size = sizeof(board_identifier),   .payload = &board_identifier    },
-    {.msgID = "si", .type = TYPE_UINT8, .size = sizeof(session_identifier), .payload = &session_identifier  },
- 
-    {.msgID = "er", .type = TYPE_UINT8, .size = sizeof(last_error),         .payload = &last_error          },
-    {.msgID = "hb", .type = TYPE_UINT8, .size = sizeof(heartbeat),          .payload = &heartbeat           },
-
-    {.msgID = "dm", .type = TYPE_CALLBACK, .size = sizeof(announce_dev_msg),  .payload = &announce_dev_msg  },
-    {.msgID = "dv", .type = TYPE_CALLBACK, .size = sizeof(announce_dev_vars), .payload = &announce_dev_vars },
-    {.msgID = "as", .type = TYPE_CALLBACK, .size = sizeof(announce_board),    .payload = &announce_board    },
-};
 
 #endif
