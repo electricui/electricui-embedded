@@ -32,8 +32,8 @@ enum error_codes {
 };
 
 euiMessage_t * find_message_object(const char * msg_id, uint8_t is_internal);
-void parse_packet(uint8_t inbound_byte, struct eui_interface *active_interface);
-void handle_packet(struct eui_interface *valid_packet);
+void parse_packet(uint8_t inbound_byte, eui_interface *active_interface);
+void handle_packet(eui_interface *valid_packet);
 void send_tracked(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings);
 void send_tracked_range(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings, uint16_t base_addr, uint16_t end_addr);
 void report_error(uint8_t error);
@@ -45,7 +45,7 @@ CallBackwithUINT8 parserOutputFunc;  //holding ref for output func
 
 void setup_dev_msg(euiMessage_t *msgArray, uint8_t numObjects);
 void setup_identifier(void);
-void send_message(const char * msg_id, struct eui_interface *active_interface);
+void send_message(const char * msg_id, eui_interface *active_interface);
 
 //internal
 const uint8_t library_version[] = { VER_MAJOR, VER_MINOR, VER_PATCH };

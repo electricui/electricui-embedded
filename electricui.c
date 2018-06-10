@@ -31,7 +31,7 @@ find_message_object(const char * msg_id, uint8_t is_internal)
   return foundMsgPtr;
 }
 
-void parse_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
+void parse_packet(uint8_t inbound_byte, eui_interface *active_interface)
 {
   uint8_t parsing_progress = decode_packet(inbound_byte, active_interface);
 
@@ -58,7 +58,7 @@ void parse_packet(uint8_t inbound_byte, struct eui_interface *active_interface)
 }
 
 void
-handle_packet(struct eui_interface *valid_packet)
+handle_packet(eui_interface *valid_packet)
 {
   //we know the message is 'valid', use deconstructed header for convenience
   euiHeader_t header = *(euiHeader_t*)&valid_packet->inboundHeader;
@@ -196,7 +196,7 @@ void send_tracked_range(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings, 
 }
 
 void
-send_message(const char * msg_id, struct eui_interface *active_interface)
+send_message(const char * msg_id, eui_interface *active_interface)
 {
   parserOutputFunc = active_interface->output_char_fnPtr;
 
