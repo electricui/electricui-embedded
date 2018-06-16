@@ -39,7 +39,7 @@ typedef struct {
 
 typedef enum {
     TYPE_CALLBACK = 0,
-    TYPE_CUSTOM_MARKER,
+    TYPE_CUSTOM,
     TYPE_OFFSET_METADATA,
     TYPE_BYTE,
     TYPE_CHAR,
