@@ -9,7 +9,7 @@ uint8_t library_version[] = { VER_MAJOR, VER_MINOR, VER_PATCH };
 
 euiMessage_t internal_msg_store[] = {
     {.msgID = "lv", .type = TYPE_UINT8, .size = sizeof(library_version),    .payload = &library_version     },
-    {.msgID = "bi", .type = TYPE_UINT8, .size = sizeof(board_identifier),   .payload = &board_identifier    },
+    {.msgID = "bi", .type = TYPE_UINT16,.size = sizeof(board_identifier),   .payload = &board_identifier    },
     {.msgID = "si", .type = TYPE_UINT8, .size = sizeof(session_identifier), .payload = &session_identifier  },
 
     {.msgID = "er", .type = TYPE_UINT8, .size = sizeof(last_error),         .payload = &last_error          },
@@ -236,10 +236,21 @@ setup_dev_msg(euiMessage_t *msgArray, uint8_t numObjects)
 }
 
 void
-setup_identifier(void)
+setup_identifier(char * uuid, uint8_t bytes)
 {
-  //hahahaha
-  board_identifier = rand();
+	if(uuid && bytes)
+	{
+		//generate a 'hashed' int16 of their UUID
+		for(int i = 0; i < bytes; i++)
+		{
+		  crc16(uuid[i], &board_identifier);
+		}
+	}
+	else
+	{
+		//hahahaha
+		board_identifier = 4;
+	}
 }
 
 //application layer callbacks

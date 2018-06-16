@@ -44,7 +44,7 @@ uint8_t numDevObjects;
 CallBackwithUINT8 parserOutputFunc;  //holding ref for output func
 
 void setup_dev_msg(euiMessage_t *msgArray, uint8_t numObjects);
-void setup_identifier(void);
+void setup_identifier(char * uuid, uint8_t bytes);
 void send_message(const char * msg_id, eui_interface *active_interface);
 
 void announce_board(void);
@@ -52,7 +52,7 @@ void announce_dev_msg(void);
 void announce_dev_vars(void);
 
 uint8_t heartbeat;
-uint8_t board_identifier;
+uint16_t board_identifier;
 uint8_t session_identifier;
 
 uint8_t last_error;
