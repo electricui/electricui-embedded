@@ -196,14 +196,13 @@ decode_packet(uint8_t inbound_byte, eui_interface *active_interface)
     break;
 
     case exp_offset_b1:
-      active_interface->inboundOffset = inbound_byte;
-      active_interface->inboundOffset << 8;
-
+      //ingest first byte
+      active_interface->inboundOffset = (uint16_t)inbound_byte << 8;
       active_interface->state.parser_s = exp_offset_b2;
     break;
 
     case exp_offset_b2:
-      //ingest second offset byte as the MSB
+      //ingest second offset byte
       active_interface->inboundOffset |= inbound_byte;
       active_interface->state.parser_s = exp_data;
     break;
