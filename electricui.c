@@ -284,7 +284,7 @@ announce_dev_msg(void)
 
   temp_header.type = TYPE_CHAR;
 
-  for(int i = 0; i <= numDevObjects; i++)
+  for(int i = 0; i < numDevObjects; i++)
   {
     //copy messageID into the buffer, use null termination characters as delimiter
     msgIDlen = strlen(devObjectArray[i].msgID) + 1; //+1 to account for null character
