@@ -212,8 +212,8 @@ decode_packet(uint8_t inbound_byte, eui_interface *active_interface)
       active_interface->inboundData[active_interface->state.data_bytes_in] = inbound_byte;
       active_interface->state.data_bytes_in++;
 
-      //prepare for the crc data
-      if(active_interface->state.data_bytes_in >= active_interface->inboundHeader.data_len)
+      //prepare for the crc data, we've seen all the data we were expecting (or can hold)
+      if(active_interface->state.data_bytes_in >= active_interface->inboundHeader.data_len || active_interface->state.data_bytes_in >= PAYLOAD_SIZE_MAX )
       {
         active_interface->state.parser_s = exp_crc_b1;
       }
