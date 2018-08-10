@@ -56,11 +56,6 @@ typedef struct {
   float z;
 } imu_t;
 
-typedef enum {
-    TYPE_RGB = TYPE_CUSTOM_MARKER,
-    TYPE_IMU,
-} custom_euiType_t;
-
 rgb_t example_rgb = { 182, 236, 20 };
 imu_t example_imu = { 0.002, 0.003, -9.782 };
 
@@ -87,8 +82,8 @@ const euiMessage_t dev_msg_store[] = {
     {.msgID = "lat", .type = TYPE_UINT32, .size = sizeof(large_int_array),    .payload = &large_int_array     },
 
     //custom type examples
-    {.msgID = "rgb", .type = TYPE_RGB, .size = sizeof(example_rgb), .payload = &example_rgb },
-    {.msgID = "imu", .type = TYPE_IMU, .size = sizeof(example_imu), .payload = &example_imu },
+    {.msgID = "rgb", .type = TYPE_CUSTOM, .size = sizeof(example_rgb), .payload = &example_rgb },
+    {.msgID = "imu", .type = TYPE_CUSTOM, .size = sizeof(example_imu), .payload = &example_imu },
 };
 
 eui_interface usb_comms; //eui Transport interface holding object
@@ -105,7 +100,7 @@ void setup()
   usb_comms.output_char_fnPtr = &cdc_tx_putc;
   uart_comms.output_char_fnPtr = &uart_tx_putc;
   setup_dev_msg(dev_msg_store, ARR_ELEM(dev_msg_store));
-  setup_identifier();
+  setup_identifier("hello", 5);
 
   loop_time = micros(); //loop counter in microseconds
 }
