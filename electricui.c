@@ -95,7 +95,8 @@ handle_packet(eui_interface *valid_packet)
   {
     if(valid_packet->state.data_bytes_in)
     {
-      if(msgObjPtr->type == TYPE_OFFSET_METADATA)
+      //ignore data in callbacks or offset messages
+      if(msgObjPtr->type == TYPE_CALLBACK || header.type == TYPE_OFFSET_METADATA)
       {
         report_error(err_todo_functionality);
       }
@@ -158,7 +159,18 @@ handle_packet(eui_interface *valid_packet)
                                             .type     = msgObjPtr->type,
                                           };
 
-        send_tracked(msgObjPtr, &res_header);      
+        if(header.type == TYPE_OFFSET_METADATA)
+        {
+          uint16_t base_address = (uint16_t)valid_packet->inboundData[1] << 8 | valid_packet->inboundData[0];
+          uint16_t end_address  = (uint16_t)valid_packet->inboundData[3] << 8 | valid_packet->inboundData[2];
+
+          //try and send the range as requested
+          send_tracked_range(msgObjPtr, &res_header, base_address, end_address);
+        } 
+        else
+        {
+          send_tracked(msgObjPtr, &res_header);      
+        }
       }
     }
 
@@ -188,6 +200,17 @@ send_tracked(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings)
 
 void send_tracked_range(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings, uint16_t base_addr, uint16_t end_addr)
 {
+    //check the requested start and end ranges are within the bounds of the managed variable
+    if( end_addr > msgObjPtr->size)
+    {
+      end_addr = msgObjPtr->size;
+    }
+
+    if( base_addr > end_addr)
+    {
+      base_addr = end_addr;
+    }
+
     uint16_t data_range[] = { base_addr, end_addr }; //start, end offsets for data being sent
 
     euiHeader_t detail_header;
