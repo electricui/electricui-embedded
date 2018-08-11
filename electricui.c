@@ -201,14 +201,14 @@ send_tracked(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings)
 void send_tracked_range(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings, uint16_t base_addr, uint16_t end_addr)
 {
     //check the requested start and end ranges are within the bounds of the managed variable
-    if( end_addr > msgObjPtr->size)
+    if( end_addr > msgObjPtr->size || !end_addr)  //TODO work out how to handle a requested 0 end address, for now, send the entire thing as fallback
     {
       end_addr = msgObjPtr->size;
     }
 
     if( base_addr > end_addr)
     {
-      base_addr = end_addr;
+      base_addr = end_addr - 1; //TODO work out what the correct behaviour is when the UI requests inverted range? 
     }
 
     uint16_t data_range[] = { base_addr, end_addr }; //start, end offsets for data being sent
@@ -230,9 +230,11 @@ void send_tracked_range(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings, 
     detail_header.offset = 1;
     detail_header.type   = msgObjPtr->type;
 
-    for(; data_range[1] > data_range[0]; )
+    for( ; data_range[1] > data_range[0]; )
     {
-      detail_header.data_len = (data_range[1] > PAYLOAD_SIZE_MAX) ? PAYLOAD_SIZE_MAX: data_range[1];
+      uint16_t bytes_remaining = data_range[1] - data_range[0];
+      detail_header.data_len = ( bytes_remaining > PAYLOAD_SIZE_MAX ) ? PAYLOAD_SIZE_MAX : bytes_remaining;
+      
       data_range[1] -= detail_header.data_len;  //the current position through the buffer in bytes is also the end offset
 
       encode_packet(parserOutputFunc, &detail_header, msgObjPtr->msgID, data_range[1], msgObjPtr->payload);
