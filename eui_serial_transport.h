@@ -17,6 +17,8 @@
 #define MSG_OFFSET_PACKET   1
 #define MSG_STANDARD_PACKET 0
 
+#define CALLBACK_SIZE 1 //sizeof( function ) is outside C spec though GCC returns 1. We don't use it.
+
 //control characters in packets
 static const uint8_t stHeader       = 0x01;
 static const uint8_t enTransmission = 0x04;

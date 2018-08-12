@@ -1,5 +1,5 @@
+#include <string.h>
 #include "eui_serial_transport.h"
-#include "string.h"
 
 void
 crc16(uint8_t data, uint16_t *crc)
@@ -253,6 +253,10 @@ decode_packet(uint8_t inbound_byte, eui_interface *active_interface)
         return packet_valid; //signal to the application layer that a valid packet is waiting
       }
     break;  
+
+    default:
+
+    break;
   }
   
   return parser_idle;

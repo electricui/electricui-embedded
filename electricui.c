@@ -1,5 +1,5 @@
+#include <string.h>
 #include "electricui.h"
-#include "string.h"
 
 //internal
 uint8_t library_version[] = { VER_MAJOR, VER_MINOR, VER_PATCH };
@@ -15,9 +15,9 @@ euiMessage_t internal_msg_store[] = {
     {.msgID = "er", .type = TYPE_UINT8, .size = sizeof(last_error),         .payload = &last_error          },
     {.msgID = "hb", .type = TYPE_UINT8, .size = sizeof(heartbeat),          .payload = &heartbeat           },
 
-    {.msgID = "dm", .type = TYPE_CALLBACK, .size = sizeof(announce_dev_msg),  .payload = &announce_dev_msg  },
-    {.msgID = "dv", .type = TYPE_CALLBACK, .size = sizeof(announce_dev_vars), .payload = &announce_dev_vars },
-    {.msgID = "as", .type = TYPE_CALLBACK, .size = sizeof(announce_board),    .payload = &announce_board    },
+    {.msgID = "dm", .type = TYPE_CALLBACK, .size = CALLBACK_SIZE,  .payload = &announce_dev_msg  },
+    {.msgID = "dv", .type = TYPE_CALLBACK, .size = CALLBACK_SIZE,  .payload = &announce_dev_vars },
+    {.msgID = "as", .type = TYPE_CALLBACK, .size = CALLBACK_SIZE,  .payload = &announce_board    },
 };
 
 
@@ -29,7 +29,7 @@ find_message_object(const char * msg_id, uint8_t is_internal)
   if(is_internal == MSG_INTERNAL)
   {
     //search the internal array for matching messageID
-    for(int i = 0; i < ARR_ELEM(internal_msg_store); i++)
+    for(uint8_t i = 0; i < ARR_ELEM(internal_msg_store); i++)
     {
       if( strcmp( msg_id, internal_msg_store[i].msgID ) == 0 )
       {
@@ -40,7 +40,7 @@ find_message_object(const char * msg_id, uint8_t is_internal)
   else if (is_internal == MSG_DEV)
   {
     //search developer space array for matching messageID
-    for(int i = 0; i < numDevObjects; i++)
+    for(uint8_t i = 0; i < numDevObjects; i++)
     {
       if( strcmp( msg_id, devObjectArray[i].msgID ) == 0 )
       {
@@ -74,6 +74,10 @@ void parse_packet(uint8_t inbound_byte, eui_interface *active_interface)
       parserOutputFunc = active_interface->output_char_fnPtr;
       memset( active_interface, 0, sizeof(&active_interface) );
       active_interface->output_char_fnPtr = parserOutputFunc;    
+    break;
+
+    default:
+
     break;
   }
 }
@@ -266,7 +270,7 @@ setup_identifier(char * uuid, uint8_t bytes)
 	if(uuid && bytes)
 	{
 		//generate a 'hashed' int16 of their UUID
-		for(int i = 0; i < bytes; i++)
+		for(uint8_t i = 0; i < bytes; i++)
 		{
 		  crc16(uuid[i], &board_identifier);
 		}
@@ -309,7 +313,7 @@ announce_dev_msg(void)
 
   temp_header.type = TYPE_CHAR;
 
-  for(int i = 0; i < numDevObjects; i++)
+  for(uint8_t i = 0; i < numDevObjects; i++)
   {
     //copy messageID into the buffer, use null termination characters as delimiter
     msgIDlen = strlen(devObjectArray[i].msgID) + 1; //+1 to account for null character
@@ -336,7 +340,7 @@ announce_dev_vars(void)
   temp_header.internal  = MSG_DEV;
   temp_header.response  = MSG_NRESP;
 
-  for(int i = 0; i < numDevObjects; i++)
+  for(uint8_t i = 0; i < numDevObjects; i++)
   {
     send_tracked( devObjectArray + i, &temp_header);
   }

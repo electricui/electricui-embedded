@@ -2,7 +2,7 @@
 #define EUI_H
 
 #include <stdint.h>
-#include <eui_serial_transport.h>
+#include "eui_serial_transport.h"
 
 //eUI defines
 #define VER_MAJOR 1     //library versions follow semvar2 style (implementation limit of 255 per step)
