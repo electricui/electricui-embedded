@@ -3,27 +3,27 @@
 #include "unity_fixture.h"
 #include <stdlib.h>
 
-TEST_GROUP(TransportLayer);
+TEST_GROUP( TransportLayer );
 
 #define CRC_DIVISOR 0xFFFF
 
 time_t t;
 
 
-TEST_SETUP(TransportLayer)
+TEST_SETUP( TransportLayer )
 {
     //run before each test
     srand((unsigned) time(&t)); //seed rand()
 
 }
 
-TEST_TEAR_DOWN(TransportLayer)
+TEST_TEAR_DOWN( TransportLayer )
 {
     //run after each test
 
 }
 
-TEST(TransportLayer, CRC16_Basic)
+TEST( TransportLayer, CRC16_Basic)
 {
     //handy reference https://crccalc.com
     //CRC-16/CCITT-FALSE is initalised with 0xFFFF
@@ -65,7 +65,7 @@ TEST(TransportLayer, CRC16_Basic)
     TEST_ASSERT_MESSAGE( 0x0000 == temp_crc_1, "Self-zero's when input is same as cache" );
 }
 
-TEST(TransportLayer, CRC16_Advanced )
+TEST( TransportLayer, CRC16_Advanced )
 {
     uint16_t temp_crc_1 = CRC_DIVISOR;
     uint16_t temp_crc_2 = CRC_DIVISOR;
@@ -120,7 +120,7 @@ TEST(TransportLayer, CRC16_Advanced )
     TEST_ASSERT_MESSAGE( temp_crc_1 != temp_crc_2, "Consecutive 0x00 aren't handled after 0xFFFF (attack with seed)" )
 }
 
-TEST(TransportLayer, CRC16_Fuzzed )
+TEST( TransportLayer, CRC16_Fuzzed )
 {
     uint16_t temp_crc_1 = CRC_DIVISOR;
     uint16_t temp_crc_2 = CRC_DIVISOR;
@@ -146,22 +146,22 @@ TEST(TransportLayer, CRC16_Fuzzed )
 }
 
 
-TEST(TransportLayer, generate_header )
+TEST( TransportLayer, generate_header )
 {
     TEST_IGNORE_MESSAGE("TODO: Add tests");
 }
 
-TEST(TransportLayer, ncode_packet_simple )
+TEST( TransportLayer, encode_packet_simple )
 {
     TEST_IGNORE_MESSAGE("TODO: Add tests");
 }
 
-TEST(TransportLayer, encode_packet )
+TEST( TransportLayer, encode_packet )
 {
     TEST_IGNORE_MESSAGE("TODO: Add tests");
 }
 
-TEST(TransportLayer, generate_headerdecode_packet )
+TEST( TransportLayer, decode_packet )
 {
     TEST_IGNORE_MESSAGE("TODO: Add tests");
 }
