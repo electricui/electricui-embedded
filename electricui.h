@@ -11,7 +11,7 @@
 
 #define ARR_ELEM(a) (sizeof(a) / sizeof(*a))    //number of elements in array
 
-typedef void (*CallBackType)();            //callback with no data
+typedef void (*CallBackType)(void);            //callback with no data
 
 typedef struct {
     const char*   msgID;
