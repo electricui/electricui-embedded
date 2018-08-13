@@ -210,6 +210,43 @@ TEST( TransportLayer, encode_packet )
 }
 
 TEST( TransportLayer, decode_packet )
-{
-    TEST_IGNORE_MESSAGE("TODO: Add tests");
+{    
+    uint8_t result = 0;
+
+    eui_interface test_interface = {0};
+    uint8_t inbound_bytes[] = { 
+        0x01,               //preamble
+        0x01, 0x14, 0x03,   //header
+        0x61, 0x62, 0x63,   //msgid
+        //0x03,             //offset 
+        0x2A,               //payload
+        0x64, 0xBA,         //crc
+        0x04                //EOT
+    };
+
+    uint8_t expected_payload[] = { 
+        0x2A,
+    };
+
+    for( uint16_t rxByte = 0; rxByte < sizeof(inbound_bytes); rxByte++ )
+    {
+        result = decode_packet( inbound_bytes[rxByte], &test_interface );
+    }
+    
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 1, result, "Decoder didn't finish with a valid packet" );
+
+    //check parsed results from data structure directly
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.inboundHeader.data_len,    "Unexpected data_length" );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 5, test_interface.inboundHeader.type,        "Unexpected type"   );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.inboundHeader.internal,    "Expected dev msg"  );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.inboundHeader.offset,      "Unexpected offset bit"         );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 3, test_interface.inboundHeader.id_len,      "Msg length err"    );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.inboundHeader.response,    "Didn't expect a response bit"  );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.inboundHeader.acknum,      "Unexpected ack number"         );
+
+    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.inboundID);
+    TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.inboundOffset, "Wasn't expecting offset packet" );
+    TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.inboundData, sizeof(expected_payload) );
+    TEST_ASSERT_EQUAL_UINT16( 0xBA64, test_interface.runningCRC );
+
 }
