@@ -9,13 +9,33 @@ TEST_GROUP( TransportLayer );
 #define CRC_DIVISOR 0xFFFF
 
 time_t t;
+//mock an outbound putc style per-byte interface
+uint8_t serial_buffer[1024] = { 0 };
+uint16_t serial_position    = 0;
+uint8_t result = 0;
 
+void byte_into_buffer(uint8_t outbound)
+{
+    if( serial_position < 2048 )
+    {
+        serial_buffer[ serial_position ] = outbound;
+        serial_position++;
+    }
+    else
+    {
+        TEST_ASSERT_MESSAGE( 1, "Mocked serial interface reports an issue");
+    }
+}
 
 TEST_SETUP( TransportLayer )
 {
     //run before each test
     srand((unsigned) time(&t)); //seed rand()
 
+    //reset mocked serial port
+    memset(serial_buffer, 0, sizeof(serial_buffer));
+    serial_position = 0;
+    result = 0;
 }
 
 TEST_TEAR_DOWN( TransportLayer )
@@ -153,27 +173,11 @@ TEST( TransportLayer, encode_packet_simple )
 }
 
 
-//mock an outbound putc style per-byte interface
-uint8_t serial_buffer[1024] = { 0 };
-uint16_t serial_position    = 0;
 
-void byte_into_buffer(uint8_t outbound)
-{
-    if( serial_position < 2048 )
-    {
-        serial_buffer[ serial_position ] = outbound;
-        serial_position++;
-    }
-    else
-    {
-        TEST_ASSERT_MESSAGE( 1, "Mocked serial interface reports an issue");
-    }
 }
 
 TEST( TransportLayer, encode_packet )
 {
-    uint8_t result = 0;
-
     //input parameters
     const char * test_message = "abc";
     uint8_t test_payload[] = { 
@@ -211,8 +215,6 @@ TEST( TransportLayer, encode_packet )
 
 TEST( TransportLayer, decode_packet )
 {    
-    uint8_t result = 0;
-
     eui_interface test_interface = {0};
     uint8_t inbound_bytes[] = { 
         0x01,               //preamble
