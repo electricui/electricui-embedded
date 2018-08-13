@@ -2,6 +2,7 @@
 #include "unity.h"
 #include "unity_fixture.h"
 #include <stdlib.h>
+#include <string.h>
 
 TEST_GROUP( TransportLayer );
 
@@ -151,9 +152,61 @@ TEST( TransportLayer, encode_packet_simple )
     TEST_IGNORE_MESSAGE("TODO: Add tests");
 }
 
+
+//mock an outbound putc style per-byte interface
+uint8_t serial_buffer[1024] = { 0 };
+uint16_t serial_position    = 0;
+
+void byte_into_buffer(uint8_t outbound)
+{
+    if( serial_position < 2048 )
+    {
+        serial_buffer[ serial_position ] = outbound;
+        serial_position++;
+    }
+    else
+    {
+        TEST_ASSERT_MESSAGE( 1, "Mocked serial interface reports an issue");
+    }
+}
+
 TEST( TransportLayer, encode_packet )
 {
-    TEST_IGNORE_MESSAGE("TODO: Add tests");
+    uint8_t result = 0;
+
+    //input parameters
+    const char * test_message = "abc";
+    uint8_t test_payload[] = { 
+        42, 
+    };
+    uint16_t offset = 0;
+    
+    euiHeader_t test_header;
+    test_header.internal   = 0;
+    test_header.response   = 0;
+    test_header.type       = 5; //int8
+    test_header.acknum     = 0;
+    test_header.offset     = (offset) ? 1 : 0;
+    test_header.id_len     = strlen(test_message);
+    test_header.data_len   = sizeof(test_payload);
+
+    //test it against our mocked buffer
+    result = encode_packet( &byte_into_buffer, &test_header, test_message, offset, &test_payload );
+
+    //ground-truth
+    uint8_t expected[] = { 
+        0x01,               //preamble
+        0x01, 0x14, 0x03,   //header
+        0x61, 0x62, 0x63,   //msgid
+        //0x03,             //offset 
+        0x2A,               //payload
+        0x64, 0xBA,         //crc
+        0x04                //EOT
+    };
+
+    TEST_ASSERT_EQUAL_UINT8_ARRAY( expected, serial_buffer, sizeof(expected) );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, result, "Encoder didn't return expected status code" );
+
 }
 
 TEST( TransportLayer, decode_packet )
