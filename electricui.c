@@ -113,7 +113,7 @@ handle_packet(eui_interface *valid_packet)
         if(valid_packet->inboundOffset + bytes_to_write <= msgObjPtr->size)
         {
           //copy payload data into (memory + offset from address) 'blindly'
-          memcpy(msgObjPtr->payload + valid_packet->inboundOffset, valid_packet->inboundData, bytes_to_write);
+          memcpy((char *)msgObjPtr->payload + valid_packet->inboundOffset, valid_packet->inboundData, bytes_to_write);
         }
         else
         {
