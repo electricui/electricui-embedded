@@ -11,22 +11,6 @@ crc16(uint8_t data, uint16_t *crc)
   *crc ^= ((*crc & 0xff) << 4) << 1;
 }
 
-euiHeader_t *
-generate_header(uint8_t internal, uint8_t response, uint8_t offset_packet, uint8_t data_type, uint8_t msgID_len, uint16_t data_length, uint8_t ack_num)
-{
-  euiHeader_t gen_header; 
-
-  gen_header.internal   = internal;
-  gen_header.response   = response;
-  gen_header.offset     = offset_packet;
-  gen_header.type       = data_type;
-  gen_header.id_len     = msgID_len;
-  gen_header.data_len   = data_length;
-  gen_header.acknum     = ack_num;
-
-  return &gen_header;
-}
-
 uint8_t
 encode_packet_simple(CallBackwithUINT8 output_function, euiPacketSettings_t *settings, const char * msg_id, uint16_t payload_len, void* payload)
 {

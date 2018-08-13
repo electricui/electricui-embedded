@@ -146,11 +146,6 @@ TEST( TransportLayer, CRC16_Fuzzed )
 }
 
 
-TEST( TransportLayer, generate_header )
-{
-    TEST_IGNORE_MESSAGE("TODO: Add tests");
-}
-
 TEST( TransportLayer, encode_packet_simple )
 {
     TEST_IGNORE_MESSAGE("TODO: Add tests");
