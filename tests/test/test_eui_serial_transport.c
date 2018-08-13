@@ -169,10 +169,33 @@ TEST( TransportLayer, CRC16_Fuzzed )
 
 TEST( TransportLayer, encode_packet_simple )
 {
-    TEST_IGNORE_MESSAGE("TODO: Add tests");
-}
+    //input parameters
+    const char * test_message = "abc";
+    uint8_t test_payload[] = { 
+        42, 
+    };
+    
+    euiPacketSettings_t test_simple_header;
+    test_simple_header.internal  = 0;
+    test_simple_header.response  = 0;
+    test_simple_header.type      = 5;
 
+    //test it against our mocked buffer
+    result = encode_packet_simple(&byte_into_buffer, &test_simple_header, test_message, sizeof(test_payload), &test_payload);
 
+    //ground-truth
+    uint8_t expected[] = { 
+        0x01,               //preamble
+        0x01, 0x14, 0x03,   //header
+        0x61, 0x62, 0x63,   //msgid
+        //0x03,             //offset 
+        0x2A,               //payload
+        0x64, 0xBA,         //crc
+        0x04                //EOT
+    };
+
+    TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE( expected, serial_buffer, sizeof(expected), "Payload not valid" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, result, "Encoder didn't return expected status code" );
 
 }
 
