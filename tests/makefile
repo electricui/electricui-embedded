@@ -63,6 +63,7 @@ SRC_FILES1 = \
   $(SOURCE_ROOT)/electricui.c \
   $(SOURCE_ROOT)/eui_serial_transport.c \
   $(TEST_ROOT)/test_electricui.c \
+  $(TEST_ROOT)/test_electricui_findobject.c \
   $(TEST_ROOT)/test_eui_serial_transport_crc16.c \
   $(TEST_ROOT)/test_eui_serial_transport_encoder.c \
   $(TEST_ROOT)/test_eui_serial_transport_decoder.c \

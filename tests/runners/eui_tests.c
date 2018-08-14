@@ -6,6 +6,7 @@ static void RunAllTests(void)
     RUN_TEST_GROUP(SerialDecoder);
     RUN_TEST_GROUP(SerialEncoder);
 
+    RUN_TEST_GROUP(FindMessageObject);
     RUN_TEST_GROUP(SessionLayer);
 
 }

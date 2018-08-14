@@ -17,11 +17,6 @@ TEST_TEAR_DOWN( SessionLayer )
 
 }
 
-TEST( SessionLayer, find_message_object )
-{
-    TEST_IGNORE_MESSAGE("TODO: Add tests for this");
-}
-
 TEST( SessionLayer, parse_packet )
 {
     TEST_IGNORE_MESSAGE("TODO: Add tests for this");
