@@ -1,13 +1,33 @@
 #include "unity.h"
 #include "unity_fixture.h"
 
-TEST_GROUP_RUNNER( TransportLayer )
+TEST_GROUP_RUNNER( SerialCRC16 )
 {
-    RUN_TEST_CASE( TransportLayer, CRC16_Basic )
-    RUN_TEST_CASE( TransportLayer, CRC16_Advanced )
-    RUN_TEST_CASE( TransportLayer, CRC16_Fuzzed )
+    RUN_TEST_CASE( SerialCRC16, CRC16_Basic )
+    RUN_TEST_CASE( SerialCRC16, CRC16_Advanced )
+    RUN_TEST_CASE( SerialCRC16, CRC16_Fuzzed )
+}
 
-    RUN_TEST_CASE( TransportLayer, encode_packet_simple )
-    RUN_TEST_CASE( TransportLayer, encode_packet )
-    RUN_TEST_CASE( TransportLayer, decode_packet )
+TEST_GROUP_RUNNER( SerialEncoder )
+{
+    RUN_TEST_CASE( SerialEncoder, encode_packet_simple )
+
+    RUN_TEST_CASE( SerialEncoder, encode_packet )
+    RUN_TEST_CASE( SerialEncoder, encode_packet_short_id )
+    RUN_TEST_CASE( SerialEncoder, encode_packet_long_id )
+    RUN_TEST_CASE( SerialEncoder, encode_packet_internal )
+    RUN_TEST_CASE( SerialEncoder, encode_packet_response )
+    RUN_TEST_CASE( SerialEncoder, encode_packet_acknum )
+    RUN_TEST_CASE( SerialEncoder, encode_packet_float )
+}
+
+TEST_GROUP_RUNNER( SerialDecoder )
+{
+    RUN_TEST_CASE( SerialDecoder, decode_packet )
+    RUN_TEST_CASE( SerialDecoder, decode_packet_short_id )
+    RUN_TEST_CASE( SerialDecoder, decode_packet_long_id )
+    RUN_TEST_CASE( SerialDecoder, decode_packet_internal )
+    RUN_TEST_CASE( SerialDecoder, decode_packet_response )
+    RUN_TEST_CASE( SerialDecoder, decode_packet_acknum )
+    RUN_TEST_CASE( SerialDecoder, decode_packet_float )
 }
