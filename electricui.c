@@ -1,23 +1,20 @@
 #include <string.h>
 #include "electricui.h"
+#include "eui_macro.h"
 
 //internal
 uint8_t library_version[] = { VER_MAJOR, VER_MINOR, VER_PATCH };
 
-
-
-
 euiMessage_t internal_msg_store[] = {
-    {.msgID = "lv", .type = TYPE_UINT8, .size = sizeof(library_version),    .payload = &library_version     },
-    {.msgID = "bi", .type = TYPE_UINT16,.size = sizeof(board_identifier),   .payload = &board_identifier    },
-    {.msgID = "si", .type = TYPE_UINT8, .size = sizeof(session_identifier), .payload = &session_identifier  },
+  EUI_UINT8_ARRAY("lv", &library_version),
+  EUI_UINT16("bi", &board_identifier),
+  EUI_UINT8("si", &session_identifier),
+  EUI_UINT8("er", &last_error),
+  EUI_UINT8("hb", &heartbeat),
 
-    {.msgID = "er", .type = TYPE_UINT8, .size = sizeof(last_error),         .payload = &last_error          },
-    {.msgID = "hb", .type = TYPE_UINT8, .size = sizeof(heartbeat),          .payload = &heartbeat           },
-
-    {.msgID = "dm", .type = TYPE_CALLBACK, .size = CALLBACK_SIZE,  .payload = &announce_dev_msg  },
-    {.msgID = "dv", .type = TYPE_CALLBACK, .size = CALLBACK_SIZE,  .payload = &announce_dev_vars },
-    {.msgID = "as", .type = TYPE_CALLBACK, .size = CALLBACK_SIZE,  .payload = &announce_board    },
+  EUI_FUNC("dm", &announce_dev_msg),
+  EUI_FUNC("dv", &announce_dev_vars),
+  EUI_FUNC("as", &announce_board),
 };
 
 
