@@ -19,55 +19,21 @@ TEST_TEAR_DOWN( SessionLayer )
 
 TEST( SessionLayer, parse_packet )
 {
-    TEST_IGNORE_MESSAGE("TODO: Add tests for this");
+    TEST_IGNORE_MESSAGE("TODO: Packet parsing");
 }
 
 TEST( SessionLayer, handle_packet )
 {
-    TEST_IGNORE_MESSAGE("TODO: Add tests for this");
+    TEST_IGNORE_MESSAGE("TODO: Packet handling");
 }
 
-TEST( SessionLayer, send_tracked )
-{
-    TEST_IGNORE_MESSAGE("TODO: Add tests for this");
-}
-
-TEST( SessionLayer, send_tracked_range )
-{
-    TEST_IGNORE_MESSAGE("TODO: Add tests for this");
-}
-
-TEST( SessionLayer, send_message )
-{
-    TEST_IGNORE_MESSAGE("TODO: Add tests for this");
-}
 
 TEST( SessionLayer, setup_dev_msg )
 {
     TEST_IGNORE_MESSAGE("TODO: Add tests for this");
 }
 
-TEST( SessionLayer, setup_identifier )
-{
-    TEST_IGNORE_MESSAGE("TODO: Add tests for this");
-}
-
-TEST( SessionLayer, announce_board )
-{
-    TEST_IGNORE_MESSAGE("TODO: Add tests for this");
-}
-
-TEST( SessionLayer, announce_dev_msg )
-{
-    TEST_IGNORE_MESSAGE("TODO: Add tests for this");
-}
-
-TEST( SessionLayer, announce_dev_vars )
-{
-    TEST_IGNORE_MESSAGE("TODO: Add tests for this");
-}
-
 TEST( SessionLayer, report_error )
 {
-    TEST_IGNORE_MESSAGE("TODO: Add tests for this");
+    TEST_IGNORE_MESSAGE("TODO: Error reporting");
 }

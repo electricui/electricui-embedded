@@ -64,6 +64,8 @@ SRC_FILES1 = \
   $(SOURCE_ROOT)/eui_serial_transport.c \
   $(TEST_ROOT)/test_electricui.c \
   $(TEST_ROOT)/test_electricui_findobject.c \
+  $(TEST_ROOT)/test_electricui_send.c \
+  $(TEST_ROOT)/test_electricui_internalcallbacks.c \
   $(TEST_ROOT)/test_eui_serial_transport_crc16.c \
   $(TEST_ROOT)/test_eui_serial_transport_encoder.c \
   $(TEST_ROOT)/test_eui_serial_transport_decoder.c \
@@ -88,7 +90,7 @@ download:
 	$(DOWNLOADER) $(UNITY_URL)
 	$(EXTRACT) master.zip
 
-first: download default run
+first: download clean default run
 
 ci: CFLAGS += -Werror
 ci: default

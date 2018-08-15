@@ -3,17 +3,9 @@
 
 TEST_GROUP_RUNNER( SessionLayer )
 {
-
     RUN_TEST_CASE( SessionLayer, parse_packet )
     RUN_TEST_CASE( SessionLayer, handle_packet )
-    RUN_TEST_CASE( SessionLayer, send_tracked )
-    RUN_TEST_CASE( SessionLayer, send_tracked_range )
-    RUN_TEST_CASE( SessionLayer, send_message )
     RUN_TEST_CASE( SessionLayer, setup_dev_msg )
-    RUN_TEST_CASE( SessionLayer, setup_identifier )
-    RUN_TEST_CASE( SessionLayer, announce_board )
-    RUN_TEST_CASE( SessionLayer, announce_dev_msg )
-    RUN_TEST_CASE( SessionLayer, announce_dev_vars )
     RUN_TEST_CASE( SessionLayer, report_error )
 }
 
@@ -32,3 +24,21 @@ TEST_GROUP_RUNNER( FindMessageObject )
     RUN_TEST_CASE( FindMessageObject, find_message_devArrayNULL )
     RUN_TEST_CASE( FindMessageObject, find_message_internalArrayNULL )
 }
+
+TEST_GROUP_RUNNER( MessageSend )
+{
+    RUN_TEST_CASE( MessageSend, send_tracked )
+    RUN_TEST_CASE( MessageSend, send_tracked_large )
+    RUN_TEST_CASE( MessageSend, send_tracked_range )
+    RUN_TEST_CASE( MessageSend, send_tracked_range_large )
+    RUN_TEST_CASE( MessageSend, send_message )
+}
+
+TEST_GROUP_RUNNER( InternalEUICallbacks )
+{
+    RUN_TEST_CASE( InternalEUICallbacks, announce_board )
+    RUN_TEST_CASE( InternalEUICallbacks, announce_dev_msg )
+    RUN_TEST_CASE( InternalEUICallbacks, announce_dev_vars )
+    RUN_TEST_CASE( InternalEUICallbacks, setup_identifier )
+}
+
