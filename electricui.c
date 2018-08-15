@@ -6,7 +6,7 @@
 uint8_t library_version[] = { VER_MAJOR, VER_MINOR, VER_PATCH };
 
 euiMessage_t internal_msg_store[] = {
-  EUI_UINT8_ARRAY("lv", &library_version),
+  EUI_UINT8("lv", &library_version),
   EUI_UINT16("bi", &board_identifier),
   EUI_UINT8("si", &session_identifier),
   EUI_UINT8("er", &last_error),
