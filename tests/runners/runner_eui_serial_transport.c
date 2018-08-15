@@ -4,7 +4,8 @@
 TEST_GROUP_RUNNER( SerialCRC16 )
 {
     RUN_TEST_CASE( SerialCRC16, CRC16_Basic )
-    RUN_TEST_CASE( SerialCRC16, CRC16_Advanced )
+    RUN_TEST_CASE( SerialCRC16, CRC16_Reflect )
+    RUN_TEST_CASE( SerialCRC16, CRC16_Repeated0x00 )
     RUN_TEST_CASE( SerialCRC16, CRC16_Fuzzed )
 }
 
