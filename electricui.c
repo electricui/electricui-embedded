@@ -1,20 +1,19 @@
 #include <string.h>
 #include "electricui.h"
-#include "eui_macro.h"
 
 //internal
 uint8_t library_version[] = { VER_MAJOR, VER_MINOR, VER_PATCH };
 
 euiMessage_t internal_msg_store[] = {
-  EUI_UINT8("lv", &library_version),
-  EUI_UINT16("bi", &board_identifier),
-  EUI_UINT8("si", &session_identifier),
-  EUI_UINT8("er", &last_error),
-  EUI_UINT8("hb", &heartbeat),
+  EUI_UINT8("lv", library_version),
+  EUI_UINT16("bi", board_identifier),
+  EUI_UINT8("si", session_identifier),
+  EUI_UINT8("er", last_error),
+  EUI_UINT8("hb", heartbeat),
 
-  EUI_FUNC("dm", &announce_dev_msg),
-  EUI_FUNC("dv", &announce_dev_vars),
-  EUI_FUNC("as", &announce_board),
+  EUI_FUNC("dm", announce_dev_msg),
+  EUI_FUNC("dv", announce_dev_vars),
+  EUI_FUNC("as", announce_board),
 };
 
 
