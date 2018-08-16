@@ -42,17 +42,17 @@ void delay_random()
 }
 
 const euiMessage_t dev_msg_store[] = {
-    {.msgID = "lop", .type = TYPE_UINT16,   .size = sizeof(delta_time),       .payload = &delta_time      },
-    {.msgID = "btA", .type = TYPE_UINT8,    .size = sizeof(btn1_state),       .payload = &btn1_state      },
-    {.msgID = "btB", .type = TYPE_UINT8,    .size = sizeof(btn2_state),       .payload = &btn2_state      },
-    
-    {.msgID = "pts", .type = TYPE_UINT16,   .size = sizeof(photosensor_raw),  .payload = &photosensor_raw },
-    {.msgID = "bright", .type = TYPE_UINT8, .size = sizeof(rgb_brightness),   .payload = &rgb_brightness  },
-    {.msgID = "rgb", .type = TYPE_CUSTOM, .size = sizeof(example_rgb), .payload = &example_rgb     },
+    EUI_UINT16("lop", delta_time ),
+    EUI_UINT8( "btA", btn1_state ),
+    EUI_UINT8( "btB", btn2_state ),
 
-    {.msgID = "dlv", .type = TYPE_UINT8,    .size = sizeof(delay_setting), .payload = &delay_setting    },
-    {.msgID = "dls", .type = TYPE_CALLBACK, .size = sizeof(delay_stored),  .payload = &delay_stored     },
-    {.msgID = "dlr", .type = TYPE_CALLBACK, .size = sizeof(delay_random), . payload = &delay_random     },
+    EUI_UINT16("pts", photosensor_raw ),
+    EUI_UINT8( "bright", rgb_brightness ),
+    EUI_CUSTOM("rgb", example_rgb ),
+
+    EUI_UINT8( "dlv", delay_setting ),
+    EUI_FUNC(  "dls", delay_stored ),
+    EUI_FUNC(  "dlr", delay_random ),
 };
 
 void cdc_tx_putc(uint8_t data)
