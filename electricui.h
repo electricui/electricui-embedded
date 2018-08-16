@@ -10,8 +10,6 @@
 #define VER_MINOR 3
 #define VER_PATCH 1
 
-#define ARR_ELEM(a) (sizeof(a) / sizeof(*a))    //number of elements in array
-
 typedef void (*CallBackType)(void);            //callback with no data
 
 typedef struct {
