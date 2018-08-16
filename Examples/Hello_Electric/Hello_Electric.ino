@@ -62,28 +62,28 @@ imu_t example_imu = { 0.002, 0.003, -9.782 };
 //internal index of developer-space message metadata
 const euiMessage_t dev_msg_store[] = {
 
-    {.msgID = "led", .type = TYPE_UINT8,    .size = sizeof(led_brightness), .payload = &led_brightness  },
-    {.msgID = "tgl", .type = TYPE_CALLBACK, .size = sizeof(toggleLed),      .payload = &toggleLed       },
-    {.msgID = "btA", .type = TYPE_UINT8,    .size = sizeof(btn1_state),     .payload = &btn1_state      },
-    {.msgID = "btB", .type = TYPE_UINT8,    .size = sizeof(btn2_state),     .payload = &btn2_state      },
-    {.msgID = "lop", .type = TYPE_UINT16,   .size = sizeof(delta_time),     .payload = &delta_time      },
+    EUI_UINT8( "led", led_brightness ),
+    EUI_FUNC(  "tgl", toggleLed ),
+    EUI_UINT8( "btA", btn1_state ),
+    EUI_UINT8( "btB", btn2_state ),
+    EUI_UINT16("lop", delta_time ),
 
     //type examples
-    {.msgID = "ui8", .type = TYPE_UINT8,  .size = sizeof(example_uint8),  .payload = &example_uint8       },
-    {.msgID = "i16", .type = TYPE_UINT16, .size = sizeof(example_uint16), .payload = &example_uint16      },
-    {.msgID = "i32", .type = TYPE_UINT32, .size = sizeof(example_uint32), .payload = &example_uint32      },
-    {.msgID = "fPI", .type = TYPE_FLOAT,  .size = sizeof(example_float),  .payload = &example_float       },
-    {.msgID = "ua8", .type = TYPE_UINT8,  .size = sizeof(example_uint8_arr),  .payload = &example_uint8_arr   },
-    {.msgID = "ia6", .type = TYPE_UINT16, .size = sizeof(example_uint16_arr), .payload = &example_uint16_arr  },
-    {.msgID = "ia2", .type = TYPE_UINT32, .size = sizeof(example_uint32_arr), .payload = &example_uint32_arr  },
-    {.msgID = "fpA", .type = TYPE_FLOAT,  .size = sizeof(example_float_arr),  .payload = &example_float_arr   },
-    {.msgID = "dst", .type = TYPE_CHAR,    .size = sizeof(demo_string),     .payload = &demo_string  },
+    EUI_UINT8(  "ui8", example_uint8 ),
+    EUI_UINT16( "i16", example_uint16 ),
+    EUI_UINT32( "i32", example_uint32 ),
+    EUI_FLOAT(  "fPI", example_float ),
+    EUI_UINT8(  "ua8", example_uint8_arr ),
+    EUI_UINT16( "ia6", example_uint16_arr ),
+    EUI_UINT32( "ia2", example_uint32_arr ),
+    EUI_FLOAT(  "fpA", example_float_arr),
+    EUI_CHAR(   "dst", demo_string ),
 
-    {.msgID = "lat", .type = TYPE_UINT32, .size = sizeof(large_int_array),    .payload = &large_int_array     },
+    EUI_UINT32( "lat", large_int_array ),
 
     //custom type examples
-    {.msgID = "rgb", .type = TYPE_CUSTOM, .size = sizeof(example_rgb), .payload = &example_rgb },
-    {.msgID = "imu", .type = TYPE_CUSTOM, .size = sizeof(example_imu), .payload = &example_imu },
+    EUI_CUSTOM( "rgb", example_rgb ),
+    EUI_CUSTOM( "imu", example_imu ),
 };
 
 eui_interface usb_comms; //eui Transport interface holding object
