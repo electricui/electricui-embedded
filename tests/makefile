@@ -69,8 +69,10 @@ SRC_FILES1 = \
   $(TEST_ROOT)/test_eui_serial_transport_crc16.c \
   $(TEST_ROOT)/test_eui_serial_transport_encoder.c \
   $(TEST_ROOT)/test_eui_serial_transport_decoder.c \
+  $(TEST_ROOT)/test_eui_macro.c \
   $(RUNNER_ROOT)/runner_electricui.c \
   $(RUNNER_ROOT)/runner_eui_serial_transport.c \
+  $(RUNNER_ROOT)/runner_eui_macro.c \
   $(RUNNER_ROOT)/eui_tests.c
 INC_DIRS = -Isrc -I$(UNITY_ROOT)/src -I$(UNITY_ROOT)/extras/fixture/src
 SYMBOLS =

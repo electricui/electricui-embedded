@@ -14,6 +14,9 @@ static void RunAllTests(void)
 
     //application layer
     RUN_TEST_GROUP(SessionLayer);
+
+    RUN_TEST_GROUP(MacroValidation);
+
 }
 
 int main(int argc, const char * argv[])
