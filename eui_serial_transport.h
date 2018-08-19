@@ -99,9 +99,10 @@ enum packet_signals {
     packet_error_crc,
     packet_error_generic,
 };
-void            crc16(uint8_t data, uint16_t *crc);
-uint8_t         encode_packet_simple(CallBackwithUINT8 output_function, euiPacketSettings_t *settings, const char * msg_id, uint16_t payload_len, void* payload);
-uint8_t         encode_packet(CallBackwithUINT8 output_function, euiHeader_t * header, const char * msg_id, uint16_t offset, void* payload);
-uint8_t         decode_packet(uint8_t inbound_byte, eui_interface *active_interface);
+
+void      crc16(uint8_t data, uint16_t *crc);
+uint8_t   encode_packet_simple(CallBackwithUINT8 output_function, euiPacketSettings_t *settings, const char * msg_id, uint16_t payload_len, void* payload);
+uint8_t   encode_packet(CallBackwithUINT8 output_function, euiHeader_t * header, const char * msg_id, uint16_t offset, void* payload);
+uint8_t   decode_packet(uint8_t inbound_byte, eui_interface *active_interface);
 
 #endif
