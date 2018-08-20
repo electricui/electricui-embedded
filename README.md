@@ -81,7 +81,6 @@ typedef struct {
   unsigned id_len     : 4;
   unsigned seq        : 2;
 } euiHeader_t;
-
 `
 
 ### Ack Behaviour

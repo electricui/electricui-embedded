@@ -41,8 +41,8 @@ encode_packet(CallBackwithUINT8 output_function, euiHeader_t * header, const cha
     //header
     uint16_t header_buffer = 0;
 
-    header_buffer |= (header->data_len);
-    header_buffer |= header->type     << 10;
+    header_buffer |= header->data_len;
+    header_buffer |= (header->type & 0x0F ) << 10;
     header_buffer |= header->internal << 14;
     header_buffer |= header->offset   << 15;
 

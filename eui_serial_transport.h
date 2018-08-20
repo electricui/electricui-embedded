@@ -55,6 +55,8 @@ typedef enum {
     TYPE_DOUBLE,
 } euiType_t;
 
+#define READ_ONLY_MASK 0x80
+
 typedef void (*CallBackwithUINT8)(uint8_t); //callback with single char of data
 
 typedef struct {

@@ -5,8 +5,8 @@
 uint8_t library_version[] = { VER_MAJOR, VER_MINOR, VER_PATCH };
 
 euiMessage_t internal_msg_store[] = {
-  EUI_UINT8("lv", library_version),
-  EUI_UINT16("bi", board_identifier),
+  EUI_RO_UINT8("lv", library_version),
+  EUI_RO_UINT16("bi", board_identifier),
   EUI_UINT8("si", session_identifier),
   EUI_UINT8("er", last_error),
   EUI_UINT8("hb", heartbeat),
@@ -98,7 +98,7 @@ handle_packet(eui_interface *valid_packet)
     if(valid_packet->state.data_bytes_in)
     {
       //ignore data in callbacks or offset messages
-      if(msgObjPtr->type == TYPE_CALLBACK || header.type == TYPE_OFFSET_METADATA)
+      if(header.type == TYPE_OFFSET_METADATA || msgObjPtr->type >> 7)
       {
         report_error(err_todo_functionality);
       }
@@ -121,7 +121,7 @@ handle_packet(eui_interface *valid_packet)
     }
     else  //no payload data
     {
-      if(msgObjPtr->type == TYPE_CALLBACK)
+      if((msgObjPtr->type & 0x0F) == TYPE_CALLBACK)
       {
         if( (header.response && header.acknum) || (!header.response && !header.acknum) )
         {

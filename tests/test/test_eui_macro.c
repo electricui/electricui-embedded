@@ -44,8 +44,21 @@ euiMessage_t macro_object_array[] = {
 	EUI_CUSTOM(	"custom",	macro_trifloat ),
 };
 
+euiMessage_t macro_object_array_read_only[] = {
+	EUI_RO_CHAR(	"char",		macro_char ),
+	EUI_RO_INT8(	"int8",		macro_int8 ),
+	EUI_RO_INT16(	"int16",	macro_int16 ),
+	EUI_RO_INT32(	"int32",	macro_int32 ),
+	EUI_RO_UINT8(	"uint8",	macro_uint8 ),
+	EUI_RO_UINT16(	"uint16",	macro_uint16 ),
+	EUI_RO_UINT32(	"uint32",	macro_uint32 ),
+	EUI_RO_FLOAT(	"float",	macro_float ),
+	EUI_RO_DOUBLE(	"double",	macro_double ),
+	EUI_RO_CUSTOM(	"custom",	macro_trifloat ),
+};
+
 euiMessage_t expected_object_array[] = {
-    { .msgID = "func",   .type = TYPE_CALLBACK,	.size = 1, 						.payload = &macro_callback 	},
+    { .msgID = "func",   .type = TYPE_CALLBACK|READ_ONLY_MASK,	.size = 1, 		.payload = &macro_callback 	},
     { .msgID = "char",   .type = TYPE_CHAR, 	.size = sizeof(macro_char), 	.payload = &macro_char 		},
     { .msgID = "int8",   .type = TYPE_INT8, 	.size = sizeof(macro_int8), 	.payload = &macro_int8 		},
     { .msgID = "int16",  .type = TYPE_INT16, 	.size = sizeof(macro_int16), 	.payload = &macro_int16 	},
@@ -56,6 +69,19 @@ euiMessage_t expected_object_array[] = {
     { .msgID = "float",  .type = TYPE_FLOAT, 	.size = sizeof(macro_float), 	.payload = &macro_float 	},
     { .msgID = "double", .type = TYPE_DOUBLE, 	.size = sizeof(macro_double), 	.payload = &macro_double 	},
     { .msgID = "custom", .type = TYPE_CUSTOM, 	.size = sizeof(macro_trifloat), .payload = &macro_trifloat 	},
+};
+
+euiMessage_t expected_object_array_read_only[] = {
+    { .msgID = "char",   .type = TYPE_CHAR|READ_ONLY_MASK, 		.size = sizeof(macro_char), 	.payload = &macro_char 		},
+    { .msgID = "int8",   .type = TYPE_INT8|READ_ONLY_MASK, 		.size = sizeof(macro_int8), 	.payload = &macro_int8 		},
+    { .msgID = "int16",  .type = TYPE_INT16|READ_ONLY_MASK, 	.size = sizeof(macro_int16), 	.payload = &macro_int16 	},
+    { .msgID = "int32",  .type = TYPE_INT32|READ_ONLY_MASK, 	.size = sizeof(macro_int32), 	.payload = &macro_int32 	},
+    { .msgID = "uint8",  .type = TYPE_UINT8|READ_ONLY_MASK, 	.size = sizeof(macro_uint8), 	.payload = &macro_uint8 	},
+    { .msgID = "uint16", .type = TYPE_UINT16|READ_ONLY_MASK, 	.size = sizeof(macro_uint16), 	.payload = &macro_uint16 	},
+    { .msgID = "uint32", .type = TYPE_UINT32|READ_ONLY_MASK, 	.size = sizeof(macro_uint32), 	.payload = &macro_uint32 	},
+    { .msgID = "float",  .type = TYPE_FLOAT|READ_ONLY_MASK, 	.size = sizeof(macro_float), 	.payload = &macro_float 	},
+    { .msgID = "double", .type = TYPE_DOUBLE|READ_ONLY_MASK, 	.size = sizeof(macro_double), 	.payload = &macro_double 	},
+    { .msgID = "custom", .type = TYPE_CUSTOM|READ_ONLY_MASK, 	.size = sizeof(macro_trifloat), .payload = &macro_trifloat 	},
 };
 
 //test arrays for the array sizing macro
@@ -85,7 +111,12 @@ TEST( MacroValidation, Array_Element_Count )
 	TEST_ASSERT_EQUAL_INT_MESSAGE( 11, ARR_ELEM(expected_object_array), "Ground-truth array elements incorrectly counted." );
 }
 
-TEST( MacroValidation, EUIObject_Macro_Test_All )
+TEST( MacroValidation, EUIObject_Macro_Test_Standard )
 {
     TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE(expected_object_array, macro_object_array, sizeof(euiMessage_t), ARR_ELEM(expected_object_array), "Macro populated array != ground truth array"); 
+}
+
+TEST( MacroValidation, EUIObject_Macro_Test_Read_Only )
+{
+    TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE(expected_object_array_read_only, macro_object_array_read_only, sizeof(euiMessage_t), ARR_ELEM(expected_object_array_read_only), "Read only macros != ground truth array"); 
 }
