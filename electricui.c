@@ -42,7 +42,7 @@ find_message_object(const char * msg_id, uint8_t is_internal)
       if( strcmp( msg_id, devObjectArray[i].msgID ) == 0 )
       {
         foundMsgPtr = &devObjectArray[i];
-        i = ARR_ELEM(internal_msg_store);
+        i = numDevObjects;
       }
     }
   }
