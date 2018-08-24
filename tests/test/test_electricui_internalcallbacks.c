@@ -86,43 +86,88 @@ TEST( InternalEUICallbacks, announce_board )
     TEST_ASSERT_EQUAL_HEX8_ARRAY_MESSAGE( expected, callback_serial_buffer, sizeof(expected), "Annoucement didn't publish expected messages" );
 }
 
-TEST( InternalEUICallbacks, announce_dev_msg )
+TEST( InternalEUICallbacks, announce_dev_msg_readonly )
 {
-	announce_dev_msg();
+    TEST_IGNORE_MESSAGE("TODO: Establish byte-stream for readonly");
+    announce_dev_msg_readonly();
 
-	//ground-truth response
+    //ground-truth response
     uint8_t expected[] = { 
-    	//dms
-    	0x01,
-    	0x01, 0x58, 0x03,
-    	0x64, 0x6D, 0x73,	
-    	ARR_ELEM(internal_callback_test_store),
-    	0xFA, 0xED,
-    	0x04,
+        //dms
+        0x01,
+        0x01, 0x58, 0x03,
+        0x64, 0x6D, 0x73,   
+        ARR_ELEM(internal_callback_test_store),
+        0xFA, 0xED,
+        0x04,
 
-    	0x01,
+        0x01,
     };
 
     TEST_ASSERT_EQUAL_HEX8_ARRAY_MESSAGE( expected, callback_serial_buffer, sizeof(expected), "Dev Message CB didn't publish expected messages" );
 
 }
 
-TEST( InternalEUICallbacks, announce_dev_vars )
+TEST( InternalEUICallbacks, announce_dev_msg_writable )
 {
-	announce_dev_vars();
+    TEST_IGNORE_MESSAGE("TODO: Establish byte-stream for writable");
+    announce_dev_msg_writable();
 
-	//ground-truth response
+    //ground-truth response
     uint8_t expected[] = { 
-    	//
-    	0x01,
-    	0x01, 0x58, 0x03,
-    	0x64, 0x6D, 0x73,	//dms
-    	ARR_ELEM(internal_callback_test_store),
-    	0xFA, 0xED,
-    	0x04,
+        //dms
+        0x01,
+        0x01, 0x58, 0x03,
+        0x64, 0x6D, 0x73,   
+        ARR_ELEM(internal_callback_test_store),
+        0xFA, 0xED,
+        0x04,
 
-    	0x01,
-    		//todo add the rest here
+        0x01,
+    };
+
+    TEST_ASSERT_EQUAL_HEX8_ARRAY_MESSAGE( expected, callback_serial_buffer, sizeof(expected), "Dev Message CB didn't publish expected messages" );
+}
+
+TEST( InternalEUICallbacks, announce_dev_vars_readonly )
+{
+    TEST_IGNORE_MESSAGE("TODO: Establish byte-stream for read only");
+    announce_dev_vars_readonly();
+
+    //ground-truth response
+    uint8_t expected[] = { 
+        //
+        0x01,
+        0x01, 0x58, 0x03,
+        0x64, 0x6D, 0x73,   //dms
+        ARR_ELEM(internal_callback_test_store),
+        0xFA, 0xED,
+        0x04,
+
+        0x01,
+            //todo add the rest here
+    };
+
+    TEST_ASSERT_EQUAL_HEX8_ARRAY_MESSAGE( expected, callback_serial_buffer, sizeof(expected), "Dev variable transfer didn't match" );
+}
+
+TEST( InternalEUICallbacks, announce_dev_vars_writable )
+{
+    TEST_IGNORE_MESSAGE("TODO: Establish byte-stream for writable");
+    announce_dev_vars_writable();
+
+    //ground-truth response
+    uint8_t expected[] = { 
+        //
+        0x01,
+        0x01, 0x58, 0x03,
+        0x64, 0x6D, 0x73,   //dms
+        ARR_ELEM(internal_callback_test_store),
+        0xFA, 0xED,
+        0x04,
+
+        0x01,
+            //todo add the rest here
     };
 
     TEST_ASSERT_EQUAL_HEX8_ARRAY_MESSAGE( expected, callback_serial_buffer, sizeof(expected), "Dev variable transfer didn't match" );

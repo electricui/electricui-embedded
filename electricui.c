@@ -11,8 +11,11 @@ euiMessage_t internal_msg_store[] = {
   EUI_UINT8("er", last_error),
   EUI_UINT8("hb", heartbeat),
 
-  EUI_FUNC("dm", announce_dev_msg),
-  EUI_FUNC("dv", announce_dev_vars),
+  EUI_FUNC("dmr", announce_dev_msg_readonly),
+  EUI_FUNC("dmw", announce_dev_msg_writable),
+  EUI_FUNC("dvr", announce_dev_vars_readonly),
+  EUI_FUNC("dvw", announce_dev_vars_writable),
+
   EUI_FUNC("as", announce_board),
 };
 
@@ -294,14 +297,47 @@ announce_board(void)
 }
 
 void
-announce_dev_msg(void)
+announce_dev_msg_readonly(void)
 {
   temp_header.internal  = MSG_INTERNAL;
   temp_header.response  = MSG_NRESP;
   temp_header.type      = TYPE_UINT8;
 
   //tell the UI we are starting the index handshake process
-  encode_packet_simple(parserOutputFunc, &temp_header, "dms", sizeof(numDevObjects), &numDevObjects);
+  encode_packet_simple(parserOutputFunc, &temp_header, "dmrs", sizeof(numDevObjects), &numDevObjects);
+  send_tracked_message_id_list(1);
+}
+
+void
+announce_dev_msg_writable(void)
+{
+  temp_header.internal  = MSG_INTERNAL;
+  temp_header.response  = MSG_NRESP;
+  temp_header.type      = TYPE_UINT8;
+
+  //tell the UI we are starting the index handshake process
+  encode_packet_simple(parserOutputFunc, &temp_header, "dmws", sizeof(numDevObjects), &numDevObjects);
+  send_tracked_message_id_list(0);
+}
+
+void
+announce_dev_vars_readonly(void)
+{
+  send_tracked_variables(1);
+}
+
+void
+announce_dev_vars_writable(void)
+{
+  send_tracked_variables(0);
+}
+
+void
+send_tracked_message_id_list(uint8_t read_only)
+{
+  temp_header.internal  = MSG_INTERNAL;
+  temp_header.response  = MSG_NRESP;
+  temp_header.type      = TYPE_CHAR;
 
   //fill a buffer which contains the developer message ID's
   uint8_t msgBuffer[ (MESSAGEID_SIZE+1)*(PAYLOAD_SIZE_MAX / PACKET_BASE_SIZE) ];
@@ -309,20 +345,23 @@ announce_dev_msg(void)
   uint8_t msgIDlen = 0;     //length of a single msgID string
   uint8_t msgIDPacked = 0;  //count messages packed into buffer
 
-  temp_header.type = TYPE_CHAR;
-
   for(uint8_t i = 0; i < numDevObjects; i++)
   {
-    //copy messageID into the buffer, use null termination characters as delimiter
-    msgIDlen = strlen(devObjectArray[i].msgID) + 1; //+1 to account for null character
-    memcpy(msgBuffer+msgBufferPos, devObjectArray[i].msgID, msgIDlen);
-    msgBufferPos += msgIDlen;
-    msgIDPacked++;  
+    // filter based on writable flag
+    if( devObjectArray[i].type >> 7 == read_only )
+    {
+      //copy messageID into the buffer, use null termination characters as delimiter
+      msgIDlen = strlen(devObjectArray[i].msgID) + 1; //+1 to account for null character
+      memcpy(msgBuffer+msgBufferPos, devObjectArray[i].msgID, msgIDlen);
+      msgBufferPos += msgIDlen;
+      msgIDPacked++;
+    }
 
     //send messages and clear buffer to break list into shorter messages
     if(msgIDPacked >= (PAYLOAD_SIZE_MAX / PACKET_BASE_SIZE) || i >= numDevObjects)
     {
-      encode_packet_simple(parserOutputFunc, &temp_header, "dml", msgBufferPos, &msgBuffer);
+      const char * headerID = (read_only) ? "dmrl" : "dmwl";
+      encode_packet_simple(parserOutputFunc, &temp_header, headerID, msgBufferPos, &msgBuffer);
 
       //cleanup
       memset(msgBuffer, 0, sizeof(msgBuffer));
@@ -333,14 +372,18 @@ announce_dev_msg(void)
 }
 
 void
-announce_dev_vars(void)
+send_tracked_variables(uint8_t read_only)
 {
   temp_header.internal  = MSG_DEV;
   temp_header.response  = MSG_NRESP;
 
   for(uint8_t i = 0; i < numDevObjects; i++)
   {
-    send_tracked( devObjectArray + i, &temp_header);
+    //only send messages which have the specified read-only bit state
+    if( devObjectArray[i].type >> 7 == read_only )
+    {
+      send_tracked( devObjectArray + i, &temp_header);
+    }
   }
 }
 
