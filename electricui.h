@@ -47,8 +47,13 @@ void setup_identifier(char * uuid, uint8_t bytes);
 void send_message(const char * msg_id, eui_interface *active_interface);
 
 void announce_board(void);
-void announce_dev_msg(void);
-void announce_dev_vars(void);
+void send_tracked_message_id_list(uint8_t read_only);
+void send_tracked_variables(uint8_t read_only);
+
+void announce_dev_msg_readonly(void);
+void announce_dev_msg_writable(void);
+void announce_dev_vars_readonly(void);
+void announce_dev_vars_writable(void);
 
 uint8_t heartbeat;
 uint16_t board_identifier;

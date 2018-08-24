@@ -37,8 +37,10 @@ TEST_GROUP_RUNNER( MessageSend )
 TEST_GROUP_RUNNER( InternalEUICallbacks )
 {
     RUN_TEST_CASE( InternalEUICallbacks, announce_board )
-    RUN_TEST_CASE( InternalEUICallbacks, announce_dev_msg )
-    RUN_TEST_CASE( InternalEUICallbacks, announce_dev_vars )
+    RUN_TEST_CASE( InternalEUICallbacks, announce_dev_msg_readonly )
+    RUN_TEST_CASE( InternalEUICallbacks, announce_dev_msg_writable )
+    RUN_TEST_CASE( InternalEUICallbacks, announce_dev_vars_readonly )
+    RUN_TEST_CASE( InternalEUICallbacks, announce_dev_vars_writable )
     RUN_TEST_CASE( InternalEUICallbacks, setup_identifier )
 }
 
