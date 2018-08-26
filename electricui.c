@@ -339,7 +339,7 @@ send_tracked_message_id_list(uint8_t read_only)
 
   temp_header.internal  = MSG_INTERNAL;
   temp_header.response  = MSG_NRESP;
-  temp_header.type      = TYPE_CHAR;
+  temp_header.type      = TYPE_CUSTOM;
 
   uint8_t msgBuffer[ (MESSAGEID_SIZE+1)*4 ];
   uint8_t msgBufferPos  = 0;  //position in buffer
