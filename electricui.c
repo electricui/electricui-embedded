@@ -299,51 +299,52 @@ announce_board(void)
 void
 announce_dev_msg_readonly(void)
 {
+  uint8_t num_read_only  = 0;
+  num_read_only = send_tracked_message_id_list(READ_ONLY_FLAG);
+
   temp_header.internal  = MSG_INTERNAL;
   temp_header.response  = MSG_NRESP;
   temp_header.type      = TYPE_UINT8;
-
-  //tell the UI we are starting the index handshake process
-  encode_packet_simple(parserOutputFunc, &temp_header, "dmrs", sizeof(numDevObjects), &numDevObjects);
-  send_tracked_message_id_list(1);
+  encode_packet_simple(parserOutputFunc, &temp_header, "dmre", sizeof(num_read_only), &num_read_only);
 }
 
 void
 announce_dev_msg_writable(void)
 {
+  uint8_t num_writable  = 0;
+  num_writable = send_tracked_message_id_list(WRITABLE_FLAG);
+
   temp_header.internal  = MSG_INTERNAL;
   temp_header.response  = MSG_NRESP;
   temp_header.type      = TYPE_UINT8;
-
-  //tell the UI we are starting the index handshake process
-  encode_packet_simple(parserOutputFunc, &temp_header, "dmws", sizeof(numDevObjects), &numDevObjects);
-  send_tracked_message_id_list(0);
+  encode_packet_simple(parserOutputFunc, &temp_header, "dmwe", sizeof(num_writable), &num_writable);
 }
 
 void
 announce_dev_vars_readonly(void)
 {
-  send_tracked_variables(1);
+  send_tracked_variables(READ_ONLY_FLAG);
 }
 
 void
 announce_dev_vars_writable(void)
 {
-  send_tracked_variables(0);
+  send_tracked_variables(WRITABLE_FLAG);
 }
 
-void
+uint8_t
 send_tracked_message_id_list(uint8_t read_only)
 {
+  uint8_t variables_sent = 0;
+
   temp_header.internal  = MSG_INTERNAL;
   temp_header.response  = MSG_NRESP;
   temp_header.type      = TYPE_CHAR;
 
-  //fill a buffer which contains the developer message ID's
-  uint8_t msgBuffer[ (MESSAGEID_SIZE+1)*(PAYLOAD_SIZE_MAX / PACKET_BASE_SIZE) ];
-  uint8_t msgBufferPos = 0; //position in buffer
-  uint8_t msgIDlen = 0;     //length of a single msgID string
-  uint8_t msgIDPacked = 0;  //count messages packed into buffer
+  uint8_t msgBuffer[ (MESSAGEID_SIZE+1)*4 ];
+  uint8_t msgBufferPos  = 0;  //position in buffer
+  uint8_t msgIDlen      = 0;  //length of a single msgID string
+  uint8_t msgIDPacked   = 0;  //count messages packed into buffer
 
   for(uint8_t i = 0; i < numDevObjects; i++)
   {
@@ -355,10 +356,12 @@ send_tracked_message_id_list(uint8_t read_only)
       memcpy(msgBuffer+msgBufferPos, devObjectArray[i].msgID, msgIDlen);
       msgBufferPos += msgIDlen;
       msgIDPacked++;
-    }
 
-    //send messages and clear buffer to break list into shorter messages
-    if(msgIDPacked >= (PAYLOAD_SIZE_MAX / PACKET_BASE_SIZE) || i >= numDevObjects)
+      variables_sent++;
+    }
+  
+    //send messages and clear buffer
+    if(msgBufferPos >= (sizeof(msgBuffer) - MESSAGEID_SIZE/2 ) || i >= numDevObjects-1)
     {
       const char * headerID = (read_only) ? "dmrl" : "dmwl";
       encode_packet_simple(parserOutputFunc, &temp_header, headerID, msgBufferPos, &msgBuffer);
@@ -369,11 +372,14 @@ send_tracked_message_id_list(uint8_t read_only)
       msgIDPacked = 0;
     }
   }
+
+  return variables_sent;
 }
 
-void
+uint8_t
 send_tracked_variables(uint8_t read_only)
 {
+  uint8_t sent_variables = 0;
   temp_header.internal  = MSG_DEV;
   temp_header.response  = MSG_NRESP;
 
@@ -383,8 +389,10 @@ send_tracked_variables(uint8_t read_only)
     if( devObjectArray[i].type >> 7 == read_only )
     {
       send_tracked( devObjectArray + i, &temp_header);
+      sent_variables++;
     }
   }
+  return sent_variables;
 }
 
 void

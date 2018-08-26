@@ -56,6 +56,8 @@ typedef enum {
 } euiType_t;
 
 #define READ_ONLY_MASK 0x80
+#define READ_ONLY_FLAG 0x01
+#define WRITABLE_FLAG 0x00
 
 typedef void (*CallBackwithUINT8)(uint8_t); //callback with single char of data
 
