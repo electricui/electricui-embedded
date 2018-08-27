@@ -59,8 +59,6 @@ TEST_TEAR_DOWN( InternalEUICallbacks )
 
 TEST( InternalEUICallbacks, announce_board )
 {
-    TEST_IGNORE_MESSAGE("TODO: Establish byte-stream for announcement");
-
 	//expect the library version, board ID and session ID (lv, bi, si)
 	announce_board();
 
@@ -78,17 +76,17 @@ TEST( InternalEUICallbacks, announce_board )
         0x01,               //preamble
         0x02, 0x60, 0x02,   //header
         0x62, 0x69, 		//msgid
-        0x9D, 0x77,         //payload
-        0xDC, 0x12,         //crc
+        0x87, 0x7C,         //payload
+        0xE2, 0x06,         //crc
         0x04,               //EOT
 
     	//si uint8
         0x01,               //preamble
-        0x01, 0x14, 0x03,   //header
-        0x61, 0x62, 0x63,   //msgid
-        0x2A,               //payload
-        0x64, 0xBA,         //crc
-        0x04,                //EOT
+        0x01, 0x58, 0x02,   //header
+        0x73, 0x69,         //msgid 
+        0x00,               //payload
+        0x2D, 0x81,         //crc
+        0x04,               //EOT
     };
 
     TEST_ASSERT_EQUAL_HEX8_ARRAY_MESSAGE( expected, callback_serial_buffer, sizeof(expected), "Annoucement didn't publish expected messages" );
