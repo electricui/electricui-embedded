@@ -205,21 +205,47 @@ send_tracked(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings)
 
 void send_tracked_range(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings, uint16_t base_addr, uint16_t end_addr)
 {
-    //check the requested start and end ranges are within the bounds of the managed variable
-    if( end_addr > msgObjPtr->size || !end_addr)  //TODO work out how to handle a requested 0 end address, for now, send the entire thing as fallback
+    uint8_t type_size = 0;
+
+    switch(msgObjPtr->type & 0x0F)
+    {
+      case TYPE_INT16:
+      case TYPE_UINT16:
+        type_size = 2;
+      break;
+
+      case TYPE_INT32:
+      case TYPE_UINT32:
+      case TYPE_FLOAT:
+        type_size = 4;
+      break;
+
+      case TYPE_DOUBLE:
+        type_size = 8;
+      break;
+
+      default:  
+        //single byte types and customs
+        type_size = 1;
+      break;
+    }
+
+    //shift the offset up to align with the type size
+    base_addr = ((base_addr + (type_size-1)) / type_size) * type_size;
+    end_addr  = ((end_addr  + (type_size-1)) / type_size) * type_size;
+
+    //requested start and end ranges are within the bounds of the managed variable
+    if( end_addr > msgObjPtr->size || !end_addr)
     {
       end_addr = msgObjPtr->size;
     }
 
-    if( base_addr > end_addr)
+    if( base_addr >= end_addr)
     {
-      base_addr = end_addr - 1; //TODO work out what the correct behaviour is when the UI requests inverted range? 
+      base_addr = end_addr - type_size;
     }
 
-    uint16_t data_range[] = { base_addr, end_addr }; //start, end offsets for data being sent
-
     euiHeader_t detail_header;
-
     detail_header.internal   = settings->internal;
     detail_header.response   = settings->response;
     detail_header.id_len     = strlen(msgObjPtr->msgID);
@@ -227,22 +253,23 @@ void send_tracked_range(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings, 
     detail_header.offset     = 0;
 
     //generate metadata message with address range
-    detail_header.data_len = sizeof(data_range);
+    detail_header.data_len = sizeof(base_addr) * 2; //base and end are sent
     detail_header.type     = TYPE_OFFSET_METADATA;
+    uint16_t data_range[] = { base_addr, end_addr }; //start, end offsets for data being sent
     encode_packet(parserOutputFunc, &detail_header, msgObjPtr->msgID, 0x00, &data_range);
 
     //send the offset packets
     detail_header.offset = 1;
     detail_header.type   = msgObjPtr->type;
 
-    for( ; data_range[1] > data_range[0]; )
+    while( end_addr > base_addr )
     {
-      uint16_t bytes_remaining = data_range[1] - data_range[0];
+      uint16_t bytes_remaining = end_addr - base_addr;
       detail_header.data_len = ( bytes_remaining > PAYLOAD_SIZE_MAX ) ? PAYLOAD_SIZE_MAX : bytes_remaining;
       
-      data_range[1] -= detail_header.data_len;  //the current position through the buffer in bytes is also the end offset
+      end_addr -= detail_header.data_len;  //the current position through the buffer in bytes is also the end offset
 
-      encode_packet(parserOutputFunc, &detail_header, msgObjPtr->msgID, data_range[1], msgObjPtr->payload);
+      encode_packet(parserOutputFunc, &detail_header, msgObjPtr->msgID, end_addr, msgObjPtr->payload);
     }
 }
 
