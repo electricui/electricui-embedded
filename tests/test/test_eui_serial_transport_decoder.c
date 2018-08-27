@@ -287,11 +287,60 @@ TEST( SerialDecoder, decode_packet_float )
     TEST_ASSERT_EQUAL_UINT16( 0x1D8B, test_interface.runningCRC );
 }
 
+TEST( SerialDecoder, decode_packet_invalidCRC )
+{
+    //we expect the decoder to error on either CRC byte mismatch, it will reset when we send in the EOT or second byte.
+    //therefore send only enough bytes to get it up to the point where it reports the failure
+
+    //test the second byte being incorrect
+    eui_interface test_interface_2 = {0};
+    uint8_t invalid_second_byte[] = { 
+        0x01,
+        0x01, 0x14, 0x03,
+        0x61, 0x62, 0x63,
+        0x2A,
+        0x64, 0xFF,         //crc should be 0x64BA
+        //skip the EOT byte
+    };
+
+    for( uint16_t rxByte = 0; rxByte < sizeof(invalid_second_byte); rxByte++ )
+    {
+        decode_result = decode_packet( invalid_second_byte[rxByte], &test_interface_2 );
+    }
+
+    //peek into the CRC, we expect it still to be correct
+    TEST_ASSERT_EQUAL_UINT16( 0xBA64, test_interface_2.runningCRC );
+
+    //the decoder should return the error flag    
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( packet_error_crc, decode_result, "Decoder didn't error on invalid CRC byte2" );
+
+    //test the first byte being incorrect
+    eui_interface test_interface_1 = {0};
+    uint8_t invalid_first_byte[] = { 
+        0x01,
+        0x01, 0x14, 0x03,
+        0x61, 0x62, 0x63,
+        0x2A,
+        0xFF, //skip second byte       //crc should be 0x64BA
+        //skip the EOT byte
+    };
+
+    for( uint16_t rxByte = 0; rxByte < sizeof(invalid_first_byte); rxByte++ )
+    {
+        decode_result = decode_packet( invalid_first_byte[rxByte], &test_interface_1 );
+    }
+
+    //peek into the CRC, we expect it still to be correct
+    TEST_ASSERT_EQUAL_UINT16( 0xBA64, test_interface_1.runningCRC );
+
+    //the decoder should return the error flag    
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( packet_error_crc, decode_result, "Decoder didn't error on invalid CRC byte1" );
+}
+
 
 //offset messages
 //offset ranges valid
 //offset ranges invalid
-//invalid CRCs
 //missing preamble
 //missing closing byte
 //message in payload of another message

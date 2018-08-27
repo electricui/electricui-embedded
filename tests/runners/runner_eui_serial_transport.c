@@ -31,4 +31,6 @@ TEST_GROUP_RUNNER( SerialDecoder )
     RUN_TEST_CASE( SerialDecoder, decode_packet_response )
     RUN_TEST_CASE( SerialDecoder, decode_packet_acknum )
     RUN_TEST_CASE( SerialDecoder, decode_packet_float )
+    RUN_TEST_CASE( SerialDecoder, decode_packet_invalidCRC )
+    
 }
