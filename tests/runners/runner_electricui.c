@@ -41,6 +41,8 @@ TEST_GROUP_RUNNER( InternalEUICallbacks )
     RUN_TEST_CASE( InternalEUICallbacks, announce_dev_msg_writable )
     RUN_TEST_CASE( InternalEUICallbacks, announce_dev_vars_readonly )
     RUN_TEST_CASE( InternalEUICallbacks, announce_dev_vars_writable )
+    RUN_TEST_CASE( InternalEUICallbacks, send_msgID_list_callback )
+    RUN_TEST_CASE( InternalEUICallbacks, send_variable_callback )
     RUN_TEST_CASE( InternalEUICallbacks, setup_identifier )
 }
 
