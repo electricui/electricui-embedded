@@ -1,9 +1,5 @@
-
 //Import the ElectricUI Library
-extern "C"
-{
-    #include "electricui.h"
-};
+#include "electricui.h"
 
 #define LED_PIN 13
 

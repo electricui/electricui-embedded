@@ -1,7 +1,4 @@
-extern "C"
-{
-    #include "electricui.h"
-};
+#include "electricui.h"
 
 // Arrays of our standard types
 int8_t   example_int8_arr[]  = { -21, 20, -19 };

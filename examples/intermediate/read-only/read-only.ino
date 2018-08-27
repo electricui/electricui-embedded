@@ -1,7 +1,4 @@
-extern "C"
-{
-    #include "electricui.h"
-};
+#include "electricui.h"
 
 uint8_t  readonly_uint8  = 42;
 uint8_t  writable_uint8  = 22;

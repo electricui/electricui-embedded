@@ -1,9 +1,5 @@
+#include "electricui.h"
 #include <Adafruit_NeoPixel.h>
-
-extern "C"
-{
-    #include "electricui.h"
-};
 
 #define PIN_WS2812 7
 #define STRIP_LENGTH 8

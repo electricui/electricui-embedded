@@ -1,3 +1,7 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef EUI_H
 #define EUI_H
 
@@ -63,4 +67,8 @@ uint8_t last_error;
 
 euiPacketSettings_t temp_header;
 
+#endif
+
+#ifdef __cplusplus
+}
 #endif

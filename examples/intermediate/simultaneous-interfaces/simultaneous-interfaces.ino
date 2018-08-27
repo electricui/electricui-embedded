@@ -1,7 +1,4 @@
-extern "C"
-{
-  #include "electricui.h"
-};
+#include "electricui.h"
 
 //example interactive data
 uint8_t led_brightness  = 2;

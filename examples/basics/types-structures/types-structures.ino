@@ -1,7 +1,4 @@
-extern "C"
-{
-    #include "electricui.h"
-};
+#include "electricui.h"
 
 // Some simple custom types
 typedef struct {

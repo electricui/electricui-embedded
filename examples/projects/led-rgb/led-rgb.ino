@@ -1,8 +1,4 @@
-extern "C"
-{
-  #include "electricui.h"
-};
-
+#include "electricui.h"
 #include <Adafruit_NeoPixel.h>    // Required library for the WS2812 RGB led
 
 #define PIN_WS2812 7

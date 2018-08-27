@@ -1,7 +1,4 @@
-extern "C"
-{
-    #include "electricui.h"
-};
+#include "electricui.h"
 
 //Basic set of standard types
 int8_t   example_int8   = -21;
