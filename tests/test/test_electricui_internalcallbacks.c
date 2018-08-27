@@ -10,9 +10,15 @@ uint8_t   test_uint    = 21;
 
 //developer-space messages
 euiMessage_t internal_callback_test_store[] = {
-    { .msgID = "ch",    .type = TYPE_CHAR,    .size = sizeof(test_char),    .payload = &test_char	},
-    { .msgID = "si8",   .type = TYPE_INT8,    .size = sizeof(test_uint),	.payload = &test_uint   },
+    { .msgID = "chw",   .type = TYPE_CHAR,    .size = sizeof(test_char),    .payload = &test_char   },
+    { .msgID = "u8w",   .type = TYPE_INT8,    .size = sizeof(test_uint),    .payload = &test_uint   },
+    
+    { .msgID = "chr",   .type = TYPE_CHAR|READ_ONLY_MASK,    .size = sizeof(test_char),    .payload = &test_char   },
+    { .msgID = "u8r",   .type = TYPE_INT8|READ_ONLY_MASK,    .size = sizeof(test_uint),    .payload = &test_uint   },
 };
+
+const uint16_t number_ro_expected = 2;
+const uint16_t number_rw_expected = 2;
 
 uint8_t 	callback_serial_buffer[1024] 	= { 0 };
 uint16_t 	callback_serial_position    	= 0;
@@ -53,6 +59,8 @@ TEST_TEAR_DOWN( InternalEUICallbacks )
 
 TEST( InternalEUICallbacks, announce_board )
 {
+    TEST_IGNORE_MESSAGE("TODO: Establish byte-stream for announcement");
+
 	//expect the library version, board ID and session ID (lv, bi, si)
 	announce_board();
 
@@ -171,6 +179,30 @@ TEST( InternalEUICallbacks, announce_dev_vars_writable )
     };
 
     TEST_ASSERT_EQUAL_HEX8_ARRAY_MESSAGE( expected, callback_serial_buffer, sizeof(expected), "Dev variable transfer didn't match" );
+}
+
+TEST( InternalEUICallbacks, send_msgID_list_callback )
+{
+    uint16_t msgID_count = 0;
+    
+    msgID_count = send_tracked_message_id_list( 0 );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( number_rw_expected, msgID_count, "Writable msgID count incorrect" );
+
+    msgID_count = send_tracked_message_id_list( 1 );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( number_ro_expected, msgID_count, "Read-Only msgID count incorrect" );
+
+}
+
+TEST( InternalEUICallbacks, send_variable_callback )
+{
+    uint16_t number_sent = 0;
+
+    number_sent = send_tracked_variables( 0 );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( number_rw_expected, number_sent, "Writable variable count incorrect" );
+
+    number_sent = send_tracked_variables( 1 );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( number_ro_expected, number_sent, "Read-Only variable count incorrect" );
+
 }
 
 TEST( InternalEUICallbacks, setup_identifier )
