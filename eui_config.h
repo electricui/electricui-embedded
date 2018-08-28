@@ -16,8 +16,11 @@
 #endif
 
 // Configure inbound message buffer size
-// TODO, and decide if worth implementing or not (minimal improvements?)
+#define MESSAGEID_BITS      4	//size of the messageIDlen bitfield doesn't change regardless
 
+#ifndef MESSAGEID_SIZE_MAX
+	#define MESSAGEID_SIZE      ( 1 << MESSAGEID_BITS ) //max allowed bytes in msgID
+#endif
 
 // Default payload size for the inbound parsing buffer
 #ifndef PAYLOAD_SIZE_MAX
