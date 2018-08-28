@@ -3,7 +3,7 @@
 #define ARR_ELEM(a) (sizeof(a) / sizeof(*a))    //number of elements in array
 
 //Helper macros to simplify eUI object array declaration in user-code
-#define EUI_FUNC(   ID, DATA ) { .msgID = ID, .type = TYPE_CALLBACK|READ_ONLY_MASK, .size = 1, .payload = &DATA }
+#define EUI_FUNC(   ID, DATA ) { .msgID = ID, .type = TYPE_CALLBACK|READ_ONLY_MASK, .size = CALLBACK_SIZE, .payload = &DATA }
 #define EUI_CUSTOM( ID, DATA ) { .msgID = ID, .type = TYPE_CUSTOM, .size = sizeof(DATA), .payload = &DATA }
 
 #define EUI_CHAR(  ID, DATA ) { .msgID = ID, .type = TYPE_CHAR,  .size = sizeof(DATA), .payload = &DATA }

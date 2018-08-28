@@ -8,6 +8,7 @@ extern "C" {
 #include <stdint.h>
 #include "eui_serial_transport.h"
 #include "eui_macro.h"
+#include "eui_config.h"
 
 //eUI defines
 #define VER_MAJOR 1     //library versions follow semvar2 style (implementation limit of 255 per step)
@@ -43,16 +44,16 @@ void report_error(uint8_t error);
 
 //dev interface
 euiMessage_t *devObjectArray;
-uint8_t numDevObjects;
+eui_var_count_t numDevObjects;
 CallBackwithUINT8 parserOutputFunc;  //holding ref for output func
 
-void setup_dev_msg(euiMessage_t *msgArray, uint8_t numObjects);
+void setup_dev_msg(euiMessage_t *msgArray, eui_var_count_t numObjects);
 void setup_identifier(char * uuid, uint8_t bytes);
 void send_message(const char * msg_id, eui_interface *active_interface);
 
 void announce_board(void);
-uint8_t send_tracked_message_id_list(uint8_t read_only);
-uint8_t send_tracked_variables(uint8_t read_only);
+eui_var_count_t send_tracked_message_id_list(uint8_t read_only);
+eui_var_count_t send_tracked_variables(uint8_t read_only);
 
 void announce_dev_msg_readonly(void);
 void announce_dev_msg_writable(void);

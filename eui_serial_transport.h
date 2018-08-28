@@ -2,13 +2,13 @@
 #define EUI_SERIAL_TRANSPORT_H
 
 #include <stdint.h>
+#include "eui_config.h"
 
 #define MESSAGEID_BITS      4                       //size of the messageIDlen bitfield
 #define MESSAGEID_SIZE      ( 1 << MESSAGEID_BITS ) //max allowed bytes in msgID
 
 #define PACKET_BASE_SIZE    ( sizeof(stHeader) + sizeof(euiHeader_t) \
                             + sizeof(uint16_t) + sizeof(uint16_t) + sizeof(enTransmission) )  //maximum overhead in bytes
-#define PAYLOAD_SIZE_MAX    120    //max payload data size
 
 #define MSG_INTERNAL        1
 #define MSG_DEV             0
