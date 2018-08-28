@@ -5,18 +5,18 @@
 uint8_t library_version[] = { VER_MAJOR, VER_MINOR, VER_PATCH };
 
 euiMessage_t internal_msg_store[] = {
-  EUI_RO_UINT8("lv", library_version),
-  EUI_RO_UINT16("bi", board_identifier),
-  EUI_UINT8("si", session_identifier),
-  EUI_UINT8("er", last_error),
-  EUI_UINT8("hb", heartbeat),
+  EUI_RO_UINT8(EUI_INTERNAL_LIB_VER, library_version),
+  EUI_RO_UINT16(EUI_INTERNAL_BOARD_ID, board_identifier),
+  EUI_UINT8(EUI_INTERNAL_SESSION_ID, session_identifier),
+  EUI_UINT8(EUI_INTERNAL_ERROR_ID, last_error),
+  EUI_UINT8(EUI_INTERNAL_HEARTBEAT, heartbeat),
 
-  EUI_FUNC("dmr", announce_dev_msg_readonly),
-  EUI_FUNC("dmw", announce_dev_msg_writable),
-  EUI_FUNC("dvr", announce_dev_vars_readonly),
-  EUI_FUNC("dvw", announce_dev_vars_writable),
+  EUI_FUNC(EUI_INTERNAL_AM_RO, announce_dev_msg_readonly),
+  EUI_FUNC(EUI_INTERNAL_AM_RW, announce_dev_msg_writable),
+  EUI_FUNC(EUI_INTERNAL_AV_RO, announce_dev_vars_readonly),
+  EUI_FUNC(EUI_INTERNAL_AV_RW, announce_dev_vars_writable),
 
-  EUI_FUNC("as", announce_board),
+  EUI_FUNC(EUI_INTERNAL_SEARCH, announce_board),
 };
 
 
@@ -318,9 +318,9 @@ announce_board(void)
   temp_header.internal  = MSG_INTERNAL;
   temp_header.response  = MSG_NRESP;
 
-  send_tracked(find_message_object("lv", MSG_INTERNAL), &temp_header);
-  send_tracked(find_message_object("bi", MSG_INTERNAL), &temp_header);
-  send_tracked(find_message_object("si", MSG_INTERNAL), &temp_header);
+  send_tracked(find_message_object(EUI_INTERNAL_LIB_VER, MSG_INTERNAL), &temp_header);
+  send_tracked(find_message_object(EUI_INTERNAL_BOARD_ID, MSG_INTERNAL), &temp_header);
+  send_tracked(find_message_object(EUI_INTERNAL_SESSION_ID, MSG_INTERNAL), &temp_header);
 }
 
 void
@@ -332,7 +332,7 @@ announce_dev_msg_readonly(void)
   temp_header.internal  = MSG_INTERNAL;
   temp_header.response  = MSG_NRESP;
   temp_header.type      = TYPE_UINT8;
-  encode_packet_simple(parserOutputFunc, &temp_header, "dmre", sizeof(num_read_only), &num_read_only);
+  encode_packet_simple(parserOutputFunc, &temp_header, EUI_INTERNAL_AM_RO_END, sizeof(num_read_only), &num_read_only);
 }
 
 void
@@ -344,7 +344,7 @@ announce_dev_msg_writable(void)
   temp_header.internal  = MSG_INTERNAL;
   temp_header.response  = MSG_NRESP;
   temp_header.type      = TYPE_UINT8;
-  encode_packet_simple(parserOutputFunc, &temp_header, "dmwe", sizeof(num_writable), &num_writable);
+  encode_packet_simple(parserOutputFunc, &temp_header, EUI_INTERNAL_AM_RW_END, sizeof(num_writable), &num_writable);
 }
 
 void
@@ -390,7 +390,7 @@ send_tracked_message_id_list(uint8_t read_only)
     //send messages and clear buffer
     if(msgBufferPos >= (sizeof(msgBuffer) - MESSAGEID_SIZE/2 ) || i >= numDevObjects-1)
     {
-      const char * headerID = (read_only) ? "dmrl" : "dmwl";
+      const char * headerID = (read_only) ? EUI_INTERNAL_AM_RO_LIST : EUI_INTERNAL_AM_RW_LIST;
       encode_packet_simple(parserOutputFunc, &temp_header, headerID, msgBufferPos, &msgBuffer);
 
       //cleanup
@@ -430,6 +430,6 @@ report_error(uint8_t error)
   temp_header.internal  = MSG_INTERNAL;
   temp_header.response  = MSG_NRESP;
 
-  send_tracked(find_message_object("er", MSG_INTERNAL), &temp_header);
+  send_tracked(find_message_object(EUI_INTERNAL_ERROR_ID, MSG_INTERNAL), &temp_header);
 
 }
