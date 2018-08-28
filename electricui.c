@@ -305,8 +305,8 @@ setup_identifier(char * uuid, uint8_t bytes)
 	}
 	else
 	{
-		//hahahaha
-		board_identifier = 4;
+		//a null identifier demonstrates an issue
+		board_identifier = 0;
 	}
 }
 
