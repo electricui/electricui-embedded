@@ -71,7 +71,7 @@ encode_packet(CallBackwithUINT8 output_function, euiHeader_t * header, const cha
       crc16(msg_id[i], &outbound_crc); 
     }
 
-    //data offset if used
+#ifndef EUI_CONF_OFFSETS_DISABLED
     if(header->offset)
     {
       output_function( offset & 0xFF );
@@ -80,6 +80,7 @@ encode_packet(CallBackwithUINT8 output_function, euiHeader_t * header, const cha
       output_function( offset >> 8 );
       crc16(offset >> 8, &outbound_crc); 
     }
+#endif
     
     //payload data
     for(int i = 0; i < header->data_len; i++)
@@ -163,7 +164,11 @@ decode_packet(uint8_t inbound_byte, eui_interface *active_interface)
         //start reading in the offset or data based on header guide
         if(active_interface->inboundHeader.offset)
         {
+#ifndef EUI_CONF_OFFSETS_DISABLED
           active_interface->state.parser_s = exp_offset_b1;
+#else
+          return packet_error_generic;  //add a error code for 'doesn't support offsets
+#endif
         }
         else
         {
@@ -179,6 +184,7 @@ decode_packet(uint8_t inbound_byte, eui_interface *active_interface)
       }
     break;
 
+#ifndef EUI_CONF_OFFSETS_DISABLED
     case exp_offset_b1:
       //ingest first byte
       active_interface->inboundOffset = (uint16_t)inbound_byte << 8;
@@ -190,6 +196,7 @@ decode_packet(uint8_t inbound_byte, eui_interface *active_interface)
       active_interface->inboundOffset |= inbound_byte;
       active_interface->state.parser_s = exp_data;
     break;
+#endif
     
     case exp_data:
       //we know the payload length, parse until we've eaten those bytes

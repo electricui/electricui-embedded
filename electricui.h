@@ -39,7 +39,9 @@ euiMessage_t * find_message_object(const char * msg_id, uint8_t is_internal);
 void parse_packet(uint8_t inbound_byte, eui_interface *active_interface);
 void handle_packet(eui_interface *valid_packet);
 void send_tracked(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings);
-void send_tracked_range(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings, uint16_t base_addr, uint16_t end_addr);
+#ifndef EUI_CONF_OFFSETS_DISABLED
+    void send_tracked_range(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings, uint16_t base_addr, uint16_t end_addr);
+#endif
 void report_error(uint8_t error);
 
 //dev interface

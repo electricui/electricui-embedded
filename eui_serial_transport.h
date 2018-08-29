@@ -86,7 +86,9 @@ typedef struct {
     //buffer incoming data
     euiHeader_t inboundHeader;
     uint8_t inboundID[MESSAGEID_SIZE];
+#ifndef EUI_CONF_OFFSETS_DISABLED
     uint16_t inboundOffset;
+#endif
     uint8_t inboundData[PAYLOAD_SIZE_MAX];
     uint16_t runningCRC;
 

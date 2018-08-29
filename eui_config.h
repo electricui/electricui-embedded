@@ -12,7 +12,7 @@
 
 // Disable offset messages
 #ifdef EUI_CONF_OFFSETS_DISABLED
-	#WARNING "ElectricUI will not handle data larger than PAYLOAD_SIZE_MAX"
+	#warning "ElectricUI will not handle data larger than PAYLOAD_SIZE_MAX"
 #endif
 
 // Configure inbound message buffer size
@@ -47,11 +47,13 @@
 
 // Configure internal message ID strings
 
+#define EUI_INTERNAL_SEARCH		"as"
 #define EUI_INTERNAL_LIB_VER	"lv"
 #define EUI_INTERNAL_BOARD_ID	"bi"
 #define EUI_INTERNAL_SESSION_ID	"si"
 #define EUI_INTERNAL_ERROR_ID	"er"
 #define EUI_INTERNAL_HEARTBEAT	"hb"
+
 #define EUI_INTERNAL_AM_RO		"dmr"
 #define EUI_INTERNAL_AM_RO_LIST	"dmrl"
 #define EUI_INTERNAL_AM_RO_END	"dmre"
@@ -60,4 +62,3 @@
 #define EUI_INTERNAL_AM_RW_END	"dmwe"
 #define EUI_INTERNAL_AV_RO		"dvr"
 #define EUI_INTERNAL_AV_RW		"dvw"
-#define EUI_INTERNAL_SEARCH		"as"
