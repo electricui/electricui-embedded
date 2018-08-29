@@ -164,18 +164,20 @@ handle_packet(eui_interface *valid_packet)
                                             .type     = msgObjPtr->type,
                                           };
 
-        if(header.type == TYPE_OFFSET_METADATA)
+        if(header.type != TYPE_OFFSET_METADATA)
+        {
+          send_tracked(msgObjPtr, &res_header);      
+        } 
+#ifndef EUI_CONF_OFFSETS_DISABLED
+        else
         {
           uint16_t base_address = (uint16_t)valid_packet->inboundData[1] << 8 | valid_packet->inboundData[0];
           uint16_t end_address  = (uint16_t)valid_packet->inboundData[3] << 8 | valid_packet->inboundData[2];
 
           //try and send the range as requested
           send_tracked_range(msgObjPtr, &res_header, base_address, end_address);
-        } 
-        else
-        {
-          send_tracked(msgObjPtr, &res_header);      
         }
+#endif
       }
     }
 
@@ -197,14 +199,17 @@ send_tracked(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings)
   {
     encode_packet_simple(parserOutputFunc, settings, msgObjPtr->msgID, msgObjPtr->size, msgObjPtr->payload);
   }
+#ifndef EUI_CONF_OFFSETS_DISABLED
   else
   {
     send_tracked_range(msgObjPtr, settings, 0, msgObjPtr->size);
   }
+#endif
 }
 
 void send_tracked_range(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings, uint16_t base_addr, uint16_t end_addr)
 {
+#ifndef EUI_CONF_OFFSETS_DISABLED
     uint8_t type_size = 0;
 
     switch(msgObjPtr->type & 0x0F)
@@ -271,6 +276,7 @@ void send_tracked_range(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings, 
 
       encode_packet(parserOutputFunc, &detail_header, msgObjPtr->msgID, end_addr, msgObjPtr->payload);
     }
+#endif
 }
 
 void
