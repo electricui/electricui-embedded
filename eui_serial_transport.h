@@ -7,6 +7,16 @@
 #define PACKET_BASE_SIZE    ( sizeof(stHeader) + sizeof(euiHeader_t) \
                             + sizeof(uint16_t) + sizeof(uint16_t) + sizeof(enTransmission) )  //maximum overhead in bytes
 
+#define MESSAGEID_BITS      4 //size of the messageIDlen bitfield doesn't change regardless
+
+#ifndef MESSAGEID_SIZE_MAX
+  #define MESSAGEID_SIZE    ( 1 << MESSAGEID_BITS ) //max allowed bytes in msgID
+#endif
+
+#ifndef PAYLOAD_SIZE_MAX
+  #define PAYLOAD_SIZE_MAX  120 //default inbound buffer size
+#endif
+
 #define MSG_INTERNAL        1
 #define MSG_DEV             0
 #define MSG_RESP            1

@@ -1,47 +1,40 @@
 // Add the ability to provide a callback pointer to each tracked variable
-#ifdef EUI_CONF_VARIABLE_CALLBACKS
 
-#endif
+// #define EUI_CONF_VARIABLE_CALLBACKS
+
 
 // Increase supported variable count to 65535
-#ifdef EUI_CONF_MANY_VARIABLES
-	typedef uint16_t eui_var_count_t;
-#else
-	typedef uint8_t eui_var_count_t;
-#endif
+// Default 255 message support is probably enough for most people
 
-// Disable offset messages
-#ifdef EUI_CONF_OFFSETS_DISABLED
-	#warning "ElectricUI will not handle data larger than PAYLOAD_SIZE_MAX"
-#endif
+//#define EUI_CONF_MANY_VARIABLES
 
-// Configure inbound message buffer size
-#define MESSAGEID_BITS      4	//size of the messageIDlen bitfield doesn't change regardless
 
-#ifndef MESSAGEID_SIZE_MAX
-	#define MESSAGEID_SIZE      ( 1 << MESSAGEID_BITS ) //max allowed bytes in msgID
-#endif
+// Disable offset message functionality
 
-// Default payload size for the inbound parsing buffer
-#ifndef PAYLOAD_SIZE_MAX
-	#define PAYLOAD_SIZE_MAX	120
-#endif
+// #define EUI_CONF_OFFSETS_DISABLED
 
-// Configure maximum outbound packet size
-// TODO, or use symetric payload sizes
 
-// Disable read-only messages
-#define EUI_CONF_READ_ONLY_DISABLE
+// The protocol limits ID lengths to a maximum of 15 characters
+// Manually define a maximum here to reduce buffer size usage
 
-// Disable error reporting
-#ifdef EUI_CONF_ERROR_DISABLE
-	#warning "ElectricUI runtime error reporting has been disabled."
-#endif
+//#define MESSAGEID_SIZE_MAX 12
+
+
+// Default payload size for the inbound parsing buffer is 120 bytes.
+// Manually reduce or increase the size as shown below.
+
+//#define PAYLOAD_SIZE_MAX 512
+
+
+// Disable error reporting to the UI (saves a few bytes silences link)
+
+//#define EUI_CONF_ERROR_DISABLE
+
 
 // Disable outbound message queuing
-#ifdef EUI_CONF_QUEUE_DISABLE
-	#warning "ElectricUI may have issues with outbound buffer overruns or pre-emptive tasking"
-#endif
+
+// #define EUI_CONF_COOPERATIVE_DISABLE
+
 
 // Configure internal message ID strings
 #define EUI_INTERNAL_SEARCH		"as"

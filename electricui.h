@@ -10,6 +10,21 @@ extern "C" {
 #include "eui_macro.h"
 #include "eui_config.h"
 
+// Warnings based on configuration flags (depends on compiler support)
+#ifdef EUI_CONF_QUEUE_DISABLE
+    #warning "ElectricUI may have issues with outbound buffer overruns or pre-emptive tasking"
+#endif
+
+#ifdef EUI_CONF_OFFSETS_DISABLED
+    #warning "ElectricUI will not handle data larger than PAYLOAD_SIZE_MAX"
+#endif
+
+#ifdef EUI_CONF_MANY_VARIABLES
+    typedef uint16_t eui_var_count_t;
+#else
+    typedef uint8_t eui_var_count_t;
+#endif
+
 //eUI defines
 #define VER_MAJOR 1     //library versions follow semvar2 style (implementation limit of 255 per step)
 #define VER_MINOR 3
@@ -22,6 +37,9 @@ typedef struct {
     uint8_t       type;
     uint16_t      size;
     void          *payload;
+#ifdef EUI_CONF_VARIABLE_CALLBACKS
+    // void          *callback; //todo add functionality
+#endif
 } euiMessage_t;
 
 enum error_codes {
