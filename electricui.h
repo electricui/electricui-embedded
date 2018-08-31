@@ -66,7 +66,9 @@ uint8_t heartbeat;
 uint16_t board_identifier;
 uint8_t session_identifier;
 
-uint8_t last_error;
+#ifndef EUI_CONF_ERROR_DISABLE
+    uint8_t last_error;
+#endif
 
 euiPacketSettings_t temp_header;
 

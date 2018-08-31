@@ -34,19 +34,16 @@
 #define EUI_CONF_READ_ONLY_DISABLE
 
 // Disable error reporting
-
+#ifdef EUI_CONF_ERROR_DISABLE
+	#warning "ElectricUI runtime error reporting has been disabled."
+#endif
 
 // Disable outbound message queuing
 #ifdef EUI_CONF_QUEUE_DISABLE
 	#warning "ElectricUI may have issues with outbound buffer overruns or pre-emptive tasking"
 #endif
 
-
-// Configure outbound message batching
-
-
 // Configure internal message ID strings
-
 #define EUI_INTERNAL_SEARCH		"as"
 #define EUI_INTERNAL_LIB_VER	"lv"
 #define EUI_INTERNAL_BOARD_ID	"bi"
