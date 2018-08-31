@@ -8,7 +8,6 @@ euiMessage_t internal_msg_store[] = {
   EUI_RO_UINT8(EUI_INTERNAL_LIB_VER, library_version),
   EUI_RO_UINT16(EUI_INTERNAL_BOARD_ID, board_identifier),
   EUI_UINT8(EUI_INTERNAL_SESSION_ID, session_identifier),
-  EUI_UINT8(EUI_INTERNAL_ERROR_ID, last_error),
   EUI_UINT8(EUI_INTERNAL_HEARTBEAT, heartbeat),
 
   EUI_FUNC(EUI_INTERNAL_AM_RO, announce_dev_msg_readonly),
@@ -17,6 +16,10 @@ euiMessage_t internal_msg_store[] = {
   EUI_FUNC(EUI_INTERNAL_AV_RW, announce_dev_vars_writable),
 
   EUI_FUNC(EUI_INTERNAL_SEARCH, announce_board),
+
+#ifndef EUI_CONF_ERROR_DISABLE
+  EUI_UINT8(EUI_INTERNAL_ERROR_ID, last_error),
+#endif
 };
 
 
@@ -431,11 +434,12 @@ send_tracked_variables(uint8_t read_only)
 void
 report_error(uint8_t error)
 {
+#ifndef EUI_CONF_ERROR_DISABLE
   last_error = error;
 
   temp_header.internal  = MSG_INTERNAL;
   temp_header.response  = MSG_NRESP;
 
   send_tracked(find_message_object(EUI_INTERNAL_ERROR_ID, MSG_INTERNAL), &temp_header);
-
+#endif
 }
