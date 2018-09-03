@@ -66,13 +66,13 @@ typedef enum {
 #define READ_ONLY_FLAG 0x01
 #define WRITABLE_FLAG 0x00
 
-typedef void (*CallBackwithUINT8)(uint8_t); //callback with single char of data
+typedef void (*euiCallbackUint8_t)(uint8_t); //callback with single char of data
 
 typedef struct {
   unsigned parser_s         : 4;
   unsigned id_bytes_in      : MESSAGEID_BITS;
   unsigned data_bytes_in    : 10;
-} eui_interface_state_t;
+} euiInterfaceState_t;
 
 enum parseStates {
     find_preamble = 0,
@@ -91,7 +91,7 @@ enum parseStates {
 
 typedef struct {
     //hold the inbound parser state information
-    eui_interface_state_t state;
+    euiInterfaceState_t state;
 
     //buffer incoming data
     euiHeader_t inboundHeader;
@@ -103,7 +103,7 @@ typedef struct {
     uint16_t runningCRC;
 
     //maintain a pointer to the output function for this interface
-    CallBackwithUINT8 output_char_fnPtr;
+    euiCallbackUint8_t output_char_fnPtr;
 } eui_interface;
 
 enum packet_signals {
@@ -114,8 +114,8 @@ enum packet_signals {
 };
 
 void      crc16(uint8_t data, uint16_t *crc);
-uint8_t   encode_packet_simple(CallBackwithUINT8 output_function, euiPacketSettings_t *settings, const char * msg_id, uint16_t payload_len, void* payload);
-uint8_t   encode_packet(CallBackwithUINT8 output_function, euiHeader_t * header, const char * msg_id, uint16_t offset, void* payload);
+uint8_t   encode_packet_simple(euiCallbackUint8_t output_function, euiPacketSettings_t *settings, const char * msg_id, uint16_t payload_len, void* payload);
+uint8_t   encode_packet(euiCallbackUint8_t output_function, euiHeader_t * header, const char * msg_id, uint16_t offset, void* payload);
 uint8_t   decode_packet(uint8_t inbound_byte, eui_interface *active_interface);
 
 #endif

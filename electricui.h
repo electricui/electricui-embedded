@@ -20,9 +20,9 @@ extern "C" {
 #endif
 
 #ifdef EUI_CONF_MANY_VARIABLES
-    typedef uint16_t eui_var_count_t;
+    typedef uint16_t euiVariableCount_t;
 #else
-    typedef uint8_t eui_var_count_t;
+    typedef uint8_t euiVariableCount_t;
 #endif
 
 //eUI defines
@@ -30,7 +30,7 @@ extern "C" {
 #define VER_MINOR 3
 #define VER_PATCH 1
 
-typedef void (*CallBackType)(void);            //callback with no data
+typedef void (*euiCallback_t)(void);            //callback with no data
 
 typedef struct {
     const char*   msgID;
@@ -63,26 +63,26 @@ void send_tracked(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings);
 void report_error(uint8_t error);
 
 //dev interface
-euiMessage_t *devObjectArray;
-eui_var_count_t numDevObjects;
-CallBackwithUINT8 parserOutputFunc;  //holding ref for output func
+euiMessage_t        *devObjectArray;
+euiVariableCount_t  numDevObjects;
+euiCallbackUint8_t  parserOutputFunc;  //holding ref for output func
 
-void setup_dev_msg(euiMessage_t *msgArray, eui_var_count_t numObjects);
+void setup_dev_msg(euiMessage_t *msgArray, euiVariableCount_t numObjects);
 void setup_identifier(char * uuid, uint8_t bytes);
 void send_message(const char * msg_id, eui_interface *active_interface);
 
 void announce_board(void);
-eui_var_count_t send_tracked_message_id_list(uint8_t read_only);
-eui_var_count_t send_tracked_variables(uint8_t read_only);
+euiVariableCount_t send_tracked_message_id_list(uint8_t read_only);
+euiVariableCount_t send_tracked_variables(uint8_t read_only);
 
 void announce_dev_msg_readonly(void);
 void announce_dev_msg_writable(void);
 void announce_dev_vars_readonly(void);
 void announce_dev_vars_writable(void);
 
-uint8_t heartbeat;
-uint16_t board_identifier;
-uint8_t session_identifier;
+uint8_t     heartbeat;
+uint16_t    board_identifier;
+uint8_t     session_identifier;
 
 #ifndef EUI_CONF_ERROR_DISABLE
     uint8_t last_error;

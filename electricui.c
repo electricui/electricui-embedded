@@ -4,7 +4,8 @@
 //internal
 uint8_t library_version[] = { VER_MAJOR, VER_MINOR, VER_PATCH };
 
-euiMessage_t internal_msg_store[] = {
+euiMessage_t internal_msg_store[] = 
+{
   EUI_RO_UINT8(EUI_INTERNAL_LIB_VER, library_version),
   EUI_RO_UINT16(EUI_INTERNAL_BOARD_ID, board_identifier),
   EUI_UINT8(EUI_INTERNAL_SESSION_ID, session_identifier),
@@ -31,7 +32,7 @@ find_message_object(const char * msg_id, uint8_t is_internal)
   if(is_internal == MSG_INTERNAL)
   {
     //search the internal array for matching messageID
-    for(eui_var_count_t i = 0; i < ARR_ELEM(internal_msg_store); i++)
+    for(euiVariableCount_t i = 0; i < ARR_ELEM(internal_msg_store); i++)
     {
       if( strcmp( msg_id, internal_msg_store[i].msgID ) == 0 )
       {
@@ -43,7 +44,7 @@ find_message_object(const char * msg_id, uint8_t is_internal)
   else if (is_internal == MSG_DEV)
   {
     //search developer space array for matching messageID
-    for(eui_var_count_t i = 0; i < numDevObjects; i++)
+    for(euiVariableCount_t i = 0; i < numDevObjects; i++)
     {
       if( strcmp( msg_id, devObjectArray[i].msgID ) == 0 )
       {
@@ -56,7 +57,8 @@ find_message_object(const char * msg_id, uint8_t is_internal)
   return foundMsgPtr;
 }
 
-void parse_packet(uint8_t inbound_byte, eui_interface *active_interface)
+void
+parse_packet(uint8_t inbound_byte, eui_interface *active_interface)
 {
   uint8_t parsing_progress = decode_packet(inbound_byte, active_interface);
 
@@ -132,7 +134,7 @@ handle_packet(eui_interface *valid_packet)
         if( (header.response && header.acknum) || (!header.response && !header.acknum) )
         {
           //create a function to call from the internally stored pointer
-          CallBackType parsedCallbackHandler;
+          euiCallback_t parsedCallbackHandler;
           parsedCallbackHandler = msgObjPtr->payload;
 
           (parsedCallbackHandler) ? parsedCallbackHandler() : report_error(err_missing_callback);
@@ -210,7 +212,8 @@ send_tracked(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings)
 #endif
 }
 
-void send_tracked_range(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings, uint16_t base_addr, uint16_t end_addr)
+void
+send_tracked_range(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings, uint16_t base_addr, uint16_t end_addr)
 {
 #ifndef EUI_CONF_OFFSETS_DISABLED
     uint8_t type_size = 0;
@@ -295,7 +298,7 @@ send_message(const char * msg_id, eui_interface *active_interface)
 
 //application layer developer setup helpers
 void
-setup_dev_msg(euiMessage_t *msgArray, eui_var_count_t numObjects)
+setup_dev_msg(euiMessage_t *msgArray, euiVariableCount_t numObjects)
 {
   devObjectArray = msgArray;
   numDevObjects = numObjects;
@@ -335,7 +338,7 @@ announce_board(void)
 void
 announce_dev_msg_readonly(void)
 {
-  eui_var_count_t num_read_only  = 0;
+  euiVariableCount_t num_read_only  = 0;
   num_read_only = send_tracked_message_id_list(READ_ONLY_FLAG);
 
   temp_header.internal  = MSG_INTERNAL;
@@ -347,7 +350,7 @@ announce_dev_msg_readonly(void)
 void
 announce_dev_msg_writable(void)
 {
-  eui_var_count_t num_writable  = 0;
+  euiVariableCount_t num_writable  = 0;
   num_writable = send_tracked_message_id_list(WRITABLE_FLAG);
 
   temp_header.internal  = MSG_INTERNAL;
@@ -368,10 +371,10 @@ announce_dev_vars_writable(void)
   send_tracked_variables(WRITABLE_FLAG);
 }
 
-eui_var_count_t
+euiVariableCount_t
 send_tracked_message_id_list(uint8_t read_only)
 {
-  eui_var_count_t variables_sent = 0;
+  euiVariableCount_t variables_sent = 0;
 
   temp_header.internal  = MSG_INTERNAL;
   temp_header.response  = MSG_NRESP;
@@ -382,7 +385,7 @@ send_tracked_message_id_list(uint8_t read_only)
   uint8_t msgIDlen      = 0;  //length of a single msgID string
   uint8_t msgIDPacked   = 0;  //count messages packed into buffer
 
-  for(eui_var_count_t i = 0; i < numDevObjects; i++)
+  for(euiVariableCount_t i = 0; i < numDevObjects; i++)
   {
     // filter based on writable flag
     if( devObjectArray[i].type >> 7 == read_only )
@@ -412,14 +415,14 @@ send_tracked_message_id_list(uint8_t read_only)
   return variables_sent;
 }
 
-eui_var_count_t
+euiVariableCount_t
 send_tracked_variables(uint8_t read_only)
 {
-  eui_var_count_t sent_variables = 0;
+  euiVariableCount_t sent_variables = 0;
   temp_header.internal  = MSG_DEV;
   temp_header.response  = MSG_NRESP;
 
-  for(eui_var_count_t i = 0; i < numDevObjects; i++)
+  for(euiVariableCount_t i = 0; i < numDevObjects; i++)
   {
     //only send messages which have the specified read-only bit state
     if( devObjectArray[i].type >> 7 == read_only )

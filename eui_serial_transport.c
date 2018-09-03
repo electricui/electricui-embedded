@@ -12,7 +12,7 @@ crc16(uint8_t data, uint16_t *crc)
 }
 
 uint8_t
-encode_packet_simple(CallBackwithUINT8 output_function, euiPacketSettings_t *settings, const char * msg_id, uint16_t payload_len, void* payload)
+encode_packet_simple(euiCallbackUint8_t output_function, euiPacketSettings_t *settings, const char * msg_id, uint16_t payload_len, void* payload)
 {
   //just call the full one with default ack# and offset values
   euiHeader_t expanded_header;
@@ -29,7 +29,7 @@ encode_packet_simple(CallBackwithUINT8 output_function, euiPacketSettings_t *set
 }
 
 uint8_t
-encode_packet(CallBackwithUINT8 output_function, euiHeader_t * header, const char * msg_id, uint16_t offset, void* payload)
+encode_packet(euiCallbackUint8_t output_function, euiHeader_t * header, const char * msg_id, uint16_t offset, void* payload)
 {
   if(output_function)  //todo ASSERT if not valid?
   {  
