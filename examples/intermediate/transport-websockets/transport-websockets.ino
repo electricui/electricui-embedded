@@ -119,7 +119,7 @@ void setup()
     //eUI setup
     usb_comms.output_char_fnPtr = &cdc_tx_putc;
     ws_comms.output_char_fnPtr = &ws_tx_putc;
-    setup_dev_msg(dev_msg_store, ARR_ELEM(dev_msg_store));
+    EUI_TRACK(dev_msg_store);
     setup_identifier("esp32", 5);
 
     WiFiMulti.addAP(wifi_ssid, wifi_pass);

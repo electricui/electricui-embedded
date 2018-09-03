@@ -31,7 +31,7 @@ void setup()
   serial_comms.output_char_fnPtr = &tx_putc;
 
   // Provide the tracked variables to the library
-  setup_dev_msg(dev_msg_store, ARR_ELEM(dev_msg_store));
+  EUI_TRACK(dev_msg_store);
 
   // Provide a identifier to make it easy to find in the UI
   setup_identifier("hello", 5);

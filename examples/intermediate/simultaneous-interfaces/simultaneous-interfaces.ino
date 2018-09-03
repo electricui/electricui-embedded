@@ -96,7 +96,7 @@ void setup()
   //eUI setup
   usb_comms.output_char_fnPtr = &cdc_tx_putc;
   uart_comms.output_char_fnPtr = &uart_tx_putc;
-  setup_dev_msg(dev_msg_store, ARR_ELEM(dev_msg_store));
+  EUI_TRACK(dev_msg_store);
   setup_identifier("hello", 5);
 
   loop_time = micros(); //loop counter in microseconds

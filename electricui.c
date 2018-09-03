@@ -300,8 +300,16 @@ send_message(const char * msg_id, eui_interface *active_interface)
 void
 setup_dev_msg(euiMessage_t *msgArray, euiVariableCount_t numObjects)
 {
-  devObjectArray = msgArray;
-  numDevObjects = numObjects;
+  if(msgArray && numObjects)
+  {
+    devObjectArray  = msgArray;
+    numDevObjects   = numObjects;
+  }
+  else
+  {
+    devObjectArray  = 0;
+    numDevObjects   = 0;
+  }
 }
 
 void

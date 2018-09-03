@@ -19,7 +19,7 @@ void setup()
 
     //eUI setup
     serial_comms.output_char_fnPtr = &tx_putc;
-    setup_dev_msg(dev_msg_store, ARR_ELEM(dev_msg_store));
+    EUI_TRACK(dev_msg_store);
     setup_identifier("readonly", 8);
 }
 

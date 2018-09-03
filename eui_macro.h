@@ -2,6 +2,8 @@
 
 #define ARR_ELEM(a) (sizeof(a) / sizeof(*a))    //number of elements in array
 
+#define EUI_TRACK( INPUT_ARRAY ) ( setup_dev_msg(INPUT_ARRAY, ARR_ELEM(INPUT_ARRAY)) )
+
 //Helper macros to simplify eUI object array declaration in user-code
 #define EUI_FUNC(   ID, DATA ) { .msgID = ID, .type = TYPE_CALLBACK|READ_ONLY_MASK, .size = CALLBACK_SIZE, .payload = &DATA }
 #define EUI_CUSTOM( ID, DATA ) { .msgID = ID, .type = TYPE_CUSTOM, .size = sizeof(DATA), .payload = &DATA }
