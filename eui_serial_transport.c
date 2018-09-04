@@ -101,7 +101,7 @@ encode_packet(euiCallbackUint8_t output_function, euiHeader_t * header, const ch
 }
 
 uint8_t
-decode_packet(uint8_t inbound_byte, eui_interface *active_interface)
+decode_packet(uint8_t inbound_byte, eui_parser_t *active_interface)
 {
   if(active_interface->state.parser_s < exp_crc_b1)    //only CRC the data between preamble and the CRC (exclusive)
   {

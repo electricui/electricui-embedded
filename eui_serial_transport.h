@@ -102,9 +102,7 @@ typedef struct {
     uint8_t inboundData[PAYLOAD_SIZE_MAX];
     uint16_t runningCRC;
 
-    //maintain a pointer to the output function for this interface
-    euiCallbackUint8_t output_char_fnPtr;
-} eui_interface;
+} eui_parser_t;
 
 enum packet_signals {
     parser_idle = 0,
@@ -116,6 +114,6 @@ enum packet_signals {
 void      crc16(uint8_t data, uint16_t *crc);
 uint8_t   encode_packet_simple(euiCallbackUint8_t output_function, euiPacketSettings_t *settings, const char * msg_id, uint16_t payload_len, void* payload);
 uint8_t   encode_packet(euiCallbackUint8_t output_function, euiHeader_t * header, const char * msg_id, uint16_t offset, void* payload);
-uint8_t   decode_packet(uint8_t inbound_byte, eui_interface *active_interface);
+uint8_t   decode_packet(uint8_t inbound_byte, eui_parser_t *active_interface);
 
 #endif

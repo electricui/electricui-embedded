@@ -83,8 +83,10 @@ const euiMessage_t dev_msg_store[] = {
     EUI_CUSTOM( "imu", example_imu ),
 };
 
-eui_interface usb_comms; //eui Transport interface holding object
-eui_interface uart_comms;
+euiInterface_t transport_methods[] = {
+    EUI_INTERFACE( &cdc_tx_putc ),
+    EUI_INTERFACE( &uart_tx_putc ),
+};
 
 void setup() 
 {
@@ -94,8 +96,7 @@ void setup()
   randomSeed( analogRead(A4) );
 
   //eUI setup
-  usb_comms.output_char_fnPtr = &cdc_tx_putc;
-  uart_comms.output_char_fnPtr = &uart_tx_putc;
+  EUI_LINK(transport_methods);
   EUI_TRACK(dev_msg_store);
   setup_identifier("hello", 5);
 

@@ -58,28 +58,23 @@ find_message_object(const char * msg_id, uint8_t is_internal)
 }
 
 void
-parse_packet(uint8_t inbound_byte, eui_interface *active_interface)
+parse_packet(uint8_t inbound_byte, euiInterface_t *active_interface)
 {
-  uint8_t parsing_progress = decode_packet(inbound_byte, active_interface);
+  uint8_t parsing_progress = decode_packet(inbound_byte, &active_interface->parser);
 
   switch(parsing_progress)
   {
     case packet_valid:
       handle_packet(active_interface);
 
-      //done handling the message, clear out the state info (but leave the output pointer alone)
-      parserOutputFunc = active_interface->output_char_fnPtr;
-      memset( active_interface, 0, sizeof(&active_interface) );
-      active_interface->output_char_fnPtr = parserOutputFunc;    
+      //done handling the message, clear out the state info
+      memset( &active_interface->parser, 0, sizeof(eui_parser_t) );
     break;
 
     case packet_error_generic:
     case packet_error_crc:
       report_error(err_parser_generic);
-
-      parserOutputFunc = active_interface->output_char_fnPtr;
-      memset( active_interface, 0, sizeof(&active_interface) );
-      active_interface->output_char_fnPtr = parserOutputFunc;    
+      memset( &active_interface->parser, 0, sizeof(eui_parser_t) );
     break;
 
     default:
@@ -89,21 +84,20 @@ parse_packet(uint8_t inbound_byte, eui_interface *active_interface)
 }
 
 void
-handle_packet(eui_interface *valid_packet)
+handle_packet(euiInterface_t *valid_packet)
 {
   //we know the message is 'valid', use deconstructed header for convenience
-  euiHeader_t header = *(euiHeader_t*)&valid_packet->inboundHeader;
+  euiHeader_t header = *(euiHeader_t*)&valid_packet->parser.inboundHeader;
 
-  //ensure response outputs use the same bus as the inbound message
-  parserOutputFunc = valid_packet->output_char_fnPtr;
+  parserOutputFunc = valid_packet->output_func; //todo remove this
 
   //pointer to the message object we find
-  euiMessage_t *msgObjPtr = find_message_object((char*)valid_packet->inboundID, header.internal);  
+  euiMessage_t *msgObjPtr = find_message_object((char*)valid_packet->parser.inboundID, header.internal);  
   
   //Check that the searched ID was found
   if(msgObjPtr)
   {
-    if(valid_packet->state.data_bytes_in)
+    if(valid_packet->parser.state.data_bytes_in)
     {
       //ignore data in callbacks or offset messages
       if(header.type == TYPE_OFFSET_METADATA || msgObjPtr->type >> 7)
@@ -113,13 +107,13 @@ handle_packet(eui_interface *valid_packet)
       else  //any other type
       {
         //work out the correct length of the write (clamp length to internal variable size)
-        uint8_t bytes_to_write = (valid_packet->state.data_bytes_in <= msgObjPtr->size) ? valid_packet->state.data_bytes_in : msgObjPtr->size;
+        uint8_t bytes_to_write = (valid_packet->parser.state.data_bytes_in <= msgObjPtr->size) ? valid_packet->parser.state.data_bytes_in : msgObjPtr->size;
 
         //Ensure the data won't exceed its bounds if invalid offsets are provided
-        if(valid_packet->inboundOffset + bytes_to_write <= msgObjPtr->size)
+        if(valid_packet->parser.inboundOffset + bytes_to_write <= msgObjPtr->size)
         {
           //copy payload data into (memory + offset from address) 'blindly'
-          memcpy((char *)msgObjPtr->payload + valid_packet->inboundOffset, valid_packet->inboundData, bytes_to_write);
+          memcpy((char *)msgObjPtr->payload + valid_packet->parser.inboundOffset, valid_packet->parser.inboundData, bytes_to_write);
         }
         else
         {
@@ -159,7 +153,7 @@ handle_packet(eui_interface *valid_packet)
         detail_header.offset     = header.offset;
         detail_header.data_len   = 0;
 
-        encode_packet(parserOutputFunc, &detail_header, msgObjPtr->msgID, valid_packet->inboundOffset, msgObjPtr->payload); 
+        encode_packet(valid_packet->output_func, &detail_header, msgObjPtr->msgID, valid_packet->parser.inboundOffset, msgObjPtr->payload); 
       }
       else
       {
@@ -176,8 +170,8 @@ handle_packet(eui_interface *valid_packet)
 #ifndef EUI_CONF_OFFSETS_DISABLED
         else
         {
-          uint16_t base_address = (uint16_t)valid_packet->inboundData[1] << 8 | valid_packet->inboundData[0];
-          uint16_t end_address  = (uint16_t)valid_packet->inboundData[3] << 8 | valid_packet->inboundData[2];
+          uint16_t base_address = (uint16_t)valid_packet->parser.inboundData[1] << 8 | valid_packet->parser.inboundData[0];
+          uint16_t end_address  = (uint16_t)valid_packet->parser.inboundData[3] << 8 | valid_packet->parser.inboundData[2];
 
           //try and send the range as requested
           send_tracked_range(msgObjPtr, &res_header, base_address, end_address);
@@ -286,9 +280,9 @@ send_tracked_range(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings, uint1
 }
 
 void
-send_message(const char * msg_id, eui_interface *active_interface)
+send_message(const char * msg_id, euiInterface_t *active_interface)
 {
-  parserOutputFunc = active_interface->output_char_fnPtr;
+  parserOutputFunc = active_interface->output_func;
 
   temp_header.internal  = MSG_DEV;
   temp_header.response  = MSG_NRESP;
@@ -297,6 +291,21 @@ send_message(const char * msg_id, eui_interface *active_interface)
 }
 
 //application layer developer setup helpers
+void
+setup_interface(euiInterface_t *link_array, uint8_t link_count)
+{
+  if(link_array && link_count)
+  {
+    interfaceArray  = link_array;
+    numInterfaces   = link_count;
+  }
+  else
+  {
+    interfaceArray  = 0;
+    numInterfaces   = 0;
+  }
+}
+
 void
 setup_dev_msg(euiMessage_t *msgArray, euiVariableCount_t numObjects)
 {

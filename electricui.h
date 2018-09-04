@@ -42,6 +42,12 @@ typedef struct {
 #endif
 } euiMessage_t;
 
+typedef struct {
+    eui_parser_t       parser;
+    euiCallbackUint8_t output_func;
+    //todo add metadata
+} euiInterface_t;
+
 enum error_codes {
     err_none = 0,
     err_crc,
@@ -54,22 +60,29 @@ enum error_codes {
 };
 
 euiMessage_t * find_message_object(const char * msg_id, uint8_t is_internal);
-void parse_packet(uint8_t inbound_byte, eui_interface *active_interface);
-void handle_packet(eui_interface *valid_packet);
+void parse_packet(uint8_t inbound_byte, euiInterface_t *active_interface);
+void handle_packet(euiInterface_t *valid_packet);
 void send_tracked(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings);
 #ifndef EUI_CONF_OFFSETS_DISABLED
     void send_tracked_range(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings, uint16_t base_addr, uint16_t end_addr);
 #endif
 void report_error(uint8_t error);
 
+//interface management
+euiInterface_t *interfaceArray;
+uint8_t         numInterfaces;
+
 //dev interface
 euiMessage_t        *devObjectArray;
 euiVariableCount_t  numDevObjects;
+
 euiCallbackUint8_t  parserOutputFunc;  //holding ref for output func
+
+void setup_interface(euiInterface_t *link_array, uint8_t link_count);
 
 void setup_dev_msg(euiMessage_t *msgArray, euiVariableCount_t numObjects);
 void setup_identifier(char * uuid, uint8_t bytes);
-void send_message(const char * msg_id, eui_interface *active_interface);
+void send_message(const char * msg_id, euiInterface_t *active_interface);
 
 void announce_board(void);
 euiVariableCount_t send_tracked_message_id_list(uint8_t read_only);
