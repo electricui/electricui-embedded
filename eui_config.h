@@ -43,6 +43,7 @@
 #define EUI_INTERNAL_SESSION_ID	"si"
 #define EUI_INTERNAL_ERROR_ID	"er"
 #define EUI_INTERNAL_HEARTBEAT	"hb"
+#define EUI_DEFAULT_INTERFACE	"dl"
 
 #define EUI_INTERNAL_AM_RO		"dmr"
 #define EUI_INTERNAL_AM_RO_LIST	"dmrl"

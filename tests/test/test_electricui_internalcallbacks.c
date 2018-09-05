@@ -23,6 +23,7 @@ const uint16_t number_rw_expected = 2;
 uint8_t 	callback_serial_buffer[1024] 	= { 0 };
 uint16_t 	callback_serial_position    	= 0;
 
+
 void callback_mocked_output(uint8_t outbound)
 {
     if( callback_serial_position < 2048 )
@@ -36,6 +37,8 @@ void callback_mocked_output(uint8_t outbound)
     }
 }
 
+euiInterface_t mock_interface = { 0 };
+
 TEST_SETUP( InternalEUICallbacks )
 {
 	//wipe the mocked serial buffer
@@ -48,7 +51,8 @@ TEST_SETUP( InternalEUICallbacks )
 	
 	setup_identifier( (char*)"a", 1 );
     setup_dev_msg(internal_callback_test_store, ARR_ELEM(internal_callback_test_store));
-    parserOutputFunc = &callback_mocked_output;
+    mock_interface.output_func = &callback_mocked_output;
+    setup_interface( &mock_interface, 1);
 }
 
 TEST_TEAR_DOWN( InternalEUICallbacks )

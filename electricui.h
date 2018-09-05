@@ -59,15 +59,6 @@ enum error_codes {
     err_todo_functionality,
 };
 
-euiMessage_t * find_message_object(const char * msg_id, uint8_t is_internal);
-void parse_packet(uint8_t inbound_byte, euiInterface_t *active_interface);
-void handle_packet(euiInterface_t *valid_packet);
-void send_tracked(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings);
-#ifndef EUI_CONF_OFFSETS_DISABLED
-    void send_tracked_range(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings, uint16_t base_addr, uint16_t end_addr);
-#endif
-void report_error(uint8_t error);
-
 //interface management
 euiInterface_t *interfaceArray;
 uint8_t         numInterfaces;
@@ -76,26 +67,35 @@ uint8_t         numInterfaces;
 euiMessage_t        *devObjectArray;
 euiVariableCount_t  numDevObjects;
 
-euiCallbackUint8_t  parserOutputFunc;  //holding ref for output func
+euiMessage_t * find_message_object(const char * msg_id, uint8_t is_internal);
+euiCallbackUint8_t * auto_output(void);
+void parse_packet(uint8_t inbound_byte, euiInterface_t *active_interface);
+void handle_packet(euiInterface_t *valid_packet);
+void send_tracked(euiCallbackUint8_t output_function, euiMessage_t *msgObjPtr, euiPacketSettings_t *settings);
+
+#ifndef EUI_CONF_OFFSETS_DISABLED
+    void send_tracked_range(euiCallbackUint8_t output_function, euiMessage_t *msgObjPtr, euiPacketSettings_t *settings, uint16_t base_addr, uint16_t end_addr);
+#endif
+void report_error(uint8_t error);
 
 void setup_interface(euiInterface_t *link_array, uint8_t link_count);
-
 void setup_dev_msg(euiMessage_t *msgArray, euiVariableCount_t numObjects);
 void setup_identifier(char * uuid, uint8_t bytes);
-void send_message(const char * msg_id, euiInterface_t *active_interface);
+void send_message(const char * msg_id);
+void send_message_on(const char * msg_id, euiInterface_t *active_interface);
 
 void announce_board(void);
-euiVariableCount_t send_tracked_message_id_list(uint8_t read_only);
-euiVariableCount_t send_tracked_variables(uint8_t read_only);
-
 void announce_dev_msg_readonly(void);
 void announce_dev_msg_writable(void);
 void announce_dev_vars_readonly(void);
 void announce_dev_vars_writable(void);
+euiVariableCount_t send_tracked_message_id_list(uint8_t read_only);
+euiVariableCount_t send_tracked_variables(uint8_t read_only);
 
 uint8_t     heartbeat;
 uint16_t    board_identifier;
 uint8_t     session_identifier;
+uint8_t     default_interface;
 
 #ifndef EUI_CONF_ERROR_DISABLE
     uint8_t last_error;

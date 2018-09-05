@@ -10,6 +10,7 @@ euiMessage_t internal_msg_store[] =
   EUI_RO_UINT16(EUI_INTERNAL_BOARD_ID, board_identifier),
   EUI_UINT8(EUI_INTERNAL_SESSION_ID, session_identifier),
   EUI_UINT8(EUI_INTERNAL_HEARTBEAT, heartbeat),
+  EUI_UINT8(EUI_DEFAULT_INTERFACE, default_interface),
 
   EUI_FUNC(EUI_INTERNAL_AM_RO, announce_dev_msg_readonly),
   EUI_FUNC(EUI_INTERNAL_AM_RW, announce_dev_msg_writable),
@@ -57,6 +58,16 @@ find_message_object(const char * msg_id, uint8_t is_internal)
   return foundMsgPtr;
 }
 
+euiCallbackUint8_t *
+auto_output(void)
+{
+  //work out which interface to output data on, and pass callback to the relevant function
+
+  //todo intelligently select an interface
+
+  return &interfaceArray[default_interface].output_func;
+}
+
 void
 parse_packet(uint8_t inbound_byte, euiInterface_t *active_interface)
 {
@@ -88,8 +99,6 @@ handle_packet(euiInterface_t *valid_packet)
 {
   //we know the message is 'valid', use deconstructed header for convenience
   euiHeader_t header = *(euiHeader_t*)&valid_packet->parser.inboundHeader;
-
-  parserOutputFunc = valid_packet->output_func; //todo remove this
 
   //pointer to the message object we find
   euiMessage_t *msgObjPtr = find_message_object((char*)valid_packet->parser.inboundID, header.internal);  
@@ -165,7 +174,7 @@ handle_packet(euiInterface_t *valid_packet)
 
         if(header.type != TYPE_OFFSET_METADATA)
         {
-          send_tracked(msgObjPtr, &res_header);      
+          send_tracked(valid_packet->output_func, msgObjPtr, &res_header);      
         } 
 #ifndef EUI_CONF_OFFSETS_DISABLED
         else
@@ -174,7 +183,7 @@ handle_packet(euiInterface_t *valid_packet)
           uint16_t end_address  = (uint16_t)valid_packet->parser.inboundData[3] << 8 | valid_packet->parser.inboundData[2];
 
           //try and send the range as requested
-          send_tracked_range(msgObjPtr, &res_header, base_address, end_address);
+          send_tracked_range(valid_packet->output_func, msgObjPtr, &res_header, base_address, end_address);
         }
 #endif
       }
@@ -188,7 +197,7 @@ handle_packet(euiInterface_t *valid_packet)
 }
 
 void
-send_tracked(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings)
+send_tracked(euiCallbackUint8_t output_function, euiMessage_t *msgObjPtr, euiPacketSettings_t *settings)
 {
   //write the correct type into the settings based on the objects internal type, not whatever has been provided by the dev...
   settings->type = msgObjPtr->type;
@@ -196,18 +205,18 @@ send_tracked(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings)
   //decide if data will fit in a normal message, or requires multi-packet output
   if(msgObjPtr->size <= PAYLOAD_SIZE_MAX)
   {
-    encode_packet_simple(parserOutputFunc, settings, msgObjPtr->msgID, msgObjPtr->size, msgObjPtr->payload);
+    encode_packet_simple(output_function, settings, msgObjPtr->msgID, msgObjPtr->size, msgObjPtr->payload);
   }
 #ifndef EUI_CONF_OFFSETS_DISABLED
   else
   {
-    send_tracked_range(msgObjPtr, settings, 0, msgObjPtr->size);
+    send_tracked_range(output_function, msgObjPtr, settings, 0, msgObjPtr->size);
   }
 #endif
 }
 
 void
-send_tracked_range(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings, uint16_t base_addr, uint16_t end_addr)
+send_tracked_range(euiCallbackUint8_t output_function, euiMessage_t *msgObjPtr, euiPacketSettings_t *settings, uint16_t base_addr, uint16_t end_addr)
 {
 #ifndef EUI_CONF_OFFSETS_DISABLED
     uint8_t type_size = 0;
@@ -261,7 +270,7 @@ send_tracked_range(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings, uint1
     detail_header.data_len = sizeof(base_addr) * 2; //base and end are sent
     detail_header.type     = TYPE_OFFSET_METADATA;
     uint16_t data_range[] = { base_addr, end_addr }; //start, end offsets for data being sent
-    encode_packet(parserOutputFunc, &detail_header, msgObjPtr->msgID, 0x00, &data_range);
+    encode_packet(output_function, &detail_header, msgObjPtr->msgID, 0x00, &data_range);
 
     //send the offset packets
     detail_header.offset = 1;
@@ -274,20 +283,27 @@ send_tracked_range(euiMessage_t *msgObjPtr, euiPacketSettings_t *settings, uint1
       
       end_addr -= detail_header.data_len;  //the current position through the buffer in bytes is also the end offset
 
-      encode_packet(parserOutputFunc, &detail_header, msgObjPtr->msgID, end_addr, msgObjPtr->payload);
+      encode_packet(output_function, &detail_header, msgObjPtr->msgID, end_addr, msgObjPtr->payload);
     }
 #endif
 }
 
 void
-send_message(const char * msg_id, euiInterface_t *active_interface)
+send_message(const char * msg_id)
 {
-  parserOutputFunc = active_interface->output_func;
-
   temp_header.internal  = MSG_DEV;
   temp_header.response  = MSG_NRESP;
 
-  send_tracked( find_message_object( msg_id, MSG_DEV ), &temp_header);
+  send_tracked( *auto_output(), find_message_object( msg_id, MSG_DEV ), &temp_header);
+}
+
+void
+send_message_on(const char * msg_id, euiInterface_t *active_interface)
+{
+  temp_header.internal  = MSG_DEV;
+  temp_header.response  = MSG_NRESP;
+
+  send_tracked( active_interface->output_func, find_message_object( msg_id, MSG_DEV ), &temp_header);
 }
 
 //application layer developer setup helpers
@@ -347,9 +363,9 @@ announce_board(void)
   temp_header.internal  = MSG_INTERNAL;
   temp_header.response  = MSG_NRESP;
 
-  send_tracked(find_message_object(EUI_INTERNAL_LIB_VER, MSG_INTERNAL), &temp_header);
-  send_tracked(find_message_object(EUI_INTERNAL_BOARD_ID, MSG_INTERNAL), &temp_header);
-  send_tracked(find_message_object(EUI_INTERNAL_SESSION_ID, MSG_INTERNAL), &temp_header);
+  send_tracked(*auto_output(), find_message_object(EUI_INTERNAL_LIB_VER, MSG_INTERNAL), &temp_header);
+  send_tracked(*auto_output(), find_message_object(EUI_INTERNAL_BOARD_ID, MSG_INTERNAL), &temp_header);
+  send_tracked(*auto_output(), find_message_object(EUI_INTERNAL_SESSION_ID, MSG_INTERNAL), &temp_header);
 }
 
 void
@@ -361,7 +377,7 @@ announce_dev_msg_readonly(void)
   temp_header.internal  = MSG_INTERNAL;
   temp_header.response  = MSG_NRESP;
   temp_header.type      = TYPE_UINT8;
-  encode_packet_simple(parserOutputFunc, &temp_header, EUI_INTERNAL_AM_RO_END, sizeof(num_read_only), &num_read_only);
+  encode_packet_simple(*auto_output(), &temp_header, EUI_INTERNAL_AM_RO_END, sizeof(num_read_only), &num_read_only);
 }
 
 void
@@ -373,7 +389,7 @@ announce_dev_msg_writable(void)
   temp_header.internal  = MSG_INTERNAL;
   temp_header.response  = MSG_NRESP;
   temp_header.type      = TYPE_UINT8;
-  encode_packet_simple(parserOutputFunc, &temp_header, EUI_INTERNAL_AM_RW_END, sizeof(num_writable), &num_writable);
+  encode_packet_simple(*auto_output(), &temp_header, EUI_INTERNAL_AM_RW_END, sizeof(num_writable), &num_writable);
 }
 
 void
@@ -420,7 +436,7 @@ send_tracked_message_id_list(uint8_t read_only)
     if(msgBufferPos >= (sizeof(msgBuffer) - MESSAGEID_SIZE/2 ) || i >= numDevObjects-1)
     {
       const char * headerID = (read_only) ? EUI_INTERNAL_AM_RO_LIST : EUI_INTERNAL_AM_RW_LIST;
-      encode_packet_simple(parserOutputFunc, &temp_header, headerID, msgBufferPos, &msgBuffer);
+      encode_packet_simple(*auto_output(), &temp_header, headerID, msgBufferPos, &msgBuffer);
 
       //cleanup
       memset(msgBuffer, 0, sizeof(msgBuffer));
@@ -444,7 +460,7 @@ send_tracked_variables(uint8_t read_only)
     //only send messages which have the specified read-only bit state
     if( devObjectArray[i].type >> 7 == read_only )
     {
-      send_tracked( devObjectArray + i, &temp_header);
+      send_tracked( *auto_output(), devObjectArray + i, &temp_header);
       sent_variables++;
     }
   }
@@ -460,6 +476,6 @@ report_error(uint8_t error)
   temp_header.internal  = MSG_INTERNAL;
   temp_header.response  = MSG_NRESP;
 
-  send_tracked(find_message_object(EUI_INTERNAL_ERROR_ID, MSG_INTERNAL), &temp_header);
+  send_tracked( *auto_output(), find_message_object(EUI_INTERNAL_ERROR_ID, MSG_INTERNAL), &temp_header);
 #endif
 }

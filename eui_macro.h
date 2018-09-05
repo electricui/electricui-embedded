@@ -5,7 +5,7 @@
 #define EUI_TRACK( INPUT_ARRAY ) ( setup_dev_msg(INPUT_ARRAY, ARR_ELEM(INPUT_ARRAY)) )
 #define EUI_LINK( INTERFACE_ARRAY ) ( setup_interface(INTERFACE_ARRAY, ARR_ELEM(INTERFACE_ARRAY)) )
 
-#define EUI_INTERFACE( OUTPUT_PTR ) { .parser = { 0 }, .output_func = OUTPUT_PTR }
+#define EUI_INTERFACE( OUTPUT_PTR ) { .parser = { 0 }, .output_func = OUTPUT_PTR, .interface_cb = 0 }
 
 
 //Helper macros to simplify eUI object array declaration in user-code

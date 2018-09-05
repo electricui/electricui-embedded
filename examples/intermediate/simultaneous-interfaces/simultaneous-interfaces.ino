@@ -131,13 +131,13 @@ void uart_rx_handler()
   //USB CDC VCP
   while(Serial.available() > 0)  //rx has data
   {  
-    parse_packet(Serial.read(), &usb_comms);  //eat a byte
+    parse_packet(Serial.read(), &transport_methods[0]);  //eat a byte
   }
 
   //Hardware Serial Port
   while(Serial1.available() > 0)
   {  
-    parse_packet(Serial1.read(), &uart_comms);
+    parse_packet(Serial1.read(), &transport_methods[1]);
   }
 }
 
