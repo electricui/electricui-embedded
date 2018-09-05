@@ -78,6 +78,14 @@ parse_packet(uint8_t inbound_byte, euiInterface_t *active_interface)
     case packet_valid:
       handle_packet(active_interface);
 
+      // Call the developer's interface callback if one is set
+      euiCallback_t dev_if_cb;
+      dev_if_cb = active_interface->interface_cb;
+      if(dev_if_cb)
+      {
+        dev_if_cb();
+      }
+
       //done handling the message, clear out the state info
       memset( &active_interface->parser, 0, sizeof(eui_parser_t) );
     break;

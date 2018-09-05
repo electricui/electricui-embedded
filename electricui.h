@@ -45,7 +45,7 @@ typedef struct {
 typedef struct {
     eui_parser_t       parser;
     euiCallbackUint8_t output_func;
-    //todo add metadata
+    euiCallback_t      interface_cb;
 } euiInterface_t;
 
 enum error_codes {
