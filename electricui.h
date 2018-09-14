@@ -37,9 +37,9 @@ typedef struct {
     uint8_t       type;
     uint16_t      size;
     void          *payload;
-#ifdef EUI_CONF_VARIABLE_CALLBACKS
-    // void          *callback; //todo add functionality
-#endif
+// #ifdef EUI_CONF_VARIABLE_CALLBACKS
+    euiCallback_t callback;
+// #endif
 } euiMessage_t;
 
 typedef struct {

@@ -6,8 +6,8 @@ uint8_t library_version[] = { VER_MAJOR, VER_MINOR, VER_PATCH };
 
 euiMessage_t internal_msg_store[] = 
 {
-  EUI_RO_UINT8(EUI_INTERNAL_LIB_VER, library_version),
-  EUI_RO_UINT16(EUI_INTERNAL_BOARD_ID, board_identifier),
+  EUI_UINT8_RO(EUI_INTERNAL_LIB_VER, library_version),
+  EUI_UINT16_RO(EUI_INTERNAL_BOARD_ID, board_identifier),
   EUI_UINT8(EUI_INTERNAL_SESSION_ID, session_identifier),
   EUI_UINT8(EUI_INTERNAL_HEARTBEAT, heartbeat),
   EUI_UINT8(EUI_DEFAULT_INTERFACE, default_interface),
@@ -195,6 +195,14 @@ handle_packet(euiInterface_t *valid_packet)
         }
 #endif
       }
+    }
+
+    // Call the callback assigned to this message ID
+    euiCallback_t dev_var_cb;
+    dev_var_cb = msgObjPtr->callback;
+    if(dev_var_cb)
+    {
+      dev_var_cb();
     }
 
   }
