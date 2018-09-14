@@ -81,6 +81,7 @@ void report_error(uint8_t error);
 void setup_interface(euiInterface_t *link_array, uint8_t link_count);
 void setup_dev_msg(euiMessage_t *msgArray, euiVariableCount_t numObjects);
 void setup_identifier(char * uuid, uint8_t bytes);
+void setup_handshake_cb(euiCallback_t *dev_cb);
 void send_message(const char * msg_id);
 void send_message_on(const char * msg_id, euiInterface_t *active_interface);
 
@@ -91,6 +92,8 @@ void announce_dev_vars_readonly(void);
 void announce_dev_vars_writable(void);
 euiVariableCount_t send_tracked_message_id_list(uint8_t read_only);
 euiVariableCount_t send_tracked_variables(uint8_t read_only);
+
+euiCallback_t developer_handshake_cb;
 
 uint8_t     heartbeat;
 uint16_t    board_identifier;

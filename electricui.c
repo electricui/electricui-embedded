@@ -363,6 +363,17 @@ setup_identifier(char * uuid, uint8_t bytes)
 	}
 }
 
+void
+setup_handshake_cb(euiCallback_t *dev_cb)
+{
+  //store the function pointer to the developer side
+  if(dev_cb)
+  {
+    developer_handshake_cb = *dev_cb;
+  }
+}
+
+
 //application layer callbacks
 void
 announce_board(void)
@@ -374,6 +385,12 @@ announce_board(void)
   send_tracked(*auto_output(), find_message_object(EUI_INTERNAL_LIB_VER, MSG_INTERNAL), &temp_header);
   send_tracked(*auto_output(), find_message_object(EUI_INTERNAL_BOARD_ID, MSG_INTERNAL), &temp_header);
   send_tracked(*auto_output(), find_message_object(EUI_INTERNAL_SESSION_ID, MSG_INTERNAL), &temp_header);
+
+  if(developer_handshake_cb)
+  {
+    developer_handshake_cb();
+  }
+
 }
 
 void
