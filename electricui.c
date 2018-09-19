@@ -71,18 +71,18 @@ auto_output(void)
 void
 parse_packet( uint8_t inbound_byte, euiInterface_t *p_link )
 {
-    uint8_t parse_status = decode_packet(inbound_byte, &p_link->parser);
+    uint8_t parse_status = decode_packet(inbound_byte, &p_link->packet);
 
     if( parse_status == packet_valid )
     {
         //Use deconstructed header for convenience, find pointer to stored object
-        euiHeader_t  header     = *(euiHeader_t*)&p_link->parser.header;
-        euiMessage_t *p_msglocal = find_message_object( (char*)p_link->parser.inboundID, 
+        euiHeader_t  header     = *(euiHeader_t*)&p_link->packet.header;
+        euiMessage_t *p_msglocal = find_message_object( (char*)p_link->packet.inboundID, 
                                                         header.internal );  
         
         if( p_msglocal )
         {
-            if( p_link->parser.state.data_bytes_in )
+            if( p_link->packet.parser.data_bytes_in )
             {
                 handle_packet_data( p_link, &header, p_msglocal );
             }
@@ -101,12 +101,12 @@ parse_packet( uint8_t inbound_byte, euiInterface_t *p_link )
 
         cb_dev_interface_complete( p_link );
 
-        memset( &p_link->parser, 0, sizeof(eui_parser_t) );        
+        memset( &p_link->packet, 0, sizeof(eui_packet_t) );        
     }
     else
     {
         report_error(err_parser_generic);
-        memset( &p_link->parser, 0, sizeof(eui_parser_t) );        
+        memset( &p_link->packet, 0, sizeof(eui_packet_t) );        
     }
 }
 
@@ -128,9 +128,9 @@ handle_packet_data( euiInterface_t  *valid_packet,
         // TODO work out if we want larger per-packet writes?
         uint8_t bytes_to_write = 0;
         
-        if( valid_packet->parser.state.data_bytes_in <= msgObjPtr->size )
+        if( valid_packet->packet.parser.data_bytes_in <= msgObjPtr->size )
         {
-            bytes_to_write = valid_packet->parser.state.data_bytes_in;
+            bytes_to_write = valid_packet->packet.parser.data_bytes_in;
         }
         else
         {
@@ -138,10 +138,10 @@ handle_packet_data( euiInterface_t  *valid_packet,
         }
 
         //Ensure data won't exceed bounds with invalid offsets
-        if( valid_packet->parser.inboundOffset + bytes_to_write <= msgObjPtr->size )
+        if( valid_packet->packet.inboundOffset + bytes_to_write <= msgObjPtr->size )
         {
-            memcpy( (char *)msgObjPtr->payload + valid_packet->parser.inboundOffset,
-                    valid_packet->parser.data_in,
+            memcpy( (char *)msgObjPtr->payload + valid_packet->packet.inboundOffset,
+                    valid_packet->packet.data_in,
                     bytes_to_write );
         }
         else
@@ -192,7 +192,7 @@ handle_packet_response( euiInterface_t *packet_in,
             encode_packet(  packet_in->output_func, 
                             &tmp_header, 
                             msgObjPtr->msgID, 
-                            packet_in->parser.inboundOffset, 
+                            packet_in->packet.inboundOffset, 
                             msgObjPtr->payload ); 
         }
         else
@@ -208,11 +208,11 @@ handle_packet_response( euiInterface_t *packet_in,
                 uint16_t base_address = 0;
                 uint16_t end_address  = 0; 
                 
-                base_address = (uint16_t)packet_in->parser.data_in[1] << 8; 
-                base_address |= packet_in->parser.data_in[0];
+                base_address = (uint16_t)packet_in->packet.data_in[1] << 8; 
+                base_address |= packet_in->packet.data_in[0];
 
-                end_address  = (uint16_t)packet_in->parser.data_in[3] << 8; 
-                end_address  |= packet_in->parser.data_in[2];
+                end_address  = (uint16_t)packet_in->packet.data_in[3] << 8; 
+                end_address  |= packet_in->packet.data_in[2];
 
                 send_tracked_range( packet_in->output_func,
                                     msgObjPtr,
