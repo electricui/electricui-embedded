@@ -10,10 +10,10 @@
                             + sizeof(uint16_t) \
                             + sizeof(enTransmission) )
 
-#define MESSAGEID_BITS      4 //size of the messageIDlen bitfield doesn't change regardless
+#define MESSAGEID_BITS      4
 
 #ifndef MESSAGEID_SIZE_MAX
-    #define MESSAGEID_SIZE    ( 1 << MESSAGEID_BITS ) //max allowed bytes in msgID
+    #define MESSAGEID_SIZE    ( 1 << MESSAGEID_BITS )
 #endif
 
 #ifndef PAYLOAD_SIZE_MAX
@@ -27,7 +27,11 @@
 #define MSG_OFFSET_PACKET   1
 #define MSG_STANDARD_PACKET 0
 
-#define CALLBACK_SIZE 1 //sizeof( function ) is outside C spec though GCC returns 1. We don't use it.
+#define CALLBACK_SIZE 1
+
+#define READ_ONLY_MASK 0x80
+#define READ_ONLY_FLAG 0x01
+#define WRITABLE_FLAG 0x00
 
 //control characters in packets
 static const uint8_t stHeader       = 0x01;
@@ -65,11 +69,7 @@ typedef enum {
         TYPE_DOUBLE,
 } euiType_t;
 
-#define READ_ONLY_MASK 0x80
-#define READ_ONLY_FLAG 0x01
-#define WRITABLE_FLAG 0x00
-
-typedef void (*euiCallbackUint8_t)(uint8_t); //callback with single char of data
+typedef void (*callback_uint8_t)(uint8_t);
 
 typedef struct {
     unsigned parser_s         : 4;
@@ -92,8 +92,8 @@ enum parseStates {
         exp_reset,
 };
 
+//hold the inbound packet information
 typedef struct {
-        //hold the inbound parser state information
         euiInterfaceState_t state;
 
         //buffer incoming data
@@ -114,9 +114,16 @@ enum packet_signals {
         packet_error_generic,
 };
 
-void      crc16(uint8_t data, uint16_t *crc);
-uint8_t   encode_packet_simple(euiCallbackUint8_t output_function, euiPacketSettings_t *settings, const char * msg_id, uint16_t payload_len, void* payload);
-uint8_t   encode_packet(euiCallbackUint8_t out_char, euiHeader_t * header, const char * msg_id, uint16_t offset, void* payload);
-uint8_t   decode_packet(uint8_t inbound_byte, eui_parser_t *p_link_in);
+void
+crc16(uint8_t data, uint16_t *crc);
+
+uint8_t
+encode_packet_simple(callback_uint8_t output_function, euiPacketSettings_t *settings, const char * msg_id, uint16_t payload_len, void* payload);
+
+uint8_t
+encode_packet(callback_uint8_t out_char, euiHeader_t * header, const char * msg_id, uint16_t offset, void* payload);
+
+uint8_t
+decode_packet(uint8_t inbound_byte, eui_parser_t *p_link_in);
 
 #endif

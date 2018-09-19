@@ -12,7 +12,7 @@ crc16(uint8_t data, uint16_t *crc)
 }
 
 uint8_t
-encode_packet_simple(   euiCallbackUint8_t  output_function, 
+encode_packet_simple(   callback_uint8_t    output_function, 
                         euiPacketSettings_t *settings, 
                         const char          *msg_id, 
                         uint16_t            payload_len, 
@@ -33,7 +33,7 @@ encode_packet_simple(   euiCallbackUint8_t  output_function,
 }
 
 uint8_t
-encode_packet(  euiCallbackUint8_t  out_char, 
+encode_packet(  callback_uint8_t    out_char, 
                 euiHeader_t         *header, 
                 const char          *msg_id, 
                 uint16_t            offset, 
