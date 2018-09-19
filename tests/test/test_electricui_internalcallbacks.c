@@ -72,8 +72,8 @@ TEST( InternalEUICallbacks, announce_board )
         0x01,               //preamble
         0x03, 0x58, 0x02,   //header
         0x6C, 0x76,		    //msgid
-        0x01, 0x03, 0x01,   //payload
-        0x68, 0x8E,         //crc
+        VER_MAJOR, VER_MINOR, VER_PATCH,   //payload
+        0x8C, 0x56,         //crc
         0x04,               //EOT
 
     	//bi uint16 hash of ID

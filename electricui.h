@@ -26,9 +26,9 @@ extern "C" {
 #endif
 
 //eUI defines
-#define VER_MAJOR 1     //library versions follow semvar2 style (implementation limit of 255 per step)
-#define VER_MINOR 3
-#define VER_PATCH 1
+#define VER_MAJOR 0     //library versions follow semvar2 style (implementation limit of 255 per step)
+#define VER_MINOR 6
+#define VER_PATCH 0
 
 typedef void (*euiCallback_t)(void);            //callback with no data
 
@@ -52,8 +52,7 @@ enum error_codes {
     err_none = 0,
     err_crc,
     err_parser_generic,
-    err_invalid_internal,
-    err_invalid_developer,
+    err_unknown_id,
     err_missing_callback,
     err_invalid_offset,
     err_todo_functionality,
@@ -69,9 +68,16 @@ euiVariableCount_t  numDevObjects;
 
 euiMessage_t * find_message_object(const char * msg_id, uint8_t is_internal);
 euiCallbackUint8_t * auto_output(void);
-void parse_packet(uint8_t inbound_byte, euiInterface_t *active_interface);
-void handle_packet(euiInterface_t *valid_packet);
+void parse_packet(uint8_t inbound_byte, euiInterface_t *p_link);
+void handle_packet_data( euiInterface_t *valid_packet, euiHeader_t *header, euiMessage_t *msgObjPtr );
+void handle_packet_empty( euiHeader_t *header, euiMessage_t *msgObjPtr );
+void handle_packet_callback( euiMessage_t *msgObjPtr );
+void handle_packet_response( euiInterface_t *valid_packet, euiHeader_t *header, euiMessage_t *msgObjPtr );
+
 void send_tracked(euiCallbackUint8_t output_function, euiMessage_t *msgObjPtr, euiPacketSettings_t *settings);
+void cb_dev_interface_complete( euiInterface_t *p_link );
+
+void validate_offset_range( uint16_t base, uint16_t offset, uint16_t type_bytes, uint16_t size, uint16_t *start, uint16_t *end);
 
 #ifndef EUI_CONF_OFFSETS_DISABLED
     void send_tracked_range(euiCallbackUint8_t output_function, euiMessage_t *msgObjPtr, euiPacketSettings_t *settings, uint16_t base_addr, uint16_t end_addr);

@@ -44,17 +44,17 @@ TEST( SerialDecoder, decode_packet )
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( 1, decode_result, "Decoder didn't finish with a valid packet" );
 
     //check parsed results from data structure directly
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.inboundHeader.data_len,    "Unexpected data_length" );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 5, test_interface.inboundHeader.type,        "Unexpected type"   );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.inboundHeader.internal,    "Expected dev msg"  );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.inboundHeader.offset,      "Unexpected offset bit"         );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 3, test_interface.inboundHeader.id_len,      "Msg length err"    );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.inboundHeader.response,    "Didn't expect a response bit"  );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.inboundHeader.acknum,      "Unexpected ack number"         );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.header.data_len,    "Unexpected data_length" );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 5, test_interface.header.type,        "Unexpected type"   );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.internal,    "Expected dev msg"  );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.offset,      "Unexpected offset bit"         );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 3, test_interface.header.id_len,      "Msg length err"    );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.response,    "Didn't expect a response bit"  );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.acknum,      "Unexpected ack number"         );
 
     TEST_ASSERT_EQUAL_STRING( "abc", test_interface.inboundID);
     TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.inboundOffset, "Wasn't expecting offset packet" );
-    TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.inboundData, sizeof(expected_payload) );
+    TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.data_in, sizeof(expected_payload) );
     TEST_ASSERT_EQUAL_UINT16( 0xBA64, test_interface.runningCRC );
 }
 
@@ -82,17 +82,17 @@ TEST( SerialDecoder, decode_packet_short_id )
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( 1, decode_result, "Decoder didn't finish with a valid packet" );
 
     //check parsed results from data structure directly
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.inboundHeader.data_len,    "Unexpected data_length"        );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 5, test_interface.inboundHeader.type,        "Unexpected type"               );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.inboundHeader.internal,    "Expected dev msg"              );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.inboundHeader.offset,      "Unexpected offset bit"         );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.inboundHeader.id_len,      "Msg length err"                );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.inboundHeader.response,    "Didn't expect a response bit"  );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.inboundHeader.acknum,      "Unexpected ack number"         );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.header.data_len,    "Unexpected data_length"        );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 5, test_interface.header.type,        "Unexpected type"               );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.internal,    "Expected dev msg"              );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.offset,      "Unexpected offset bit"         );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.header.id_len,      "Msg length err"                );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.response,    "Didn't expect a response bit"  );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.acknum,      "Unexpected ack number"         );
 
     TEST_ASSERT_EQUAL_STRING( "a", test_interface.inboundID);
     TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.inboundOffset, "Wasn't expecting offset packet" );
-    TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.inboundData, sizeof(expected_payload) );
+    TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.data_in, sizeof(expected_payload) );
     TEST_ASSERT_EQUAL_UINT16( 0xE008, test_interface.runningCRC );
 }
 
@@ -120,17 +120,17 @@ TEST( SerialDecoder, decode_packet_long_id )
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( 1, decode_result, "Decoder didn't finish with a valid packet" );
 
     //check parsed results from data structure directly
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.inboundHeader.data_len,    "Unexpected data_length"        );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 5, test_interface.inboundHeader.type,        "Unexpected type"               );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.inboundHeader.internal,    "Expected dev msg"              );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.inboundHeader.offset,      "Unexpected offset bit"         );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 15, test_interface.inboundHeader.id_len,      "Msg length err"               );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.inboundHeader.response,    "Didn't expect a response bit"  );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.inboundHeader.acknum,      "Unexpected ack number"         );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.header.data_len,    "Unexpected data_length"        );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 5, test_interface.header.type,        "Unexpected type"               );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.internal,    "Expected dev msg"              );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.offset,      "Unexpected offset bit"         );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 15, test_interface.header.id_len,      "Msg length err"               );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.response,    "Didn't expect a response bit"  );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.acknum,      "Unexpected ack number"         );
 
     TEST_ASSERT_EQUAL_STRING( "abcdefghijklmno", test_interface.inboundID);
     TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.inboundOffset, "Wasn't expecting offset packet" );
-    TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.inboundData, sizeof(expected_payload) );
+    TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.data_in, sizeof(expected_payload) );
     TEST_ASSERT_EQUAL_UINT16( 0x8B05, test_interface.runningCRC );
 }
 
@@ -158,17 +158,17 @@ TEST( SerialDecoder, decode_packet_internal )
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( 1, decode_result, "Decoder didn't finish with a valid packet" );
 
     //check parsed results from data structure directly
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.inboundHeader.data_len,    "Unexpected data_length" );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 5, test_interface.inboundHeader.type,        "Unexpected type"   );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.inboundHeader.internal,    "Expected internal msg"  );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.inboundHeader.offset,      "Unexpected offset bit"         );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 3, test_interface.inboundHeader.id_len,      "Msg length err"    );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.inboundHeader.response,    "Didn't expect a response bit"  );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.inboundHeader.acknum,      "Unexpected ack number"         );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.header.data_len,    "Unexpected data_length" );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 5, test_interface.header.type,        "Unexpected type"   );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.header.internal,    "Expected internal msg"  );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.offset,      "Unexpected offset bit"         );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 3, test_interface.header.id_len,      "Msg length err"    );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.response,    "Didn't expect a response bit"  );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.acknum,      "Unexpected ack number"         );
 
     TEST_ASSERT_EQUAL_STRING( "abc", test_interface.inboundID);
     TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.inboundOffset, "Wasn't expecting offset packet" );
-    TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.inboundData, sizeof(expected_payload) );
+    TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.data_in, sizeof(expected_payload) );
     TEST_ASSERT_EQUAL_UINT16( 0xD074, test_interface.runningCRC );
 }
 
@@ -197,17 +197,17 @@ TEST( SerialDecoder, decode_packet_response )
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( 1, decode_result, "Decoder didn't finish with a valid packet" );
 
     //check parsed results from data structure directly
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.inboundHeader.data_len,    "Unexpected data_length" );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 5, test_interface.inboundHeader.type,        "Unexpected type"   );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.inboundHeader.internal,    "Expected dev msg"  );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.inboundHeader.offset,      "Unexpected offset bit"    );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 3, test_interface.inboundHeader.id_len,      "Msg length err"    );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.inboundHeader.response,    "Expected a response bit"  );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.inboundHeader.acknum,      "Unexpected ack number"    );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.header.data_len,    "Unexpected data_length" );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 5, test_interface.header.type,        "Unexpected type"   );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.internal,    "Expected dev msg"  );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.offset,      "Unexpected offset bit"    );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 3, test_interface.header.id_len,      "Msg length err"    );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.header.response,    "Expected a response bit"  );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.acknum,      "Unexpected ack number"    );
 
     TEST_ASSERT_EQUAL_STRING( "abc", test_interface.inboundID);
     TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.inboundOffset, "Wasn't expecting offset packet" );
-    TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.inboundData, sizeof(expected_payload) );
+    TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.data_in, sizeof(expected_payload) );
     TEST_ASSERT_EQUAL_UINT16( 0xBE3E, test_interface.runningCRC );
 }
 
@@ -235,17 +235,17 @@ TEST( SerialDecoder, decode_packet_acknum)
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( 1, decode_result, "Decoder didn't finish with a valid packet" );
 
     //check parsed decode_results from data structure directly
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.inboundHeader.data_len,    "Unexpected data_length" );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 5, test_interface.inboundHeader.type,       "Unexpected type"   );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.inboundHeader.internal,    "Expected dev msg"  );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.inboundHeader.offset,      "Unexpected offset bit"         );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 3, test_interface.inboundHeader.id_len,      "Msg length err"    );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.inboundHeader.response,    "Didn't expect a response bit"  );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 3, test_interface.inboundHeader.acknum,      "Incorrect ack number"         );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.header.data_len,    "Unexpected data_length" );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 5, test_interface.header.type,       "Unexpected type"   );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.internal,    "Expected dev msg"  );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.offset,      "Unexpected offset bit"         );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 3, test_interface.header.id_len,      "Msg length err"    );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.response,    "Didn't expect a response bit"  );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 3, test_interface.header.acknum,      "Incorrect ack number"         );
 
     TEST_ASSERT_EQUAL_STRING( "abc", test_interface.inboundID);
     TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.inboundOffset, "Wasn't expecting offset packet" );
-    TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.inboundData, sizeof(expected_payload) );
+    TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.data_in, sizeof(expected_payload) );
     TEST_ASSERT_EQUAL_UINT16( 0xA3B8, test_interface.runningCRC );
 }
 
@@ -273,17 +273,17 @@ TEST( SerialDecoder, decode_packet_float )
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( 1, decode_result, "Decoder didn't finish with a valid packet" );
 
     //check parsed results from data structure directly
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 4, test_interface.inboundHeader.data_len,    "Unexpected data_length" );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 11, test_interface.inboundHeader.type,       "Unexpected type"   );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.inboundHeader.internal,    "Expected dev msg"  );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.inboundHeader.offset,      "Unexpected offset bit"         );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 3, test_interface.inboundHeader.id_len,      "Msg length err"    );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.inboundHeader.response,    "Didn't expect a response bit"  );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.inboundHeader.acknum,      "Unexpected ack number"         );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 4, test_interface.header.data_len,    "Unexpected data_length" );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 11, test_interface.header.type,       "Unexpected type"   );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.internal,    "Expected dev msg"  );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.offset,      "Unexpected offset bit"         );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 3, test_interface.header.id_len,      "Msg length err"    );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.response,    "Didn't expect a response bit"  );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.acknum,      "Unexpected ack number"         );
 
     TEST_ASSERT_EQUAL_STRING( "abc", test_interface.inboundID);
     TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.inboundOffset, "Wasn't expecting offset packet" );
-    TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.inboundData, sizeof(expected_payload) );
+    TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.data_in, sizeof(expected_payload) );
     TEST_ASSERT_EQUAL_UINT16( 0x1D8B, test_interface.runningCRC );
 }
 
