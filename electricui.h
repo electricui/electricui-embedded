@@ -43,9 +43,9 @@ typedef struct {
 } euiMessage_t;
 
 typedef struct {
-    eui_parser_t        parser;
+    eui_packet_t        packet;
     callback_uint8_t    output_func;
-    eui_cb_t       interface_cb;
+    eui_cb_t            interface_cb;
 } euiInterface_t;
 
 enum error_codes {
@@ -99,7 +99,7 @@ void announce_dev_vars_writable(void);
 euiVariableCount_t send_tracked_message_id_list(uint8_t read_only);
 euiVariableCount_t send_tracked_variables(uint8_t read_only);
 
-euiCallback_t developer_handshake_cb;
+eui_cb_t developer_handshake_cb;
 
 uint8_t     heartbeat;
 uint16_t    board_identifier;

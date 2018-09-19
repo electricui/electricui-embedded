@@ -21,7 +21,7 @@ TEST_TEAR_DOWN( SerialDecoder )
 
 TEST( SerialDecoder, decode_packet )
 {
-    eui_parser_t test_interface = {0};
+    eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = { 
         0x01,               //preamble
         0x01, 0x14, 0x03,   //header
@@ -60,7 +60,7 @@ TEST( SerialDecoder, decode_packet )
 
 TEST( SerialDecoder, decode_packet_short_id )
 {
-    eui_parser_t test_interface = {0};
+    eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = { 
         0x01,               //preamble
         0x01, 0x14, 0x01,   //header
@@ -98,7 +98,7 @@ TEST( SerialDecoder, decode_packet_short_id )
 
 TEST( SerialDecoder, decode_packet_long_id )
 {
-    eui_parser_t test_interface = {0};
+    eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = { 
         0x01,               //preamble
         0x01, 0x14, 0x0f,   //header
@@ -136,7 +136,7 @@ TEST( SerialDecoder, decode_packet_long_id )
 
 TEST( SerialDecoder, decode_packet_internal )
 {
-    eui_parser_t test_interface = {0};
+    eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = { 
         0x01,               //preamble
         0x01, 0x54, 0x03,   //header
@@ -174,7 +174,7 @@ TEST( SerialDecoder, decode_packet_internal )
 
 TEST( SerialDecoder, decode_packet_response )
 {
-    eui_parser_t test_interface = {0};
+    eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = { 
         0x01,               //preamble
         0x01, 0x14, 0x13,   //header
@@ -213,7 +213,7 @@ TEST( SerialDecoder, decode_packet_response )
 
 TEST( SerialDecoder, decode_packet_acknum)
 {
-    eui_parser_t test_interface = {0};
+    eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = { 
         0x01,               //preamble
         0x01, 0x14, 0x63,   //header
@@ -251,7 +251,7 @@ TEST( SerialDecoder, decode_packet_acknum)
 
 TEST( SerialDecoder, decode_packet_float )
 {
-    eui_parser_t test_interface = {0};
+    eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = { 
         0x01,               //preamble
         0x04, 0x2c, 0x03,   //header
@@ -293,7 +293,7 @@ TEST( SerialDecoder, decode_packet_invalidCRC )
     //therefore send only enough bytes to get it up to the point where it reports the failure
 
     //test the second byte being incorrect
-    eui_parser_t test_interface_2 = {0};
+    eui_packet_t test_interface_2 = {0};
     uint8_t invalid_second_byte[] = { 
         0x01,
         0x01, 0x14, 0x03,
@@ -315,7 +315,7 @@ TEST( SerialDecoder, decode_packet_invalidCRC )
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( packet_error_crc, decode_result, "Decoder didn't error on invalid CRC byte2" );
 
     //test the first byte being incorrect
-    eui_parser_t test_interface_1 = {0};
+    eui_packet_t test_interface_1 = {0};
     uint8_t invalid_first_byte[] = { 
         0x01,
         0x01, 0x14, 0x03,

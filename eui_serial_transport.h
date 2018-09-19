@@ -72,10 +72,10 @@ typedef enum {
 typedef void (*callback_uint8_t)(uint8_t);
 
 typedef struct {
-    unsigned parser_s         : 4;
-    unsigned id_bytes_in      : MESSAGEID_BITS;
-    unsigned data_bytes_in    : 10;
-} euiInterfaceState_t;
+    unsigned state          : 4;
+    unsigned id_bytes_in    : MESSAGEID_BITS;
+    unsigned data_bytes_in  : 10;
+} eui_parser_state_t;
 
 enum parseStates {
         find_preamble = 0,
@@ -94,7 +94,7 @@ enum parseStates {
 
 //hold the inbound packet information
 typedef struct {
-        euiInterfaceState_t state;
+        eui_parser_state_t parser;
 
         //buffer incoming data
         euiHeader_t header;
@@ -105,7 +105,7 @@ typedef struct {
         uint8_t data_in[PAYLOAD_SIZE_MAX];
         uint16_t runningCRC;
 
-} eui_parser_t;
+} eui_packet_t;
 
 enum packet_signals {
         parser_idle = 0,
@@ -124,6 +124,6 @@ uint8_t
 encode_packet(callback_uint8_t out_char, euiHeader_t * header, const char * msg_id, uint16_t offset, void* payload);
 
 uint8_t
-decode_packet(uint8_t inbound_byte, eui_parser_t *p_link_in);
+decode_packet(uint8_t inbound_byte, eui_packet_t *p_link_in);
 
 #endif

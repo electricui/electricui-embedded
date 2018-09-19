@@ -109,15 +109,15 @@ encode_packet(  callback_uint8_t    out_char,
 }
 
 uint8_t
-decode_packet(uint8_t byte_in, eui_parser_t *p_link_in)
+decode_packet(uint8_t byte_in, eui_packet_t *p_link_in)
 {
     //only CRC the data between preamble and the CRC (exclusive)
-    if( p_link_in->state.parser_s < exp_crc_b1 )   
+    if( p_link_in->parser.state < exp_crc_b1 )   
     {
         crc16(byte_in, &(p_link_in->runningCRC)); 
     }
 
-    switch( p_link_in->state.parser_s )
+    switch( p_link_in->parser.state )
     {
         case find_preamble:
         case exp_reset:
@@ -125,14 +125,14 @@ decode_packet(uint8_t byte_in, eui_parser_t *p_link_in)
             if(byte_in == stHeader)
             {
                 p_link_in->runningCRC = 0xFFFF;
-                p_link_in->state.parser_s = exp_header_b1;
+                p_link_in->parser.state = exp_header_b1;
             }
         break;
 
         case exp_header_b1:
             p_link_in->header.data_len = byte_in;
 
-            p_link_in->state.parser_s = exp_header_b2;
+            p_link_in->parser.state = exp_header_b2;
         break;
 
         case exp_header_b2:
@@ -143,7 +143,7 @@ decode_packet(uint8_t byte_in, eui_parser_t *p_link_in)
             p_link_in->header.internal  = (byte_in >> 6) & 1;
             p_link_in->header.offset    = (byte_in >> 7) & 1;
             
-            p_link_in->state.parser_s = exp_header_b3;
+            p_link_in->parser.state = exp_header_b3;
         break;
 
         case exp_header_b3:
@@ -152,28 +152,28 @@ decode_packet(uint8_t byte_in, eui_parser_t *p_link_in)
             p_link_in->header.response  = (byte_in >> 4) & 1;
             p_link_in->header.acknum    = (byte_in >> 5);
             
-            p_link_in->state.parser_s = exp_message_id;
+            p_link_in->parser.state = exp_message_id;
         break;   
         
         case exp_message_id:
             //Bytes are messageID until we hit the length specified in the header
-            p_link_in->inboundID[p_link_in->state.id_bytes_in] = byte_in;
-            p_link_in->state.id_bytes_in++;
+            p_link_in->inboundID[p_link_in->parser.id_bytes_in] = byte_in;
+            p_link_in->parser.id_bytes_in++;
 
             //we've read the number of message ID bytes specified by the header
-            if( p_link_in->state.id_bytes_in >= p_link_in->header.id_len )
+            if( p_link_in->parser.id_bytes_in >= p_link_in->header.id_len )
             {
                 //terminate msgID string if shorter than max size
-                if( p_link_in->state.id_bytes_in < MESSAGEID_SIZE )
+                if( p_link_in->parser.id_bytes_in < MESSAGEID_SIZE )
                 {
-                    p_link_in->inboundID[p_link_in->state.id_bytes_in] = '\0';
+                    p_link_in->inboundID[p_link_in->parser.id_bytes_in] = '\0';
                 }
 
                 //start reading in the offset or data based on header guide
                 if( p_link_in->header.offset )
                 {
 #ifndef EUI_CONF_OFFSETS_DISABLED
-                    p_link_in->state.parser_s = exp_offset_b1;
+                    p_link_in->parser.state = exp_offset_b1;
 #else
                     //add a error code for 'doesn't support offsets
                     return packet_error_generic;
@@ -183,11 +183,11 @@ decode_packet(uint8_t byte_in, eui_parser_t *p_link_in)
                 {
                     if(p_link_in->header.data_len)
                     {
-                        p_link_in->state.parser_s = exp_data;            
+                        p_link_in->parser.state = exp_data;            
                     }
                     else
                     {
-                        p_link_in->state.parser_s = exp_crc_b1;            
+                        p_link_in->parser.state = exp_crc_b1;            
                     }
                 }
             }
@@ -197,26 +197,26 @@ decode_packet(uint8_t byte_in, eui_parser_t *p_link_in)
         case exp_offset_b1:
             //ingest first byte
             p_link_in->inboundOffset = (uint16_t)byte_in << 8;
-            p_link_in->state.parser_s = exp_offset_b2;
+            p_link_in->parser.state = exp_offset_b2;
         break;
 
         case exp_offset_b2:
             //ingest second offset byte
             p_link_in->inboundOffset |= byte_in;
-            p_link_in->state.parser_s = exp_data;
+            p_link_in->parser.state = exp_data;
         break;
 #endif
         
         case exp_data:
             //we know the payload length, parse until we've eaten those bytes
-            p_link_in->data_in[p_link_in->state.data_bytes_in] = byte_in;
-            p_link_in->state.data_bytes_in++;
+            p_link_in->data_in[p_link_in->parser.data_bytes_in] = byte_in;
+            p_link_in->parser.data_bytes_in++;
 
             //prepare for the crc data, we've seen all the data we were expecting (or can hold)
-            if( (p_link_in->state.data_bytes_in >= p_link_in->header.data_len) 
-                || (p_link_in->state.data_bytes_in >= PAYLOAD_SIZE_MAX) )
+            if( (p_link_in->parser.data_bytes_in >= p_link_in->header.data_len) 
+                || (p_link_in->parser.data_bytes_in >= PAYLOAD_SIZE_MAX) )
             {
-                p_link_in->state.parser_s = exp_crc_b1;
+                p_link_in->parser.state = exp_crc_b1;
             }
         break;
         
@@ -224,11 +224,11 @@ decode_packet(uint8_t byte_in, eui_parser_t *p_link_in)
             //check the inbound byte against the corresponding CRC byte
             if( byte_in == (p_link_in->runningCRC & 0xFF) )
             {
-                p_link_in->state.parser_s = exp_crc_b2;        
+                p_link_in->parser.state = exp_crc_b2;        
             }
             else  //first byte didn't match CRC, fail early
             {
-                p_link_in->state.parser_s = exp_reset;
+                p_link_in->parser.state = exp_reset;
                 return packet_error_crc;
             }
         break;
@@ -236,17 +236,17 @@ decode_packet(uint8_t byte_in, eui_parser_t *p_link_in)
         case exp_crc_b2:
             if( byte_in == (p_link_in->runningCRC >> 8) )
             {
-                p_link_in->state.parser_s = exp_eot;  
+                p_link_in->parser.state = exp_eot;  
             }
             else
             {
-                p_link_in->state.parser_s = exp_reset;
+                p_link_in->parser.state = exp_reset;
                 return packet_error_crc;
             }
         break;
 
         case exp_eot:
-            p_link_in->state.parser_s = exp_reset;
+            p_link_in->parser.state = exp_reset;
 
             //we've recieved the end of packet indication
             if( byte_in == enTransmission )
