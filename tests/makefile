@@ -22,6 +22,7 @@ else
 	MKDIR = mkdir -p
 	DOWNLOADER = wget -nc
 	EXTRACT = unzip -n
+	C_LINT	= oclint
 	TARGET_EXTENSION = .out
 endif
 
@@ -55,6 +56,12 @@ CFLAGS += -Wstrict-prototypes
 CFLAGS += -Wundef
 CFLAGS += -Wold-style-definition
 
+LINT_FLAGS = -c
+
+LINT_FILES = \
+  $(SOURCE_ROOT)/electricui.c \
+  $(SOURCE_ROOT)/eui_serial_transport.c \
+
 TARGET_BASE1 = eui_tests
 TARGET1 = $(TARGET_BASE1)$(TARGET_EXTENSION)
 SRC_FILES1 = \
@@ -83,10 +90,13 @@ default:
 run:
 	./$(TARGET1)
 
+analyze:
+	$(C_LINT) $(LINT_FILES) -- $(LINT_FLAGS)
+
 clean:
 	$(CLEANUP) $(TARGET1)
 
-all: clean default run
+all: clean default run analyze
 
 download: 
 	$(DOWNLOADER) $(UNITY_URL)
