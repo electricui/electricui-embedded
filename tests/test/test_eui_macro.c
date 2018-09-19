@@ -45,16 +45,16 @@ euiMessage_t macro_object_array[] = {
 };
 
 euiMessage_t macro_object_array_read_only[] = {
-	EUI_RO_CHAR(	"char",		macro_char ),
-	EUI_RO_INT8(	"int8",		macro_int8 ),
-	EUI_RO_INT16(	"int16",	macro_int16 ),
-	EUI_RO_INT32(	"int32",	macro_int32 ),
-	EUI_RO_UINT8(	"uint8",	macro_uint8 ),
-	EUI_RO_UINT16(	"uint16",	macro_uint16 ),
-	EUI_RO_UINT32(	"uint32",	macro_uint32 ),
-	EUI_RO_FLOAT(	"float",	macro_float ),
-	EUI_RO_DOUBLE(	"double",	macro_double ),
-	EUI_RO_CUSTOM(	"custom",	macro_trifloat ),
+	EUI_CHAR_RO(	"char",		macro_char ),
+	EUI_INT8_RO(	"int8",		macro_int8 ),
+	EUI_INT16_RO(	"int16",	macro_int16 ),
+	EUI_INT32_RO(	"int32",	macro_int32 ),
+	EUI_UINT8_RO(	"uint8",	macro_uint8 ),
+	EUI_UINT16_RO(	"uint16",	macro_uint16 ),
+	EUI_UINT32_RO(	"uint32",	macro_uint32 ),
+	EUI_FLOAT_RO(	"float",	macro_float ),
+	EUI_DOUBLE_RO(	"double",	macro_double ),
+	EUI_CUSTOM_RO(	"custom",	macro_trifloat ),
 };
 
 euiMessage_t expected_object_array[] = {
