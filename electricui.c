@@ -58,7 +58,7 @@ find_message_object(const char * msg_id, uint8_t is_internal)
     return foundMsgPtr;
 }
 
-euiCallbackUint8_t *
+callback_uint8_t *
 auto_output(void)
 {
     //work out which interface to output data on, and pass callback to the relevant function
@@ -155,13 +155,13 @@ void
 handle_packet_empty( euiHeader_t     *header,
                      euiMessage_t    *msgObjPtr )
 {
-    if((msgObjPtr->type & 0x0F) == TYPE_CALLBACK)
+    if( (msgObjPtr->type & 0x0F) == TYPE_CALLBACK )
     {
         if( (header->response && header->acknum) 
             || (!header->response && !header->acknum) )
         {
             //create a function to call from the internal stored pointer
-            euiCallback_t cb_packet_h;
+            eui_cb_t cb_packet_h;
             cb_packet_h = msgObjPtr->payload;
 
             (cb_packet_h) ? cb_packet_h() : report_error(err_missing_callback);
@@ -208,8 +208,11 @@ handle_packet_response( euiInterface_t *packet_in,
                 uint16_t base_address = 0;
                 uint16_t end_address  = 0; 
                 
-                base_address = (uint16_t)packet_in->parser.data_in[1] << 8 | packet_in->parser.data_in[0];
-                end_address  = (uint16_t)packet_in->parser.data_in[3] << 8 | packet_in->parser.data_in[2];
+                base_address = (uint16_t)packet_in->parser.data_in[1] << 8; 
+                base_address |= packet_in->parser.data_in[0];
+
+                end_address  = (uint16_t)packet_in->parser.data_in[3] << 8; 
+                end_address  |= packet_in->parser.data_in[2];
 
                 send_tracked_range( packet_in->output_func,
                                     msgObjPtr,
@@ -230,7 +233,7 @@ void
 handle_packet_callback( euiMessage_t *msgObjPtr )
 {
     // Call the callback assigned to this message ID
-    euiCallback_t dev_var_cb;
+    eui_cb_t dev_var_cb;
     dev_var_cb = msgObjPtr->callback;
     if(dev_var_cb)
     {
@@ -243,7 +246,7 @@ handle_packet_callback( euiMessage_t *msgObjPtr )
 void
 cb_dev_interface_complete( euiInterface_t *p_link )
 {
-    euiCallback_t dev_cb;
+    eui_cb_t dev_cb;
     dev_cb = p_link->interface_cb;
 
     if(dev_cb)
@@ -253,7 +256,7 @@ cb_dev_interface_complete( euiInterface_t *p_link )
 }
 
 void
-send_tracked(   euiCallbackUint8_t  output_function, 
+send_tracked(   callback_uint8_t    output_function, 
                 euiMessage_t        *msgObjPtr, 
                 euiPacketSettings_t *settings )
 {
@@ -282,7 +285,7 @@ send_tracked(   euiCallbackUint8_t  output_function,
 
 
 void
-send_tracked_range( euiCallbackUint8_t  output_function, 
+send_tracked_range( callback_uint8_t    output_function, 
                     euiMessage_t        *msgObjPtr, 
                     euiPacketSettings_t *settings, 
                     uint16_t            base_addr, 
@@ -321,7 +324,15 @@ send_tracked_range( euiCallbackUint8_t  output_function,
     while( end_addr > base_addr )
     {
         uint16_t bytes_remaining = end_addr - base_addr;
-        tmp_header.data_len = ( bytes_remaining > PAYLOAD_SIZE_MAX ) ? PAYLOAD_SIZE_MAX : bytes_remaining;
+
+        if( bytes_remaining > PAYLOAD_SIZE_MAX )
+        {
+            tmp_header.data_len = PAYLOAD_SIZE_MAX;
+        }
+        else
+        {
+            tmp_header.data_len = bytes_remaining;
+        }
         
         //the current position through the buffer in bytes is also the end offset
         end_addr -= tmp_header.data_len;  
@@ -454,7 +465,7 @@ setup_identifier(char * uuid, uint8_t bytes)
 }
 
 void
-setup_handshake_cb(euiCallback_t *dev_cb)
+setup_handshake_cb(eui_cb_t *dev_cb)
 {
     //store the function pointer to the developer side
     if(dev_cb)
