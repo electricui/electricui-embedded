@@ -10,7 +10,7 @@
 
 Adafruit_LSM9DS1 lsm = Adafruit_LSM9DS1(); // Create LSM9DS1 object, without arguments it defaults to i2c mode
 
-eui_interface serial_comms;
+eui_interface_t serial_comms;
 
 // We use Adafruit's Unified Sensor Library's main structure here as an example
 // It contains version, sensor identifier and type, timestamp and a 16-byte payload which uses unions
@@ -22,7 +22,7 @@ sensors_event_t internal_temp;
 
 uint8_t sensor_configured = 0;
 
-const euiMessage_t dev_msg_store[] = 
+eui_message_t dev_msg_store[] = 
 {
     EUI_UINT8(  "status", sensor_configured ),
     EUI_CUSTOM( "acc",  acc.acceleration ),
@@ -56,7 +56,7 @@ void setup()
   Serial.begin(115200);
   
   // Basic eUI setup for serial interface
-  serial_comms.output_char_fnPtr = &tx_putc;
+  serial_comms.output_func = &tx_putc;
   EUI_TRACK(dev_msg_store);
   setup_identifier("imu", 3);
 

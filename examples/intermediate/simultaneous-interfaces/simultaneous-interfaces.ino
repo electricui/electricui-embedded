@@ -57,7 +57,7 @@ rgb_t example_rgb = { 182, 236, 20 };
 imu_t example_imu = { 0.002, 0.003, -9.782 };
 
 //internal index of developer-space message metadata
-const euiMessage_t dev_msg_store[] = {
+eui_message_t dev_msg_store[] = {
 
     EUI_UINT8( "led", led_brightness ),
     EUI_FUNC(  "tgl", toggleLed ),
@@ -83,7 +83,7 @@ const euiMessage_t dev_msg_store[] = {
     EUI_CUSTOM( "imu", example_imu ),
 };
 
-euiInterface_t transport_methods[] = {
+eui_interface_t transport_methods[] = {
     EUI_INTERFACE( &cdc_tx_putc ),
     EUI_INTERFACE( &uart_tx_putc ),
 };

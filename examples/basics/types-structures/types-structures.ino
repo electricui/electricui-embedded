@@ -18,20 +18,20 @@ rgb_t example_rgb = { 182, 236, 20 };
 imu_t example_imu = { 0.002, 0.003, -9.782 };
 
 // Track these 'custom' variables with ElectricUI
-euiMessage_t dev_msg_store[] = 
+eui_message_t dev_msg_store[] = 
 {
     EUI_CUSTOM( "rgb", example_rgb ),
     EUI_CUSTOM( "imu", example_imu ),
 };
 
-eui_interface serial_comms;
+eui_interface_t serial_comms;
 
 void setup() 
 {
     Serial.begin(115200);
 
     //eUI setup
-    serial_comms.output_char_fnPtr = &tx_putc;
+    serial_comms.output_func = &tx_putc;
     EUI_TRACK(dev_msg_store);
     setup_identifier("structs", 7);
 }

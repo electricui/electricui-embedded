@@ -15,7 +15,7 @@ double   example_double = 6.14159;
 
 char example_char = "a";
 
-euiMessage_t dev_msg_store[] = 
+eui_message_t dev_msg_store[] = 
 {
     EUI_INT8(   "si8", example_int8  ),
     EUI_UINT8(  "ui8", example_uint8 ),
@@ -32,14 +32,14 @@ euiMessage_t dev_msg_store[] =
     EUI_CHAR( "char", example_char),
 };
 
-eui_interface serial_comms;
+eui_interface_t serial_comms;
 
 void setup() 
 {
     Serial.begin(115200);
 
     //eUI setup
-    serial_comms.output_char_fnPtr = &tx_putc;
+    serial_comms.output_func = &tx_putc;
     EUI_TRACK(dev_msg_store);
     setup_identifier("stdtypes", 8);
 }

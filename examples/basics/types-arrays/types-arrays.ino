@@ -32,7 +32,7 @@ uint32_t  large_int_array[] =
 char demo_string[] = "HelloElectric";
 
 // Arrays are tracked the same way as a normal variable
-euiMessage_t dev_msg_store[] = 
+eui_message_t dev_msg_store[] = 
 {
     EUI_INT8(   "si8a", example_int8_arr  ),
     EUI_UINT8(  "ui8a", example_uint8_arr ),
@@ -49,14 +49,14 @@ euiMessage_t dev_msg_store[] =
     EUI_CHAR( "hi", demo_string),
 };
 
-eui_interface serial_comms;
+eui_interface_t serial_comms;
 
 void setup() 
 {
     Serial.begin(115200);
 
     //eUI setup
-    serial_comms.output_char_fnPtr = &tx_putc;
+    serial_comms.output_func = &tx_putc;
     EUI_TRACK(dev_msg_store);
     setup_identifier("arrays", 6);
 }
