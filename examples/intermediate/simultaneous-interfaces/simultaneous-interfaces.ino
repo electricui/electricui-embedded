@@ -1,5 +1,11 @@
 #include "electricui.h"
 
+#ifndef HAVE_HWSERIAL1
+  #include <SoftwareSerial.h>
+
+  SoftwareSerial Serial1(10, 11);
+#endif
+
 //example interactive data
 uint8_t led_brightness  = 2;
 uint8_t btn1_state      = 0;
@@ -90,9 +96,10 @@ eui_interface_t transport_methods[] = {
 
 void setup() 
 {
-  Serial.begin(115200);   //USB CDC instance
-  Serial1.begin(115200);  //hardware uart instance
-  pinMode(4, OUTPUT);     //set led to output
+  Serial.begin(115200);   // USB Connector 
+  Serial1.begin(115200);  // Second hardware or SoftwareSerial UART
+
+  pinMode(4, OUTPUT);     // set led to output
   randomSeed( analogRead(A4) );
 
   //eUI setup
@@ -144,10 +151,10 @@ void uart_rx_handler()
 //helps us pretend what most other microcontrollers use as an output function
 void cdc_tx_putc(uint8_t data)
 {
-  Serial.write(data);  //output on usb cdc virtual com
+  Serial.write(data);  //output over usb connector
 }
 
 void uart_tx_putc(uint8_t data)
 {
-  Serial1.write(data); //write to hardware uart
+  Serial1.write(data); //write to second serial port (or software serial on 10/11 if none exists)
 }
