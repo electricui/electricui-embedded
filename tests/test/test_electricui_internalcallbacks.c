@@ -9,7 +9,7 @@ char      test_char    = 'a';
 uint8_t   test_uint    = 21;
 
 //developer-space messages
-euiMessage_t internal_callback_test_store[] = {
+eui_message_t internal_callback_test_store[] = {
     { .msgID = "chw",   .type = TYPE_CHAR,    .size = sizeof(test_char),    .payload = &test_char   },
     { .msgID = "u8w",   .type = TYPE_INT8,    .size = sizeof(test_uint),    .payload = &test_uint   },
     
@@ -37,7 +37,7 @@ void callback_mocked_output(uint8_t outbound)
     }
 }
 
-euiInterface_t mock_interface = { 0 };
+eui_interface_t mock_interface = { 0 };
 
 TEST_SETUP( InternalEUICallbacks )
 {
@@ -191,7 +191,7 @@ TEST( InternalEUICallbacks, send_msgID_list_callback )
     uint16_t number_rw_expected = 0;
 
     //test reasonable number of both kinds
-    euiMessage_t ro_rw_testset[] = {
+    eui_message_t ro_rw_testset[] = {
         EUI_CHAR( "cw",     test_char ),
         EUI_INT8( "iw",     test_uint ),
         EUI_CHAR_RO( "cr",  test_char ),
@@ -209,7 +209,7 @@ TEST( InternalEUICallbacks, send_msgID_list_callback )
     TEST_ASSERT_EQUAL_INT_MESSAGE( number_ro_expected, msgID_count, "Base - Read-Only msgID count incorrect" );
 
     //test an array with nothing
-    euiMessage_t empty_testset[] = { };
+    eui_message_t empty_testset[] = { };
 
     number_ro_expected = 0;
     number_rw_expected = 0;
@@ -222,7 +222,7 @@ TEST( InternalEUICallbacks, send_msgID_list_callback )
     TEST_ASSERT_EQUAL_INT_MESSAGE( number_ro_expected, msgID_count, "Empty - Read-Only msgID count incorrect" );
 
     //test writable only
-    euiMessage_t rw_testset[] = {
+    eui_message_t rw_testset[] = {
         EUI_CHAR( "cw",     test_char ),
         EUI_INT8( "iw",     test_uint ),
     };
@@ -238,7 +238,7 @@ TEST( InternalEUICallbacks, send_msgID_list_callback )
     TEST_ASSERT_EQUAL_INT_MESSAGE( number_ro_expected, msgID_count, "Read Only - Read-Only msgID count incorrect" );
 
     //test writable only
-    euiMessage_t ro_testset[] = {
+    eui_message_t ro_testset[] = {
         EUI_CHAR_RO( "cr",  test_char ),
         EUI_INT8_RO( "ir",  test_uint ),
     };
@@ -254,7 +254,7 @@ TEST( InternalEUICallbacks, send_msgID_list_callback )
     TEST_ASSERT_EQUAL_INT_MESSAGE( number_ro_expected, msgID_count, "Writable Only - Read-Only msgID count incorrect" );
 
     //test mixed order of vars
-    euiMessage_t mixed_testset[] = {
+    eui_message_t mixed_testset[] = {
         EUI_CHAR( "cw0",     test_char ),
         EUI_INT8( "iw0",     test_uint ),
         EUI_CHAR_RO( "cr0",  test_char ),
@@ -280,7 +280,7 @@ TEST( InternalEUICallbacks, send_msgID_list_callback )
     TEST_ASSERT_EQUAL_INT_MESSAGE( number_ro_expected, msgID_count, "Mixed set - Read-Only msgID count incorrect" );
 
     //test many vars (should force a few messages to be sent)
-    euiMessage_t large_testset[] = {
+    eui_message_t large_testset[] = {
         EUI_CHAR( "cw0",     test_char ),
         EUI_INT8( "iw0",     test_uint ),
         EUI_CHAR_RO( "cr0",  test_char ),

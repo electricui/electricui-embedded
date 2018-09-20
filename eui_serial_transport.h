@@ -45,13 +45,13 @@ typedef struct {
     unsigned id_len     : MESSAGEID_BITS;
     unsigned response   : 1;
     unsigned acknum     : 3;
-} euiHeader_t;
+} eui_header_t;
 
 typedef struct {
     unsigned internal   : 1;
     unsigned response   : 1;
     unsigned type       : 4;
-} euiPacketSettings_t;
+} eui_pkt_settings_t;
 
 typedef enum {
         TYPE_CALLBACK = 0,
@@ -97,13 +97,13 @@ typedef struct {
         eui_parser_state_t parser;
 
         //buffer incoming data
-        euiHeader_t header;
-        uint8_t inboundID[MESSAGEID_SIZE];
+        eui_header_t header;
+        uint8_t     msgid_in[MESSAGEID_SIZE];
 #ifndef EUI_CONF_OFFSETS_DISABLED
-        uint16_t inboundOffset;
+        uint16_t    offset_in;
 #endif
-        uint8_t data_in[PAYLOAD_SIZE_MAX];
-        uint16_t runningCRC;
+        uint8_t     data_in[PAYLOAD_SIZE_MAX];
+        uint16_t    crc_in;
 
 } eui_packet_t;
 
@@ -118,10 +118,10 @@ void
 crc16(uint8_t data, uint16_t *crc);
 
 uint8_t
-encode_packet_simple(callback_uint8_t output_function, euiPacketSettings_t *settings, const char * msg_id, uint16_t payload_len, void* payload);
+encode_packet_simple(callback_uint8_t output_function, eui_pkt_settings_t *settings, const char * msg_id, uint16_t payload_len, void* payload);
 
 uint8_t
-encode_packet(callback_uint8_t out_char, euiHeader_t * header, const char * msg_id, uint16_t offset, void* payload);
+encode_packet(callback_uint8_t out_char, eui_header_t * header, const char * msg_id, uint16_t offset, void* payload);
 
 uint8_t
 decode_packet(uint8_t inbound_byte, eui_packet_t *p_link_in);

@@ -52,10 +52,10 @@ TEST( SerialDecoder, decode_packet )
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.response,    "Didn't expect a response bit"  );
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.acknum,      "Unexpected ack number"         );
 
-    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.inboundID);
-    TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.inboundOffset, "Wasn't expecting offset packet" );
+    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.msgid_in);
+    TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Wasn't expecting offset packet" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.data_in, sizeof(expected_payload) );
-    TEST_ASSERT_EQUAL_UINT16( 0xBA64, test_interface.runningCRC );
+    TEST_ASSERT_EQUAL_UINT16( 0xBA64, test_interface.crc_in );
 }
 
 TEST( SerialDecoder, decode_packet_short_id )
@@ -90,10 +90,10 @@ TEST( SerialDecoder, decode_packet_short_id )
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.response,    "Didn't expect a response bit"  );
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.acknum,      "Unexpected ack number"         );
 
-    TEST_ASSERT_EQUAL_STRING( "a", test_interface.inboundID);
-    TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.inboundOffset, "Wasn't expecting offset packet" );
+    TEST_ASSERT_EQUAL_STRING( "a", test_interface.msgid_in);
+    TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Wasn't expecting offset packet" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.data_in, sizeof(expected_payload) );
-    TEST_ASSERT_EQUAL_UINT16( 0xE008, test_interface.runningCRC );
+    TEST_ASSERT_EQUAL_UINT16( 0xE008, test_interface.crc_in );
 }
 
 TEST( SerialDecoder, decode_packet_long_id )
@@ -128,10 +128,10 @@ TEST( SerialDecoder, decode_packet_long_id )
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.response,    "Didn't expect a response bit"  );
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.acknum,      "Unexpected ack number"         );
 
-    TEST_ASSERT_EQUAL_STRING( "abcdefghijklmno", test_interface.inboundID);
-    TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.inboundOffset, "Wasn't expecting offset packet" );
+    TEST_ASSERT_EQUAL_STRING( "abcdefghijklmno", test_interface.msgid_in);
+    TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Wasn't expecting offset packet" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.data_in, sizeof(expected_payload) );
-    TEST_ASSERT_EQUAL_UINT16( 0x8B05, test_interface.runningCRC );
+    TEST_ASSERT_EQUAL_UINT16( 0x8B05, test_interface.crc_in );
 }
 
 TEST( SerialDecoder, decode_packet_internal )
@@ -166,10 +166,10 @@ TEST( SerialDecoder, decode_packet_internal )
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.response,    "Didn't expect a response bit"  );
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.acknum,      "Unexpected ack number"         );
 
-    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.inboundID);
-    TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.inboundOffset, "Wasn't expecting offset packet" );
+    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.msgid_in);
+    TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Wasn't expecting offset packet" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.data_in, sizeof(expected_payload) );
-    TEST_ASSERT_EQUAL_UINT16( 0xD074, test_interface.runningCRC );
+    TEST_ASSERT_EQUAL_UINT16( 0xD074, test_interface.crc_in );
 }
 
 TEST( SerialDecoder, decode_packet_response )
@@ -205,10 +205,10 @@ TEST( SerialDecoder, decode_packet_response )
     TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.header.response,    "Expected a response bit"  );
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.acknum,      "Unexpected ack number"    );
 
-    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.inboundID);
-    TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.inboundOffset, "Wasn't expecting offset packet" );
+    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.msgid_in);
+    TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Wasn't expecting offset packet" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.data_in, sizeof(expected_payload) );
-    TEST_ASSERT_EQUAL_UINT16( 0xBE3E, test_interface.runningCRC );
+    TEST_ASSERT_EQUAL_UINT16( 0xBE3E, test_interface.crc_in );
 }
 
 TEST( SerialDecoder, decode_packet_acknum)
@@ -243,10 +243,10 @@ TEST( SerialDecoder, decode_packet_acknum)
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.response,    "Didn't expect a response bit"  );
     TEST_ASSERT_EQUAL_INT_MESSAGE( 3, test_interface.header.acknum,      "Incorrect ack number"         );
 
-    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.inboundID);
-    TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.inboundOffset, "Wasn't expecting offset packet" );
+    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.msgid_in);
+    TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Wasn't expecting offset packet" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.data_in, sizeof(expected_payload) );
-    TEST_ASSERT_EQUAL_UINT16( 0xA3B8, test_interface.runningCRC );
+    TEST_ASSERT_EQUAL_UINT16( 0xA3B8, test_interface.crc_in );
 }
 
 TEST( SerialDecoder, decode_packet_float )
@@ -281,10 +281,10 @@ TEST( SerialDecoder, decode_packet_float )
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.response,    "Didn't expect a response bit"  );
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.acknum,      "Unexpected ack number"         );
 
-    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.inboundID);
-    TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.inboundOffset, "Wasn't expecting offset packet" );
+    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.msgid_in);
+    TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Wasn't expecting offset packet" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.data_in, sizeof(expected_payload) );
-    TEST_ASSERT_EQUAL_UINT16( 0x1D8B, test_interface.runningCRC );
+    TEST_ASSERT_EQUAL_UINT16( 0x1D8B, test_interface.crc_in );
 }
 
 TEST( SerialDecoder, decode_packet_invalidCRC )
@@ -309,7 +309,7 @@ TEST( SerialDecoder, decode_packet_invalidCRC )
     }
 
     //peek into the CRC, we expect it still to be correct
-    TEST_ASSERT_EQUAL_UINT16( 0xBA64, test_interface_2.runningCRC );
+    TEST_ASSERT_EQUAL_UINT16( 0xBA64, test_interface_2.crc_in );
 
     //the decoder should return the error flag    
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( packet_error_crc, decode_result, "Decoder didn't error on invalid CRC byte2" );
@@ -331,7 +331,7 @@ TEST( SerialDecoder, decode_packet_invalidCRC )
     }
 
     //peek into the CRC, we expect it still to be correct
-    TEST_ASSERT_EQUAL_UINT16( 0xBA64, test_interface_1.runningCRC );
+    TEST_ASSERT_EQUAL_UINT16( 0xBA64, test_interface_1.crc_in );
 
     //the decoder should return the error flag    
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( packet_error_crc, decode_result, "Decoder didn't error on invalid CRC byte1" );

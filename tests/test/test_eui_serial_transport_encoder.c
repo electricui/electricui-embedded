@@ -45,7 +45,7 @@ TEST( SerialEncoder, encode_packet_simple )
         42, 
     };
     
-    euiPacketSettings_t test_simple_header;
+    eui_pkt_settings_t test_simple_header;
     test_simple_header.internal  = 0;
     test_simple_header.response  = 0;
     test_simple_header.type      = 5;
@@ -81,7 +81,7 @@ TEST( SerialEncoder, encode_packet )
     };
     uint16_t offset = 0;
     
-    euiHeader_t test_header;
+    eui_header_t test_header;
     test_header.internal   = 0;
     test_header.response   = 0;
     test_header.type       = 5; //int8
@@ -117,7 +117,7 @@ TEST( SerialEncoder, encode_packet_short_id )
     };
     uint16_t offset = 0;
     
-    euiHeader_t test_header;
+    eui_header_t test_header;
     test_header.internal   = 0;
     test_header.response   = 0;
     test_header.type       = 5; //int8
@@ -152,7 +152,7 @@ TEST( SerialEncoder, encode_packet_long_id )
     };
     uint16_t offset = 0;
     
-    euiHeader_t test_header;
+    eui_header_t test_header;
     test_header.internal   = 0;
     test_header.response   = 0;
     test_header.type       = 5; //int8
@@ -187,7 +187,7 @@ TEST( SerialEncoder, encode_packet_internal )
     };
     uint16_t offset = 0;
     
-    euiHeader_t test_header;
+    eui_header_t test_header;
     test_header.internal   = 1;
     test_header.response   = 0;
     test_header.type       = 5; //int8
@@ -222,7 +222,7 @@ TEST( SerialEncoder, encode_packet_response )
     };
     uint16_t offset = 0;
     
-    euiHeader_t test_header;
+    eui_header_t test_header;
     test_header.internal   = 0;
     test_header.response   = 1;
     test_header.type       = 5; //int8
@@ -257,7 +257,7 @@ TEST( SerialEncoder, encode_packet_acknum)
     };
     uint16_t offset = 0;
     
-    euiHeader_t test_header;
+    eui_header_t test_header;
     test_header.internal   = 0;
     test_header.response   = 0;
     test_header.type       = 5; //int8
@@ -292,7 +292,7 @@ TEST( SerialEncoder, encode_packet_float )
     };
     uint16_t offset = 0;
     
-    euiHeader_t test_header;
+    eui_header_t test_header;
     test_header.internal   = 0;
     test_header.response   = 0;
     test_header.type       = 11; //float (4byte)

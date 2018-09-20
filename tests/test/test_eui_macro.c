@@ -30,7 +30,7 @@ typedef struct {
 
 macro_test_struct_t	macro_trifloat = { 10.0f, 100.0f, 1000.0f };
 
-euiMessage_t macro_object_array[] = {
+eui_message_t macro_object_array[] = {
 	EUI_FUNC(	"func",		macro_callback ),
 	EUI_CHAR(	"char",		macro_char ),
 	EUI_INT8(	"int8",		macro_int8 ),
@@ -44,7 +44,7 @@ euiMessage_t macro_object_array[] = {
 	EUI_CUSTOM(	"custom",	macro_trifloat ),
 };
 
-euiMessage_t macro_object_array_read_only[] = {
+eui_message_t macro_object_array_read_only[] = {
 	EUI_CHAR_RO(	"char",		macro_char ),
 	EUI_INT8_RO(	"int8",		macro_int8 ),
 	EUI_INT16_RO(	"int16",	macro_int16 ),
@@ -57,7 +57,7 @@ euiMessage_t macro_object_array_read_only[] = {
 	EUI_CUSTOM_RO(	"custom",	macro_trifloat ),
 };
 
-euiMessage_t expected_object_array[] = {
+eui_message_t expected_object_array[] = {
     { .msgID = "func",   .type = TYPE_CALLBACK|READ_ONLY_MASK,	.size = 1, 		.payload = &macro_callback 	},
     { .msgID = "char",   .type = TYPE_CHAR, 	.size = sizeof(macro_char), 	.payload = &macro_char 		},
     { .msgID = "int8",   .type = TYPE_INT8, 	.size = sizeof(macro_int8), 	.payload = &macro_int8 		},
@@ -71,7 +71,7 @@ euiMessage_t expected_object_array[] = {
     { .msgID = "custom", .type = TYPE_CUSTOM, 	.size = sizeof(macro_trifloat), .payload = &macro_trifloat 	},
 };
 
-euiMessage_t expected_object_array_read_only[] = {
+eui_message_t expected_object_array_read_only[] = {
     { .msgID = "char",   .type = TYPE_CHAR|READ_ONLY_MASK, 		.size = sizeof(macro_char), 	.payload = &macro_char 		},
     { .msgID = "int8",   .type = TYPE_INT8|READ_ONLY_MASK, 		.size = sizeof(macro_int8), 	.payload = &macro_int8 		},
     { .msgID = "int16",  .type = TYPE_INT16|READ_ONLY_MASK, 	.size = sizeof(macro_int16), 	.payload = &macro_int16 	},
@@ -113,10 +113,10 @@ TEST( MacroValidation, Array_Element_Count )
 
 TEST( MacroValidation, EUIObject_Macro_Test_Standard )
 {
-    TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE(expected_object_array, macro_object_array, sizeof(euiMessage_t), ARR_ELEM(expected_object_array), "Macro populated array != ground truth array"); 
+    TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE(expected_object_array, macro_object_array, sizeof(eui_message_t), ARR_ELEM(expected_object_array), "Macro populated array != ground truth array"); 
 }
 
 TEST( MacroValidation, EUIObject_Macro_Test_Read_Only )
 {
-    TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE(expected_object_array_read_only, macro_object_array_read_only, sizeof(euiMessage_t), ARR_ELEM(expected_object_array_read_only), "Read only macros != ground truth array"); 
+    TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE(expected_object_array_read_only, macro_object_array_read_only, sizeof(eui_message_t), ARR_ELEM(expected_object_array_read_only), "Read only macros != ground truth array"); 
 }
