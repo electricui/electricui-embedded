@@ -57,7 +57,7 @@ rgb_t example_rgb = { 182, 236, 20 };
 imu_t example_imu = { 0.002, 0.003, -9.782 };
 
 //internal index of developer-space message metadata
-const euiMessage_t dev_msg_store[] = {
+eui_message_t dev_msg_store[] = {
 
     EUI_UINT8( "led", led_brightness ),
     EUI_FUNC(  "tgl", toggleLed ),
@@ -83,8 +83,8 @@ const euiMessage_t dev_msg_store[] = {
     EUI_CUSTOM( "imu", example_imu ),
 };
 
-eui_interface usb_comms; //eui Transport interface holding object
-eui_interface uart_comms;
+eui_interface_t usb_comms; //eui Transport interface holding object
+eui_interface_t uart_comms;
 
 void setup() 
 {
@@ -94,8 +94,8 @@ void setup()
   randomSeed( analogRead(A4) );
 
   //eUI setup
-  usb_comms.output_char_fnPtr = &cdc_tx_putc;
-  uart_comms.output_char_fnPtr = &uart_tx_putc;
+  usb_comms.output_func = &cdc_tx_putc;
+  uart_comms.output_func = &uart_tx_putc;
   setup_dev_msg(dev_msg_store, ARR_ELEM(dev_msg_store));
   setup_identifier("hello", 5);
 

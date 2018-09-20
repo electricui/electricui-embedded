@@ -5,7 +5,7 @@
 #define STRIP_LENGTH 8
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(STRIP_LENGTH, PIN_WS2812, NEO_GRB + NEO_KHZ800);
-eui_interface serial_comms;
+eui_interface_t serial_comms;
 
 typedef struct {
     int red;
@@ -17,7 +17,7 @@ typedef struct {
 uint8_t rgb_brightness  = 50;
 rgb_t   led_colour[STRIP_LENGTH] = { 0, 0, 0 };
 
-const euiMessage_t dev_msg_store[] = 
+const eui_message_t dev_msg_store[] = 
 {
     EUI_UINT8( "bright", rgb_brightness ),
     EUI_CUSTOM("rgb", led_colour ),
@@ -33,7 +33,7 @@ void setup()
     Serial.begin(115200);
 
     //eUI setup
-    serial_comms.output_char_fnPtr = &tx_putc;
+    serial_comms.output_func = &tx_putc;
     EUI_TRACK(dev_msg_store);
     setup_identifier("rgbstrip", 8);
 

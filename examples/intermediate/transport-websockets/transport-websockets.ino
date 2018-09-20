@@ -27,7 +27,7 @@ uint32_t  example_uint32  = 654321;
 float     example_float   = 3.14159;
 char 	  demo_string[] = "ESP32 Test Board";
 
-euiMessage_t dev_msg_store[] = {
+eui_message_t dev_msg_store[] = {
     EUI_UINT8( "wsc", ws_connected),
     EUI_CHAR( "ws", ws_path ),
 
@@ -41,8 +41,8 @@ euiMessage_t dev_msg_store[] = {
 WiFiMulti WiFiMulti;
 WebSocketsServer webSocket = WebSocketsServer(ws_port);
 
-eui_interface usb_comms;
-eui_interface ws_comms;
+eui_interface_t usb_comms;
+eui_interface_t ws_comms;
 
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length)
 {
@@ -117,8 +117,8 @@ void setup()
     Serial.begin(115200);
 
     //eUI setup
-    usb_comms.output_char_fnPtr = &cdc_tx_putc;
-    ws_comms.output_char_fnPtr = &ws_tx_putc;
+    usb_comms.output_func = &cdc_tx_putc;
+    ws_comms.output_func = &ws_tx_putc;
     EUI_TRACK(dev_msg_store);
     setup_identifier("esp32", 5);
 
