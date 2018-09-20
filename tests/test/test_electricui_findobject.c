@@ -9,7 +9,7 @@ int8_t    testfind_int8    = -21;
 uint8_t   testfind_uint8   = 21;
 
 //developer-space messages
-euiMessage_t test_findobject_store[] = {
+eui_message_t test_findobject_store[] = {
     //simple objects with mostly garbage data, we only care about the ID's
     { .msgID = "a",    .type = TYPE_CHAR,    .size = sizeof(testfind_char),     .payload = &testfind_char      },
     { .msgID = "si8",   .type = TYPE_INT8,    .size = sizeof(testfind_int8),     .payload = &testfind_int8     },
@@ -35,8 +35,8 @@ TEST_TEAR_DOWN( FindMessageObject )
 
 TEST( FindMessageObject, find_message_object_developer )
 {
-    euiMessage_t *expecting     = &test_findobject_store[1]; //int8 object
-    euiMessage_t *result_ptr;   //result should be a pointer to our expected element
+    eui_message_t *expecting     = &test_findobject_store[1]; //int8 object
+    eui_message_t *result_ptr;   //result should be a pointer to our expected element
     const char * test_message   = "si8";
     uint8_t is_internal         = 0;
 
@@ -49,8 +49,8 @@ TEST( FindMessageObject, find_message_object_internal )
 {
     TEST_IGNORE_MESSAGE("TODO: Need to allow tests to see the internal object array");
 
-    euiMessage_t *expecting     = &test_findobject_store[0];    //todo fix this
-    euiMessage_t *result_ptr;
+    eui_message_t *expecting     = &test_findobject_store[0];    //todo fix this
+    eui_message_t *result_ptr;
     const char * test_message   = "lv";
     uint8_t is_internal         = 1;
 
@@ -61,7 +61,7 @@ TEST( FindMessageObject, find_message_object_internal )
 
 TEST( FindMessageObject, find_message_object_wrong_internal_flag )
 {
-    euiMessage_t *result_ptr;
+    eui_message_t *result_ptr;
     const char * test_message   = "si8";
     uint8_t is_internal         = 1;
 
@@ -72,7 +72,7 @@ TEST( FindMessageObject, find_message_object_wrong_internal_flag )
 
 TEST( FindMessageObject, find_message_object_invalid_internal_flag )
 {
-    euiMessage_t *result_ptr;
+    eui_message_t *result_ptr;
     const char * test_message   = "si8";
     uint8_t is_internal         = 3;
 
@@ -83,7 +83,7 @@ TEST( FindMessageObject, find_message_object_invalid_internal_flag )
 
 TEST( FindMessageObject, find_message_object_invalid_id )
 {
-    euiMessage_t *result_ptr;
+    eui_message_t *result_ptr;
     const char * test_message   = "666";
     uint8_t is_internal         = 0;
 
@@ -106,7 +106,7 @@ TEST( FindMessageObject, find_message_object_nullptr )
     // when passed invalid pointers. We could protect against null-prt in the library, but would take the hit on every use
     // there might be a more elegant solution, but for now this is probably out of scope.
 
-    euiMessage_t *result_ptr;
+    eui_message_t *result_ptr;
     const char * test_message   = 0;    //void ptr
     uint8_t is_internal         = 0;
 
@@ -123,8 +123,8 @@ TEST( FindMessageObject, find_message_object_nullptr )
 
 TEST( FindMessageObject, find_message_object_single_letter )
 {
-    euiMessage_t *expecting     = &test_findobject_store[0]; //int8 object
-    euiMessage_t *result_ptr;   //result should be a pointer to our expected element
+    eui_message_t *expecting     = &test_findobject_store[0]; //int8 object
+    eui_message_t *result_ptr;   //result should be a pointer to our expected element
     const char * test_message   = "a";
     uint8_t is_internal         = 0;
 
@@ -135,8 +135,8 @@ TEST( FindMessageObject, find_message_object_single_letter )
 
 TEST( FindMessageObject, find_message_object_max_letters )
 {
-    euiMessage_t *expecting     = &test_findobject_store[2];
-    euiMessage_t *result_ptr;   //result should be a pointer to our expected element
+    eui_message_t *expecting     = &test_findobject_store[2];
+    eui_message_t *result_ptr;   //result should be a pointer to our expected element
     const char * test_message   = "abcdefghijklmno";
     uint8_t is_internal         = 0;
 
@@ -147,8 +147,8 @@ TEST( FindMessageObject, find_message_object_max_letters )
 
 TEST( FindMessageObject, find_message_object_no_id )
 {
-    euiMessage_t *expecting     = &test_findobject_store[4]; //int8 object
-    euiMessage_t *result_ptr;   //result should be a pointer to our expected element
+    eui_message_t *expecting     = &test_findobject_store[4]; //int8 object
+    eui_message_t *result_ptr;   //result should be a pointer to our expected element
     const char * test_message   = "";
     uint8_t is_internal         = 0;
 
@@ -159,8 +159,8 @@ TEST( FindMessageObject, find_message_object_no_id )
 
 TEST( FindMessageObject, find_message_object_non_printable )
 {
-    euiMessage_t *expecting     = &test_findobject_store[3]; //int8 object
-    euiMessage_t *result_ptr;   //result should be a pointer to our expected element
+    eui_message_t *expecting     = &test_findobject_store[3]; //int8 object
+    eui_message_t *result_ptr;   //result should be a pointer to our expected element
 
     char buffer[] = { 0x01, 0x00 };
     uint8_t is_internal = 0;

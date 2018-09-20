@@ -1,7 +1,7 @@
 # ElectricUI ArduinoIDE Colour Map
 
 # Datatypes (KEYWORD1)
-eui_interface	KEYWORD1
+eui_interface_t	KEYWORD1
 
 # Methods and Functions (KEYWORD2)
 setup_dev_msg	KEYWORD2

@@ -4,7 +4,7 @@
 //internal
 uint8_t library_version[] = { VER_MAJOR, VER_MINOR, VER_PATCH };
 
-euiMessage_t internal_msg_store[] = 
+eui_message_t internal_msg_store[] = 
 {
     EUI_UINT8_RO(EUI_INTERNAL_LIB_VER, library_version),
     EUI_UINT16_RO(EUI_INTERNAL_BOARD_ID, board_identifier),
@@ -25,10 +25,10 @@ euiMessage_t internal_msg_store[] =
 };
 
 
-euiMessage_t * 
+eui_message_t * 
 find_message_object(const char * msg_id, uint8_t is_internal)
 {
-    euiMessage_t *foundMsgPtr = 0;
+    eui_message_t *foundMsgPtr = 0;
 
     if(is_internal == MSG_INTERNAL)
     {
@@ -69,15 +69,15 @@ auto_output(void)
 }
 
 void
-parse_packet( uint8_t inbound_byte, euiInterface_t *p_link )
+parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
 {
     uint8_t parse_status = decode_packet(inbound_byte, &p_link->packet);
 
     if( parse_status == packet_valid )
     {
         //Use deconstructed header for convenience, find pointer to stored object
-        euiHeader_t  header     = *(euiHeader_t*)&p_link->packet.header;
-        euiMessage_t *p_msglocal = find_message_object( (char*)p_link->packet.inboundID, 
+        eui_header_t  header     = *(eui_header_t*)&p_link->packet.header;
+        eui_message_t *p_msglocal = find_message_object( (char*)p_link->packet.msgid_in, 
                                                         header.internal );  
         
         if( p_msglocal )
@@ -111,9 +111,9 @@ parse_packet( uint8_t inbound_byte, euiInterface_t *p_link )
 }
 
 void
-handle_packet_data( euiInterface_t  *valid_packet,
-                    euiHeader_t     *header,
-                    euiMessage_t    *msgObjPtr )
+handle_packet_data( eui_interface_t  *valid_packet,
+                    eui_header_t    *header,
+                    eui_message_t   *msgObjPtr )
 {
     //ignore data in callbacks or offset messages, ignore read only data
     if( header->type == TYPE_OFFSET_METADATA 
@@ -138,9 +138,9 @@ handle_packet_data( euiInterface_t  *valid_packet,
         }
 
         //Ensure data won't exceed bounds with invalid offsets
-        if( valid_packet->packet.inboundOffset + bytes_to_write <= msgObjPtr->size )
+        if( valid_packet->packet.offset_in + bytes_to_write <= msgObjPtr->size )
         {
-            memcpy( (char *)msgObjPtr->payload + valid_packet->packet.inboundOffset,
+            memcpy( (char *)msgObjPtr->payload + valid_packet->packet.offset_in,
                     valid_packet->packet.data_in,
                     bytes_to_write );
         }
@@ -152,8 +152,8 @@ handle_packet_data( euiInterface_t  *valid_packet,
 }
 
 void
-handle_packet_empty( euiHeader_t     *header,
-                     euiMessage_t    *msgObjPtr )
+handle_packet_empty( eui_header_t    *header,
+                     eui_message_t   *msgObjPtr )
 {
     if( (msgObjPtr->type & 0x0F) == TYPE_CALLBACK )
     {
@@ -172,15 +172,15 @@ handle_packet_empty( euiHeader_t     *header,
 
 // Check the inbound packet's response requirements and output as required
 void
-handle_packet_response( euiInterface_t *packet_in,
-                        euiHeader_t *header,
-                        euiMessage_t *msgObjPtr )
+handle_packet_response( eui_interface_t  *packet_in,
+                        eui_header_t    *header,
+                        eui_message_t   *msgObjPtr )
 {
     if(header->response)
     {
         if(header->acknum)
         {
-            euiHeader_t tmp_header;
+            eui_header_t tmp_header;
             tmp_header.internal   = header->internal;
             tmp_header.response   = MSG_NRESP;
             tmp_header.type       = msgObjPtr->type;
@@ -192,15 +192,15 @@ handle_packet_response( euiInterface_t *packet_in,
             encode_packet(  packet_in->output_func, 
                             &tmp_header, 
                             msgObjPtr->msgID, 
-                            packet_in->packet.inboundOffset, 
+                            packet_in->packet.offset_in, 
                             msgObjPtr->payload ); 
         }
         else
         {
             //respond with data to fufil query behaviour
-            euiPacketSettings_t res_header =  { .internal = header->internal, 
-                                                .response = MSG_NRESP, 
-                                                .type     = msgObjPtr->type };
+            eui_pkt_settings_t res_header = { .internal = header->internal, 
+                                              .response = MSG_NRESP, 
+                                              .type     = msgObjPtr->type };
 
             if(header->type == TYPE_OFFSET_METADATA)
             {
@@ -230,7 +230,7 @@ handle_packet_response( euiInterface_t *packet_in,
 }
 
 void
-handle_packet_callback( euiMessage_t *msgObjPtr )
+handle_packet_callback( eui_message_t *msgObjPtr )
 {
     // Call the callback assigned to this message ID
     eui_cb_t dev_var_cb;
@@ -244,7 +244,7 @@ handle_packet_callback( euiMessage_t *msgObjPtr )
 // Optional developer callback when a message has been parsed.
 // Allows for developer-side direct access to the packet data before erase.
 void
-cb_dev_interface_complete( euiInterface_t *p_link )
+cb_dev_interface_complete( eui_interface_t *p_link )
 {
     eui_cb_t dev_cb;
     dev_cb = p_link->interface_cb;
@@ -257,8 +257,8 @@ cb_dev_interface_complete( euiInterface_t *p_link )
 
 void
 send_tracked(   callback_uint8_t    output_function, 
-                euiMessage_t        *msgObjPtr, 
-                euiPacketSettings_t *settings )
+                eui_message_t       *msgObjPtr, 
+                eui_pkt_settings_t  *settings )
 {
     settings->type = msgObjPtr->type;
 
@@ -286,8 +286,8 @@ send_tracked(   callback_uint8_t    output_function,
 
 void
 send_tracked_range( callback_uint8_t    output_function, 
-                    euiMessage_t        *msgObjPtr, 
-                    euiPacketSettings_t *settings, 
+                    eui_message_t       *msgObjPtr, 
+                    eui_pkt_settings_t  *settings, 
                     uint16_t            base_addr, 
                     uint16_t            end_addr ) 
 {
@@ -300,7 +300,7 @@ send_tracked_range( callback_uint8_t    output_function,
                             &data_range[0],
                             &data_range[1]);
 
-    euiHeader_t tmp_header;
+    eui_header_t tmp_header;
     tmp_header.internal   = settings->internal;
     tmp_header.response   = settings->response;
     tmp_header.id_len     = strlen(msgObjPtr->msgID);
@@ -405,7 +405,7 @@ send_message(const char * msg_id)
 }
 
 void
-send_message_on(const char * msg_id, euiInterface_t *active_interface)
+send_message_on(const char * msg_id, eui_interface_t *active_interface)
 {
     temp_header.internal  = MSG_DEV;
     temp_header.response  = MSG_NRESP;
@@ -417,7 +417,7 @@ send_message_on(const char * msg_id, euiInterface_t *active_interface)
 
 //application layer developer setup helpers
 void
-setup_interface(euiInterface_t *link_array, uint8_t link_count)
+setup_interface(eui_interface_t *link_array, uint8_t link_count)
 {
     if(link_array && link_count)
     {
@@ -432,7 +432,7 @@ setup_interface(euiInterface_t *link_array, uint8_t link_count)
 }
 
 void
-setup_dev_msg(euiMessage_t *msgArray, euiVariableCount_t numObjects)
+setup_dev_msg(eui_message_t *msgArray, euiVariableCount_t numObjects)
 {
     if(msgArray && numObjects)
     {
