@@ -23,6 +23,7 @@ else
 	DOWNLOADER = wget -nc
 	EXTRACT = unzip -n
 	C_LINT	= oclint
+	INO_TEST = ./arduino-example-test.sh
 	TARGET_EXTENSION = .out
 endif
 
@@ -93,10 +94,13 @@ run:
 analyze:
 	$(C_LINT) $(LINT_FILES) -- $(LINT_FLAGS)
 
+arduino-examples:
+	$(INO_TEST) N
+
 clean:
 	$(CLEANUP) $(TARGET1)
 
-all: clean default run analyze
+all: clean default run analyze arduino-examples
 
 download: 
 	$(DOWNLOADER) $(UNITY_URL)
