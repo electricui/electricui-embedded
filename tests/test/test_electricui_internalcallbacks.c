@@ -63,33 +63,33 @@ TEST_TEAR_DOWN( InternalEUICallbacks )
 
 TEST( InternalEUICallbacks, announce_board )
 {
-	//expect the library version, board ID and session ID (lv, bi, si)
-	announce_board();
+    //expect the library version, board ID and session ID (lv, bi, si)
+    announce_board();
 
-	//ground-truth response
+    //ground-truth response
     uint8_t expected[] = { 
-    	//lv 3x uint8
+        //Library Version 3x uint8
         0x01,               //preamble
-        0x03, 0x58, 0x02,   //header
-        0x6C, 0x76,		    //msgid
+        0x03, 0x58, 0x01,   //header
+        0x6F,               //msgid
         VER_MAJOR, VER_MINOR, VER_PATCH,   //payload
-        0x8C, 0x56,         //crc
+        0x51, 0xD9,         //crc
         0x04,               //EOT
 
-    	//bi uint16 hash of ID
+        //Board ID uint16 hash of ID
         0x01,               //preamble
-        0x02, 0x60, 0x02,   //header
-        0x62, 0x69, 		//msgid
+        0x02, 0x60, 0x01,   //header
+        0x69,               //msgid
         0x87, 0x7C,         //payload
-        0xE2, 0x06,         //crc
+        0xD6, 0xD2,         //crc
         0x04,               //EOT
 
-    	//si uint8
+        //Session ID uint8
         0x01,               //preamble
-        0x01, 0x58, 0x02,   //header
-        0x73, 0x69,         //msgid 
+        0x01, 0x58, 0x01,   //header
+        0x6A,               //msgid 
         0x00,               //payload
-        0x2D, 0x81,         //crc
+        0x74, 0x98,         //crc
         0x04,               //EOT
     };
 
