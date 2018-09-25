@@ -103,7 +103,7 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
 
         memset( &p_link->packet, 0, sizeof(eui_packet_t) );        
     }
-    else
+    else if( parse_status >= packet_error_crc )
     {
         report_error(err_parser_generic);
         memset( &p_link->packet, 0, sizeof(eui_packet_t) );        
