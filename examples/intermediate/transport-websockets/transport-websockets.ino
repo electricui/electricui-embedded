@@ -35,14 +35,19 @@ eui_message_t dev_msg_store[] = {
     EUI_UINT16( "i16", example_uint16 ),
     EUI_UINT32( "i32", example_uint32 ),
     EUI_FLOAT(  "fPI", example_float ),
-    EUI_RO_CHAR( "dst", demo_string ),
+    EUI_CHAR_RO( "dst", demo_string ),
 };
 
 WiFiMulti WiFiMulti;
 WebSocketsServer webSocket = WebSocketsServer(ws_port);
 
-eui_interface_t usb_comms;
-eui_interface_t ws_comms;
+void tx_putc(uint8_t data);
+void ws_tx_putc(uint8_t data);
+
+eui_interface_t comm_links[] = {
+    EUI_INTERFACE(&tx_putc),
+    EUI_INTERFACE(&ws_tx_putc),
+};
 
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length)
 {
@@ -67,7 +72,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
         case WStype_BIN:
             while( iter < end )
             {
-                parse_packet(*iter++, &ws_comms);
+                parse_packet(*iter++, &comm_links[1]);
             }
             break;
             
@@ -117,8 +122,7 @@ void setup()
     Serial.begin(115200);
 
     //eUI setup
-    usb_comms.output_func = &cdc_tx_putc;
-    ws_comms.output_func = &ws_tx_putc;
+    setup_interface(comm_links, 2);
     EUI_TRACK(dev_msg_store);
     setup_identifier("esp32", 5);
 
@@ -131,11 +135,11 @@ void loop()
 
     while(Serial.available() > 0)
     {  
-      parse_packet(Serial.read(), &usb_comms);
+      parse_packet(Serial.read(), &comm_links[0]);
     }
 }
 
-void cdc_tx_putc(uint8_t data)
+void tx_putc(uint8_t data)
 {
   Serial.write(data);
 }

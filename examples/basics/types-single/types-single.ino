@@ -1,4 +1,5 @@
 #include "electricui.h"
+    serial_comms.output_func = &tx_putc;
 
 //Basic set of standard types
 int8_t   example_int8   = -21;
@@ -40,6 +41,8 @@ void setup()
 
     //eUI setup
     serial_comms.output_func = &tx_putc;
+    setup_interface(&serial_comms, 1);
+
     EUI_TRACK(dev_msg_store);
     setup_identifier("stdtypes", 8);
 }
