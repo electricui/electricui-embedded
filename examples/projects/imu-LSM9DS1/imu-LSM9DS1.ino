@@ -24,11 +24,11 @@ uint8_t sensor_configured = 0;
 
 eui_message_t dev_msg_store[] = 
 {
-    EUI_UINT8(  "status", sensor_configured ),
-    EUI_CUSTOM( "acc",  acc.acceleration ),
-    EUI_CUSTOM( "gyro", gyr.gyro ),
-    EUI_CUSTOM( "mag",  mag.magnetic ),
-    EUI_CUSTOM( "temp", internal_temp.temperature ),
+    EUI_CUSTOM_RO(  "status", sensor_configured ),
+    EUI_CUSTOM_RO( "acc",  acc.acceleration ),
+    EUI_CUSTOM_RO( "gyro", gyr.gyro ),
+    EUI_CUSTOM_RO( "mag",  mag.magnetic ),
+    EUI_CUSTOM_RO( "temp", internal_temp.temperature ),
 };
 
 void setupSensor()
@@ -57,6 +57,7 @@ void setup()
   
   // Basic eUI setup for serial interface
   serial_comms.output_func = &tx_putc;
+  setup_interface(&serial_comms, 1);
   EUI_TRACK(dev_msg_store);
   setup_identifier("imu", 3);
 
