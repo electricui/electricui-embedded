@@ -85,7 +85,7 @@ void send_message_on(const char * msg_id, eui_interface_t *active_interface);
 
 
 // todo make these static
-callback_uint8_t * auto_output(void);
+callback_uint8_t auto_output(void);
 void handle_packet_data( eui_interface_t *valid_packet, eui_header_t *header, eui_message_t *msgObjPtr );
 void handle_packet_empty( eui_header_t *header, eui_message_t *msgObjPtr );
 void handle_packet_callback( eui_message_t *msgObjPtr );
