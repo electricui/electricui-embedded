@@ -65,7 +65,7 @@ auto_output(void)
 
     //todo intelligently select an interface
 
-    return &interfaceArray[default_interface].output_func;
+    return *interfaceArray[default_interface].output_func;
 }
 
 void
@@ -399,7 +399,7 @@ send_message(const char * msg_id)
     temp_header.internal  = MSG_DEV;
     temp_header.response  = MSG_NRESP;
 
-    send_tracked(   *auto_output(),
+    send_tracked(   auto_output(),
                     find_message_object( msg_id, MSG_DEV ),
                     &temp_header);
 }
@@ -483,15 +483,15 @@ announce_board(void)
     temp_header.internal  = MSG_INTERNAL;
     temp_header.response  = MSG_NRESP;
 
-    send_tracked(   *auto_output(), 
+    send_tracked(   auto_output(), 
                     find_message_object(EUI_INTERNAL_LIB_VER, MSG_INTERNAL), 
                     &temp_header);
 
-    send_tracked(   *auto_output(),
+    send_tracked(   auto_output(),
                     find_message_object(EUI_INTERNAL_BOARD_ID, MSG_INTERNAL),
                     &temp_header);
 
-    send_tracked(   *auto_output(),
+    send_tracked(   auto_output(),
                     find_message_object(EUI_INTERNAL_SESSION_ID, MSG_INTERNAL),
                     &temp_header);
 
@@ -510,7 +510,7 @@ announce_dev_msg_readonly(void)
     temp_header.internal  = MSG_INTERNAL;
     temp_header.response  = MSG_NRESP;
     temp_header.type      = TYPE_UINT8;
-    encode_packet_simple(   *auto_output(),
+    encode_packet_simple(   auto_output(),
                             &temp_header,
                             EUI_INTERNAL_AM_RO_END,
                             sizeof(num_read_only),
@@ -526,7 +526,7 @@ announce_dev_msg_writable(void)
     temp_header.internal  = MSG_INTERNAL;
     temp_header.response  = MSG_NRESP;
     temp_header.type      = TYPE_UINT8;
-    encode_packet_simple(   *auto_output(),
+    encode_packet_simple(   auto_output(),
                             &temp_header, 
                             EUI_INTERNAL_AM_RW_END,
                             sizeof(num_writable),
@@ -577,7 +577,7 @@ send_tracked_message_id_list(uint8_t read_only)
         if( (msgBufferPos >= (sizeof(msgBuffer) - MESSAGEID_SIZE/2)) || (i >= numDevObjects - 1) )
         {
             const char * headerID = (read_only) ? EUI_INTERNAL_AM_RO_LIST : EUI_INTERNAL_AM_RW_LIST;
-            encode_packet_simple(   *auto_output(),
+            encode_packet_simple(   auto_output(),
                                     &temp_header,
                                     headerID,
                                     msgBufferPos,
@@ -605,7 +605,7 @@ send_tracked_variables(uint8_t read_only)
         //only send messages which have the specified read-only bit state
         if( devObjectArray[i].type >> 7 == read_only )
         {
-            send_tracked( *auto_output(), devObjectArray + i, &temp_header);
+            send_tracked( auto_output(), devObjectArray + i, &temp_header);
             sent_variables++;
         }
     }
@@ -621,7 +621,7 @@ report_error(uint8_t error)
     temp_header.internal  = MSG_INTERNAL;
     temp_header.response  = MSG_NRESP;
 
-    send_tracked(   *auto_output(), 
+    send_tracked(   auto_output(), 
                     find_message_object( EUI_INTERNAL_ERROR_ID, MSG_INTERNAL ), 
                     &temp_header);
 #endif
