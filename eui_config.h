@@ -37,19 +37,21 @@
 
 
 // Configure internal message ID strings
-#define EUI_INTERNAL_SEARCH		"as"
-#define EUI_INTERNAL_LIB_VER	"lv"
-#define EUI_INTERNAL_BOARD_ID	"bi"
-#define EUI_INTERNAL_SESSION_ID	"si"
-#define EUI_INTERNAL_ERROR_ID	"er"
-#define EUI_INTERNAL_HEARTBEAT	"hb"
-#define EUI_DEFAULT_INTERFACE	"dl"
+#define EUI_INTERNAL_LIB_VER	"o"
+#define EUI_INTERNAL_BOARD_ID	"i"
+#define EUI_INTERNAL_SESSION_ID	"j"
+#define EUI_INTERNAL_ERROR_ID	"e"
+#define EUI_INTERNAL_HEARTBEAT	"h"
+#define EUI_DEFAULT_INTERFACE	"k"
 
-#define EUI_INTERNAL_AM_RO		"dmr"
-#define EUI_INTERNAL_AM_RO_LIST	"dmrl"
-#define EUI_INTERNAL_AM_RO_END	"dmre"
-#define EUI_INTERNAL_AM_RW		"dmw"
-#define EUI_INTERNAL_AM_RW_LIST	"dmwl"
-#define EUI_INTERNAL_AM_RW_END	"dmwe"
-#define EUI_INTERNAL_AV_RO		"dvr"
-#define EUI_INTERNAL_AV_RW		"dvw"
+#define EUI_INTERNAL_SEARCH		"x"	//preliminary handshake 
+
+// Used for variable sync during first connection
+#define EUI_INTERNAL_AM_RO		"p"	//announce readonly ID's 
+#define EUI_INTERNAL_AV_RO		"r" //send readonly variables
+#define EUI_INTERNAL_AM_RO_LIST	"q"	//delimit readonly ID
+#define EUI_INTERNAL_AM_RO_END	"s"	//end of readonly ID's
+#define EUI_INTERNAL_AM_RW		"t"	//announce writable ID's 
+#define EUI_INTERNAL_AM_RW_LIST	"u" //delimit writable ID
+#define EUI_INTERNAL_AM_RW_END	"v" //end of writable ID's
+#define EUI_INTERNAL_AV_RW		"w"	//send writable variables
