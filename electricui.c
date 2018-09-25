@@ -58,14 +58,14 @@ find_message_object(const char * msg_id, uint8_t is_internal)
     return foundMsgPtr;
 }
 
-callback_uint8_t *
+callback_uint8_t
 auto_output(void)
 {
     //work out which interface to output data on, and pass callback to the relevant function
 
     //todo intelligently select an interface
 
-    return *interfaceArray[default_interface].output_func;
+    return interfaceArray[default_interface].output_func;
 }
 
 void
