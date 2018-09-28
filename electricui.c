@@ -73,7 +73,7 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
 {
     uint8_t parse_status = decode_packet(inbound_byte, &p_link->packet);
 
-    if( parse_status == packet_valid )
+    if( parse_status == parser_complete )
     {
         //Use deconstructed header for convenience, find pointer to stored object
         eui_header_t  header     = *(eui_header_t*)&p_link->packet.header;
@@ -103,7 +103,7 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
 
         memset( &p_link->packet, 0, sizeof(eui_packet_t) );        
     }
-    else if( parse_status >= packet_error_crc )
+    else if( parse_status >= parser_error )
     {
         report_error(err_parser_generic);
         memset( &p_link->packet, 0, sizeof(eui_packet_t) );        

@@ -23,13 +23,12 @@ TEST( SerialDecoder, decode_packet )
 {
     eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = { 
-        0x01,               //preamble
+        0x00,
+        0x09,
         0x01, 0x14, 0x03,   //header
         0x61, 0x62, 0x63,   //msgid
-        //0x03,             //offset 
         0x2A,               //payload
         0x64, 0xBA,         //crc
-        0x04                //EOT
     };
 
     uint8_t expected_payload[] = { 
@@ -41,7 +40,7 @@ TEST( SerialDecoder, decode_packet )
         decode_result = decode_packet( inbound_bytes[rxByte], &test_interface );
     }
     
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 1, decode_result, "Decoder didn't finish with a valid packet" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( parser_complete, decode_result, "Decoder didn't finish with a valid packet" );
 
     //check parsed results from data structure directly
     TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.header.data_len,    "Unexpected data_length" );
@@ -61,13 +60,13 @@ TEST( SerialDecoder, decode_packet )
 TEST( SerialDecoder, decode_packet_short_id )
 {
     eui_packet_t test_interface = {0};
-    uint8_t inbound_bytes[] = { 
-        0x01,               //preamble
+    uint8_t inbound_bytes[] = {
+        0x00,
+        0x07,
         0x01, 0x14, 0x01,   //header
         0x61,               //msgid
         0x2A,               //payload
         0x08, 0xE0,         //crc
-        0x04                //EOT
     };
 
     uint8_t expected_payload[] = { 
@@ -79,7 +78,7 @@ TEST( SerialDecoder, decode_packet_short_id )
         decode_result = decode_packet( inbound_bytes[rxByte], &test_interface );
     }
     
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 1, decode_result, "Decoder didn't finish with a valid packet" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( parser_complete, decode_result, "Decoder didn't finish with a valid packet" );
 
     //check parsed results from data structure directly
     TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.header.data_len,    "Unexpected data_length"        );
@@ -100,12 +99,12 @@ TEST( SerialDecoder, decode_packet_long_id )
 {
     eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = { 
-        0x01,               //preamble
+        0x00,
+        0x15,
         0x01, 0x14, 0x0f,   //header
         0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6a, 0x6b, 0x6c, 0x6d, 0x6e, 0x6f, //msgid
         0x2A,               //payload
         0x05, 0x8B,         //crc
-        0x04                //EOT
     };
 
     uint8_t expected_payload[] = { 
@@ -117,14 +116,14 @@ TEST( SerialDecoder, decode_packet_long_id )
         decode_result = decode_packet( inbound_bytes[rxByte], &test_interface );
     }
     
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 1, decode_result, "Decoder didn't finish with a valid packet" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( parser_complete, decode_result, "Decoder didn't finish with a valid packet" );
 
     //check parsed results from data structure directly
     TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.header.data_len,    "Unexpected data_length"        );
     TEST_ASSERT_EQUAL_INT_MESSAGE( 5, test_interface.header.type,        "Unexpected type"               );
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.internal,    "Expected dev msg"              );
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.offset,      "Unexpected offset bit"         );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 15, test_interface.header.id_len,      "Msg length err"               );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 15, test_interface.header.id_len,     "Msg length err"                );
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.response,    "Didn't expect a response bit"  );
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.acknum,      "Unexpected ack number"         );
 
@@ -138,12 +137,12 @@ TEST( SerialDecoder, decode_packet_internal )
 {
     eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = { 
-        0x01,               //preamble
+        0x00,
+        0x09,
         0x01, 0x54, 0x03,   //header
         0x61, 0x62, 0x63,   //msgid
         0x2A,               //payload
         0x74, 0xD0,         //crc
-        0x04                //EOT
     };
 
     uint8_t expected_payload[] = { 
@@ -155,7 +154,7 @@ TEST( SerialDecoder, decode_packet_internal )
         decode_result = decode_packet( inbound_bytes[rxByte], &test_interface );
     }
     
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 1, decode_result, "Decoder didn't finish with a valid packet" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( parser_complete, decode_result, "Decoder didn't finish with a valid packet" );
 
     //check parsed results from data structure directly
     TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.header.data_len,    "Unexpected data_length" );
@@ -176,13 +175,13 @@ TEST( SerialDecoder, decode_packet_response )
 {
     eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = { 
-        0x01,               //preamble
+        0x00,
+        0x09,
         0x01, 0x14, 0x13,   //header
         0x61, 0x62, 0x63,   //msgid
         //0x03,             //offset 
         0x2A,               //payload
         0x3E, 0xBE,         //crc
-        0x04                //EOT
     };
 
     uint8_t expected_payload[] = { 
@@ -194,7 +193,7 @@ TEST( SerialDecoder, decode_packet_response )
         decode_result = decode_packet( inbound_bytes[rxByte], &test_interface );
     }
     
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 1, decode_result, "Decoder didn't finish with a valid packet" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( parser_complete, decode_result, "Decoder didn't finish with a valid packet" );
 
     //check parsed results from data structure directly
     TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.header.data_len,    "Unexpected data_length" );
@@ -215,12 +214,12 @@ TEST( SerialDecoder, decode_packet_acknum)
 {
     eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = { 
-        0x01,               //preamble
+        0x00,
+        0x09,
         0x01, 0x14, 0x63,   //header
         0x61, 0x62, 0x63,   //msgid
         0x2A,               //payload
         0xB8, 0xA3,         //crc
-        0x04                //EOT
     };
 
     uint8_t expected_payload[] = { 
@@ -232,7 +231,7 @@ TEST( SerialDecoder, decode_packet_acknum)
         decode_result = decode_packet( inbound_bytes[rxByte], &test_interface );
     }
     
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 1, decode_result, "Decoder didn't finish with a valid packet" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( parser_complete, decode_result, "Decoder didn't finish with a valid packet" );
 
     //check parsed decode_results from data structure directly
     TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.header.data_len,    "Unexpected data_length" );
@@ -253,12 +252,12 @@ TEST( SerialDecoder, decode_packet_float )
 {
     eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = { 
-        0x01,               //preamble
+        0x00,
+        0x0C,               //frame offset
         0x04, 0x2c, 0x03,   //header
         0x61, 0x62, 0x63,   //msgid
         0x14, 0xAE, 0x29, 0x42, //payload
         0x8B, 0x1D,         //crc
-        0x04                //EOT
     };
 
     uint8_t expected_payload[] = { 
@@ -270,7 +269,7 @@ TEST( SerialDecoder, decode_packet_float )
         decode_result = decode_packet( inbound_bytes[rxByte], &test_interface );
     }
     
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 1, decode_result, "Decoder didn't finish with a valid packet" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( parser_complete, decode_result, "Decoder didn't finish with a valid packet" );
 
     //check parsed results from data structure directly
     TEST_ASSERT_EQUAL_INT_MESSAGE( 4, test_interface.header.data_len,    "Unexpected data_length" );
@@ -295,12 +294,12 @@ TEST( SerialDecoder, decode_packet_invalidCRC )
     //test the second byte being incorrect
     eui_packet_t test_interface_2 = {0};
     uint8_t invalid_second_byte[] = { 
-        0x01,
+        0x00,
+        0x09,
         0x01, 0x14, 0x03,
         0x61, 0x62, 0x63,
         0x2A,
         0x64, 0xFF,         //crc should be 0x64BA
-        //skip the EOT byte
     };
 
     for( uint16_t rxByte = 0; rxByte < sizeof(invalid_second_byte); rxByte++ )
@@ -312,17 +311,17 @@ TEST( SerialDecoder, decode_packet_invalidCRC )
     TEST_ASSERT_EQUAL_UINT16( 0xBA64, test_interface_2.crc_in );
 
     //the decoder should return the error flag    
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( packet_error_crc, decode_result, "Decoder didn't error on invalid CRC byte2" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( parser_error, decode_result, "Decoder didn't error on invalid CRC byte2" );
 
     //test the first byte being incorrect
     eui_packet_t test_interface_1 = {0};
     uint8_t invalid_first_byte[] = { 
-        0x01,
+        0x00,
+        0x09,
         0x01, 0x14, 0x03,
         0x61, 0x62, 0x63,
         0x2A,
         0xFF, //skip second byte       //crc should be 0x64BA
-        //skip the EOT byte
     };
 
     for( uint16_t rxByte = 0; rxByte < sizeof(invalid_first_byte); rxByte++ )
@@ -334,7 +333,7 @@ TEST( SerialDecoder, decode_packet_invalidCRC )
     TEST_ASSERT_EQUAL_UINT16( 0xBA64, test_interface_1.crc_in );
 
     //the decoder should return the error flag    
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( packet_error_crc, decode_result, "Decoder didn't error on invalid CRC byte1" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( parser_error, decode_result, "Decoder didn't error on invalid CRC byte1" );
 }
 
 

@@ -33,10 +33,6 @@
 #define READ_ONLY_FLAG 0x01
 #define WRITABLE_FLAG 0x00
 
-//control characters in packets
-static const uint8_t stHeader       = 0x01;
-static const uint8_t enTransmission = 0x04;
-
 typedef struct {
     unsigned data_len   : 10;
     unsigned type       : 4;
@@ -75,10 +71,11 @@ typedef struct {
     unsigned state          : 4;
     unsigned id_bytes_in    : MESSAGEID_BITS;
     unsigned data_bytes_in  : 10;
+    uint8_t  frame_offset;
 } eui_parser_state_t;
 
 enum parseStates {
-        find_preamble = 0,
+        exp_frame_offset = 0,
         exp_header_b1,
         exp_header_b2,
         exp_header_b3,   
@@ -88,8 +85,6 @@ enum parseStates {
         exp_data,
         exp_crc_b1,
         exp_crc_b2,
-        exp_eot,
-        exp_reset,
 };
 
 //hold the inbound packet information
@@ -108,10 +103,9 @@ typedef struct {
 } eui_packet_t;
 
 enum packet_signals {
-        parser_idle = 0,
-        packet_valid,
-        packet_error_crc,
-        packet_error_generic,
+    parser_idle = 0,
+    parser_complete,
+    parser_error,
 };
 
 void
