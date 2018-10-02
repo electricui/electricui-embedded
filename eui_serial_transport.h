@@ -4,11 +4,9 @@
 #include <stdint.h>
 #include "eui_config.h"
 
-#define PACKET_BASE_SIZE    ( sizeof(stHeader) \
-                            + sizeof(euiHeader_t) \
+#define PACKET_BASE_SIZE    ( sizeof(eui_header_t) \
                             + sizeof(uint16_t) \
-                            + sizeof(uint16_t) \
-                            + sizeof(enTransmission) )
+                            + sizeof(uint16_t) )
 
 #define MESSAGEID_BITS      4
 
@@ -110,6 +108,12 @@ enum packet_signals {
 
 void
 crc16(uint8_t data, uint16_t *crc);
+
+uint8_t
+encode_header( eui_header_t *header, uint8_t *buffer );
+
+uint8_t
+encode_framing( uint8_t *buffer, uint16_t size );
 
 uint8_t
 encode_packet_simple(callback_uint8_t output_function, eui_pkt_settings_t *settings, const char * msg_id, uint16_t payload_len, void* payload);

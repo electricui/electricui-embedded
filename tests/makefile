@@ -75,6 +75,7 @@ SRC_FILES1 = \
   $(TEST_ROOT)/test_electricui_send.c \
   $(TEST_ROOT)/test_electricui_internalcallbacks.c \
   $(TEST_ROOT)/test_eui_serial_transport_crc16.c \
+  $(TEST_ROOT)/test_eui_serial_transport_cobs.c \
   $(TEST_ROOT)/test_eui_serial_transport_encoder.c \
   $(TEST_ROOT)/test_eui_serial_transport_decoder.c \
   $(TEST_ROOT)/test_eui_macro.c \

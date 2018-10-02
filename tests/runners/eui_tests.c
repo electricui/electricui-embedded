@@ -4,6 +4,7 @@ static void RunAllTests(void)
 {    
 	//transport layer
     RUN_TEST_GROUP(SerialCRC16);
+    RUN_TEST_GROUP(SerialCOBS);
     RUN_TEST_GROUP(SerialDecoder);
     RUN_TEST_GROUP(SerialEncoder);
 

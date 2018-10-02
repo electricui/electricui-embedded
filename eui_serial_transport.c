@@ -32,6 +32,48 @@ encode_packet_simple(   callback_uint8_t    output_function,
     return encode_packet( output_function, &expanded_header, msg_id, 0x00, payload );
 }
 
+uint8_t encode_header( eui_header_t *header, uint8_t *buffer )
+{
+    uint8_t bytes_written = 0;
+    
+    // Header is 3 bytes
+    // payload length 10b, internal 1b, offset 1b, idlen 4b, response 1b, acknum 3b
+
+    buffer[bytes_written] = header->data_len & 0xFF;
+    bytes_written++;
+    
+    buffer[bytes_written] |= (header->data_len & 0xC0) << 2;
+    buffer[bytes_written] |= header->internal << 6;
+    buffer[bytes_written] |= header->offset << 7;
+    bytes_written++;
+
+    buffer[bytes_written] = header->id_len;
+    buffer[bytes_written] = header->response  << 4;
+    buffer[bytes_written] = header->acknum    << 5;
+    bytes_written++;
+
+    return bytes_written;
+}
+
+uint8_t encode_framing( uint8_t *buffer, uint16_t buf_size )
+{
+    uint16_t previous_null = 0;
+
+    //todo work out whatever happens here
+    for( uint16_t i = 1; i < buf_size; i++ )
+    {
+        if( buffer[i] == 0x00 )
+        {
+            uint8_t bytes_since = i - previous_null;
+            buffer[previous_null] = bytes_since;
+            previous_null = i;
+        }
+    }
+
+    buffer[0] = 0x00;
+
+    return 0;
+}
 uint8_t
 encode_packet(  callback_uint8_t    out_char, 
                 eui_header_t        *header, 
