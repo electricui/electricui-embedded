@@ -59,14 +59,21 @@ uint8_t encode_framing( uint8_t *buffer, uint16_t buf_size )
 {
     uint16_t previous_null = 0;
 
-    //todo work out whatever happens here
     for( uint16_t i = 1; i < buf_size; i++ )
     {
+        uint8_t bytes_since = i - previous_null;
+
         if( buffer[i] == 0x00 )
         {
-            uint8_t bytes_since = i - previous_null;
             buffer[previous_null] = bytes_since;
             previous_null = i;
+        }
+        else
+        {
+            if(bytes_since == 0xFE)
+            {
+                //uh
+            }
         }
     }
 
