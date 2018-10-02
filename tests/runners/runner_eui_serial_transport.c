@@ -9,6 +9,20 @@ TEST_GROUP_RUNNER( SerialCRC16 )
     RUN_TEST_CASE( SerialCRC16, CRC16_Fuzzed )
 }
 
+TEST_GROUP_RUNNER( SerialCOBS )
+{
+    RUN_TEST_CASE( SerialCOBS, COBS_Basic_1 )
+    RUN_TEST_CASE( SerialCOBS, COBS_Basic_2 )
+    RUN_TEST_CASE( SerialCOBS, COBS_Basic_3 )
+    RUN_TEST_CASE( SerialCOBS, COBS_Basic_4 )
+    RUN_TEST_CASE( SerialCOBS, COBS_Basic_5 )
+    RUN_TEST_CASE( SerialCOBS, COBS_Basic_6 )
+    RUN_TEST_CASE( SerialCOBS, COBS_Basic_7 )
+
+    RUN_TEST_CASE( SerialCOBS, COBS_Long )
+    RUN_TEST_CASE( SerialCOBS, COBS_Realworld )
+}
+
 TEST_GROUP_RUNNER( SerialEncoder )
 {
     RUN_TEST_CASE( SerialEncoder, encode_packet_simple )
