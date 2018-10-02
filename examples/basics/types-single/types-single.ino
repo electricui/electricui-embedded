@@ -1,5 +1,4 @@
 #include "electricui.h"
-    serial_comms.output_func = &tx_putc;
 
 //Basic set of standard types
 int8_t   example_int8   = -21;

@@ -26,7 +26,7 @@ uint16_t 	callback_serial_position    	= 0;
 
 void callback_mocked_output(uint8_t outbound)
 {
-    if( callback_serial_position < 2048 )
+    if( callback_serial_position < 1024 )
     {
         callback_serial_buffer[ callback_serial_position ] = outbound;
         callback_serial_position++;
