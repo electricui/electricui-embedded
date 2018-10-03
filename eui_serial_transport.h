@@ -124,4 +124,7 @@ encode_packet(callback_uint8_t out_char, eui_header_t * header, const char * msg
 uint8_t
 decode_packet(uint8_t inbound_byte, eui_packet_t *p_link_in);
 
+uint8_t
+parse_decoded_packet(uint8_t byte_in, eui_packet_t *p_link_in);
+
 #endif
