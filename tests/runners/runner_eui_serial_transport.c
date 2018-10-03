@@ -54,3 +54,15 @@ TEST_GROUP_RUNNER( SerialDecoder )
     RUN_TEST_CASE( SerialDecoder, decode_packet_offset )
     
 }
+
+TEST_GROUP_RUNNER( SerialLoopback )
+{
+    RUN_TEST_CASE( SerialLoopback, encode_decode_simple )
+    RUN_TEST_CASE( SerialLoopback, encode_decode_headerbits )
+    RUN_TEST_CASE( SerialLoopback, encode_decode_short_id )
+    RUN_TEST_CASE( SerialLoopback, encode_decode_long_id )
+    RUN_TEST_CASE( SerialLoopback, encode_decode_no_data )
+    RUN_TEST_CASE( SerialLoopback, encode_decode_long_data )
+    RUN_TEST_CASE( SerialLoopback, encode_decode_many_zeros )
+    
+}

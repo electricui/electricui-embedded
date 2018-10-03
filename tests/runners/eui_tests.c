@@ -7,6 +7,7 @@ static void RunAllTests(void)
     RUN_TEST_GROUP(SerialCOBS);
     RUN_TEST_GROUP(SerialDecoder);
     RUN_TEST_GROUP(SerialEncoder);
+    RUN_TEST_GROUP(SerialLoopback);
 
     //'session' layer
     RUN_TEST_GROUP(FindMessageObject);
