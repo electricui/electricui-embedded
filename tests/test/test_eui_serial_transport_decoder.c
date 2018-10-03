@@ -24,7 +24,7 @@ TEST( SerialDecoder, decode_packet )
     eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = { 
         0x00,
-        0x09,
+        0x0A,
         0x01, 0x14, 0x03,   //header
         0x61, 0x62, 0x63,   //msgid
         0x2A,               //payload
@@ -62,7 +62,7 @@ TEST( SerialDecoder, decode_packet_short_id )
     eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = {
         0x00,
-        0x07,
+        0x08,
         0x01, 0x14, 0x01,   //header
         0x61,               //msgid
         0x2A,               //payload
@@ -100,7 +100,7 @@ TEST( SerialDecoder, decode_packet_long_id )
     eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = { 
         0x00,
-        0x15,
+        0x16,
         0x01, 0x14, 0x0f,   //header
         0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6a, 0x6b, 0x6c, 0x6d, 0x6e, 0x6f, //msgid
         0x2A,               //payload
@@ -138,7 +138,7 @@ TEST( SerialDecoder, decode_packet_internal )
     eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = { 
         0x00,
-        0x09,
+        0x0A,
         0x01, 0x54, 0x03,   //header
         0x61, 0x62, 0x63,   //msgid
         0x2A,               //payload
@@ -176,7 +176,7 @@ TEST( SerialDecoder, decode_packet_response )
     eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = { 
         0x00,
-        0x09,
+        0x0A,
         0x01, 0x14, 0x13,   //header
         0x61, 0x62, 0x63,   //msgid
         //0x03,             //offset 
@@ -215,7 +215,7 @@ TEST( SerialDecoder, decode_packet_acknum)
     eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = { 
         0x00,
-        0x09,
+        0x0A,
         0x01, 0x14, 0x63,   //header
         0x61, 0x62, 0x63,   //msgid
         0x2A,               //payload
@@ -253,7 +253,7 @@ TEST( SerialDecoder, decode_packet_float )
     eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = { 
         0x00,
-        0x0C,               //frame offset
+        0x0D,               //frame offset
         0x04, 0x2c, 0x03,   //header
         0x61, 0x62, 0x63,   //msgid
         0x14, 0xAE, 0x29, 0x42, //payload
@@ -295,7 +295,7 @@ TEST( SerialDecoder, decode_packet_invalidCRC )
     eui_packet_t test_interface_2 = {0};
     uint8_t invalid_second_byte[] = { 
         0x00,
-        0x09,
+        0x0A,
         0x01, 0x14, 0x03,
         0x61, 0x62, 0x63,
         0x2A,
@@ -317,7 +317,7 @@ TEST( SerialDecoder, decode_packet_invalidCRC )
     eui_packet_t test_interface_1 = {0};
     uint8_t invalid_first_byte[] = { 
         0x00,
-        0x09,
+        0x0A,
         0x01, 0x14, 0x03,
         0x61, 0x62, 0x63,
         0x2A,
@@ -336,10 +336,42 @@ TEST( SerialDecoder, decode_packet_invalidCRC )
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( parser_error, decode_result, "Decoder didn't error on invalid CRC byte1" );
 }
 
+TEST( SerialDecoder, decode_packet_offset )
+{
+    eui_packet_t test_interface = {0};
+    uint8_t inbound_bytes[] = { 
+        0x00,
+        0x07,
+        0x04, 0xAC, 0x03,       //header
+        0x61, 0x62, 0x63,       //msgid
+        0x01, 0x07,             //offset is 00, 00 but we have COBS on-top
+        0x14, 0xAE, 0x29, 0x42, //payload
+        0x48, 0x31,             //crc
+    };
 
-//offset messages
-//offset ranges valid
-//offset ranges invalid
-//missing preamble
-//missing closing byte
-//message in payload of another message
+    uint8_t expected_payload[] = { 
+        0x14, 0xAE, 0x29, 0x42,
+    };
+
+    for( uint16_t rxByte = 0; rxByte < sizeof(inbound_bytes); rxByte++ )
+    {
+        decode_result = decode_packet( inbound_bytes[rxByte], &test_interface );
+    }
+    
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( parser_complete, decode_result, "Decoder didn't finish with a valid packet" );
+
+    //check parsed results from data structure directly
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 4, test_interface.header.data_len,    "Unexpected data_length" );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 11, test_interface.header.type,       "Unexpected type"   );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.internal,    "Expected dev msg"  );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.header.offset,      "Unexpected offset bit"         );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 3, test_interface.header.id_len,      "Msg length err"    );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.response,    "Didn't expect a response bit"  );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.acknum,      "Unexpected ack number"         );
+
+    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.msgid_in);
+    TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Offset should be zero" );
+    TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.data_in, sizeof(expected_payload) );
+    TEST_ASSERT_EQUAL_UINT16( 0x3148, test_interface.crc_in );
+
+}
