@@ -69,28 +69,28 @@ TEST( InternalEUICallbacks, announce_board )
     //ground-truth response
     uint8_t expected[] = { 
         //Library Version 3x uint8
-        0x01,               //preamble
+        0x00,
+        0x05,               
         0x03, 0x58, 0x01,   //header
         0x6F,               //msgid
-        VER_MAJOR, VER_MINOR, VER_PATCH,   //payload
+        0x02, 0x06, 0x03,   //payload VER_MAJOR, VER_MINOR, VER_PATCH = 0 6 0
         0x51, 0xD9,         //crc
-        0x04,               //EOT
 
         //Board ID uint16 hash of ID
-        0x01,               //preamble
+        0x00,
+        0x09,   
         0x02, 0x60, 0x01,   //header
         0x69,               //msgid
         0x87, 0x7C,         //payload
         0xD6, 0xD2,         //crc
-        0x04,               //EOT
 
         //Session ID uint8
-        0x01,               //preamble
+        0x00,
+        0x05,   
         0x01, 0x58, 0x01,   //header
         0x6A,               //msgid 
-        0x00,               //payload
+        0x03,               //payload
         0x74, 0x98,         //crc
-        0x04,               //EOT
     };
 
     TEST_ASSERT_EQUAL_HEX8_ARRAY_MESSAGE( expected, callback_serial_buffer, sizeof(expected), "Annoucement didn't publish expected messages" );

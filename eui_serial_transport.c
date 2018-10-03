@@ -35,22 +35,25 @@ encode_packet_simple(   callback_uint8_t    output_function,
 uint8_t encode_header( eui_header_t *header, uint8_t *buffer )
 {
     uint8_t bytes_written = 0;
-    
-    // Header is 3 bytes
-    // payload length 10b, internal 1b, offset 1b, idlen 4b, response 1b, acknum 3b
 
-    buffer[bytes_written] = header->data_len & 0xFF;
-    bytes_written++;
-    
-    buffer[bytes_written] |= (header->data_len & 0xC0) << 2;
-    buffer[bytes_written] |= header->internal << 6;
-    buffer[bytes_written] |= header->offset << 7;
-    bytes_written++;
+    if(header && buffer)
+    {
+        // Header is 3 bytes
+        // payload length 10b, internal 1b, offset 1b, idlen 4b, response 1b, acknum 3b
+        buffer[bytes_written] = header->data_len & 0xFF;
+        bytes_written++;
+        
+        buffer[bytes_written] |= (header->data_len & 0xC0) >> 6;
+        buffer[bytes_written] |= (header->type     & 0x0F) << 2;
+        buffer[bytes_written] |= header->internal  << 6;
+        buffer[bytes_written] |= header->offset    << 7;
+        bytes_written++;
 
-    buffer[bytes_written] = header->id_len;
-    buffer[bytes_written] = header->response  << 4;
-    buffer[bytes_written] = header->acknum    << 5;
-    bytes_written++;
+        buffer[bytes_written] |= (header->id_len & 0x0F);
+        buffer[bytes_written] |= header->response  << 4;
+        buffer[bytes_written] |= header->acknum    << 5;
+        bytes_written++;
+    }
 
     return bytes_written;
 }
@@ -68,13 +71,14 @@ uint8_t encode_framing( uint8_t *buffer, uint16_t buf_size )
             buffer[previous_null] = bytes_since;
             previous_null = i;
         }
-        else
-        {
-            if(bytes_since == 0xFE)
-            {
-                //uh
-            }
-        }
+        // else
+        // {
+            // if(bytes_since == 0xFE)
+            // {
+                // buffer[previous_null] = 0xFF;
+                // previous_null = i++;
+            // }
+        // }
     }
 
     buffer[0] = 0x00;
@@ -90,72 +94,54 @@ encode_packet(  callback_uint8_t    out_char,
 {
     if(out_char)  //todo ASSERT if not valid?
     {  
-        //preamble
-        out_char( stHeader );
-        
-        uint16_t outbound_crc = 0xffff;
+        uint8_t pk_tmp[1 + PACKET_BASE_SIZE + MESSAGEID_SIZE + PAYLOAD_SIZE_MAX ] = { 0 };
+        uint16_t pk_i = 2; //leave room for the 0x00 and framing byte
 
-        //header
-        uint16_t header_buffer = 0;
+        // write header bytes into the buffer
+        pk_i += encode_header( header, &pk_tmp[pk_i] );
 
-        header_buffer |= header->data_len;
-        header_buffer |= (header->type & 0x0F ) << 10;
-        header_buffer |= header->internal << 14;
-        header_buffer |= header->offset   << 15;
+        //message ID
+        memcpy( &pk_tmp[pk_i], msg_id, header->id_len );
+        pk_i += header->id_len;
 
-        //write first byte
-        out_char( header_buffer & 0xFF );
-        crc16( header_buffer & 0xFF, &outbound_crc ); 
-
-        //write second byte
-        out_char( header_buffer >> 8 );
-        crc16( header_buffer >> 8, &outbound_crc ); 
-
-        header_buffer = 0;  //reuse the buffer for the remaining byte
-
-        header_buffer |= header->id_len;
-        header_buffer |= header->response  << 4;
-        header_buffer |= header->acknum    << 5;
-        
-        //write third byte
-        out_char( header_buffer );
-        crc16(header_buffer, &outbound_crc); 
-
-        //message identifier
-        for( int i = 0; i < header->id_len; i++ )
-        {
-            out_char( msg_id[i] );
-            crc16(msg_id[i], &outbound_crc); 
-        }
-
+        //offset address
 #ifndef EUI_CONF_OFFSETS_DISABLED
         if( header->offset )
         {
-            out_char( offset & 0xFF );
-            crc16(offset & 0xFF, &outbound_crc); 
-
-            out_char( offset >> 8 );
-            crc16(offset >> 8, &outbound_crc); 
+            memcpy( &pk_tmp[pk_i], &offset, sizeof(offset) );
+            pk_i += sizeof(offset);
         }
 #endif
-        
+
         //payload data
-        for(int i = 0; i < header->data_len; i++)
+        memcpy( &pk_tmp[pk_i], payload + offset, header->data_len );
+        pk_i += header->data_len;
+
+        //calculate CRC
+        uint16_t outbound_crc = 0xFFFF;
+
+        for( uint16_t i = 2; i < pk_i; i++ )
         {
-            out_char( *((uint8_t *)payload + i + offset) );
-            crc16( *((uint8_t *)payload + i + offset), &outbound_crc ); 
+            crc16( pk_tmp[i], &outbound_crc );
         }
 
-        //checksum between the preamble and CRC
-        out_char( outbound_crc & 0xFF );
-        out_char( outbound_crc >> 8 );
+        //write result of CRC into buffer
+        memcpy( &pk_tmp[pk_i], &outbound_crc, sizeof(outbound_crc) );
+        pk_i += sizeof(outbound_crc);
+        
+        //Apply Consistent Overhead Byte Stuffing (COBS) for framing/sync
+        encode_framing( pk_tmp, pk_i+1);    //+1 to account for null byte at end
 
-        //packet terminator
-        out_char( enTransmission );
+        //write data
+        for( uint16_t i = 0; i < pk_i; i++ )
+        {
+            out_char( pk_tmp[i] );
+        }
     }
 
     return 0;
 }
+
 
 /*
     If byte 0x00 seen, cancel all parsing
