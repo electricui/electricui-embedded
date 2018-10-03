@@ -55,13 +55,13 @@ TEST( SerialEncoder, encode_packet_simple )
 
     //ground-truth
     uint8_t expected[] = { 
-        0x01,               //preamble
+        0x00,
+        0x0A,
         0x01, 0x14, 0x03,   //header
         0x61, 0x62, 0x63,   //msgid
-        //0x03,             //offset 
         0x2A,               //payload
         0x64, 0xBA,         //crc
-        0x04                //EOT
+        0x00
     };
 
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE( expected, serial_buffer, sizeof(expected), "Payload not valid" );
@@ -95,13 +95,13 @@ TEST( SerialEncoder, encode_packet )
 
     //ground-truth
     uint8_t expected[] = { 
-        0x01,               //preamble
+        0x00,
+        0x0A,
         0x01, 0x14, 0x03,   //header
         0x61, 0x62, 0x63,   //msgid
         //0x03,             //offset 
         0x2A,               //payload
         0x64, 0xBA,         //crc
-        0x04                //EOT
     };
 
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected, serial_buffer, sizeof(expected) );
@@ -131,12 +131,12 @@ TEST( SerialEncoder, encode_packet_short_id )
 
     //ground-truth
     uint8_t expected[] = { 
-        0x01,               //preamble
+        0x00,
+        0x08,
         0x01, 0x14, 0x01,   //header
         0x61,               //msgid
         0x2A,               //payload
         0x08, 0xE0,         //crc
-        0x04                //EOT
     };
 
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected, serial_buffer, sizeof(expected) );
@@ -166,12 +166,12 @@ TEST( SerialEncoder, encode_packet_long_id )
 
     //ground-truth
     uint8_t expected[] = { 
-        0x01,               //preamble
+        0x00,
+        0x16,
         0x01, 0x14, 0x0f,   //header
         0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6a, 0x6b, 0x6c, 0x6d, 0x6e, 0x6f, //msgid
         0x2A,               //payload
         0x05, 0x8B,         //crc
-        0x04                //EOT
     };
 
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected, serial_buffer, sizeof(expected) );
@@ -201,12 +201,12 @@ TEST( SerialEncoder, encode_packet_internal )
 
     //ground-truth
     uint8_t expected[] = { 
-        0x01,               //preamble
+        0x00,
+        0x0A,
         0x01, 0x54, 0x03,   //header
         0x61, 0x62, 0x63,   //msgid
         0x2A,               //payload
         0x74, 0xD0,         //crc
-        0x04                //EOT
     };
 
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected, serial_buffer, sizeof(expected) );
@@ -236,12 +236,12 @@ TEST( SerialEncoder, encode_packet_response )
 
     //ground-truth
     uint8_t expected[] = { 
-        0x01,               //preamble
+        0x00,
+        0x0A,
         0x01, 0x14, 0x13,   //header
         0x61, 0x62, 0x63,   //msgid
         0x2A,               //payload
         0x3E, 0xBE,         //crc
-        0x04                //EOT
     };
 
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected, serial_buffer, sizeof(expected) );
@@ -271,12 +271,12 @@ TEST( SerialEncoder, encode_packet_acknum)
 
     //ground-truth
     uint8_t expected[] = { 
-        0x01,               //preamble
+        0x00,
+        0x0A,
         0x01, 0x14, 0x63,   //header
         0x61, 0x62, 0x63,   //msgid
         0x2A,               //payload
         0xB8, 0xA3,         //crc
-        0x04                //EOT
     };
 
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected, serial_buffer, sizeof(expected) );
@@ -306,17 +306,32 @@ TEST( SerialEncoder, encode_packet_float )
 
     //ground-truth
     uint8_t expected[] = { 
-        0x01,               //preamble
+        0x00,
+        0x0D,
         0x04, 0x2c, 0x03,   //header
         0x61, 0x62, 0x63,   //msgid
         0x14, 0xAE, 0x29, 0x42, //payload
         0x8B, 0x1D,         //crc
-        0x04                //EOT
     };
 
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected, serial_buffer, sizeof(expected) );
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder didn't return expected status code" );
 }
+
+
+/*
+    for( uint16_t i = 0; i < sizeof(expected); i++)
+    {
+        if(serial_buffer[i] == expected[i])
+        {
+            printf("[%d]: %X\n", i, serial_buffer[i]);
+        }
+        else
+        {
+            printf("[%d]: %X expected %X\n", i, serial_buffer[i], expected[i]);
+        }
+    }
+*/
 
 //test null pointer
 //test null msgid
