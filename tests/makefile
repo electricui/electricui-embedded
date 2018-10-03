@@ -78,6 +78,7 @@ SRC_FILES1 = \
   $(TEST_ROOT)/test_eui_serial_transport_cobs.c \
   $(TEST_ROOT)/test_eui_serial_transport_encoder.c \
   $(TEST_ROOT)/test_eui_serial_transport_decoder.c \
+  $(TEST_ROOT)/test_eui_serial_transport_loopback.c \
   $(TEST_ROOT)/test_eui_macro.c \
   $(RUNNER_ROOT)/runner_electricui.c \
   $(RUNNER_ROOT)/runner_eui_serial_transport.c \
