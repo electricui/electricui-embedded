@@ -318,6 +318,41 @@ TEST( SerialEncoder, encode_packet_float )
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder didn't return expected status code" );
 }
 
+TEST( SerialEncoder, encode_packet_offset )
+{
+    //input parameters
+    const char * test_message = "abc";
+    uint8_t test_payload[] = { 
+        0x14, 0xAE, 0x29, 0x42 
+    };
+    uint16_t offset = 0;    //we force it, but use an offset of 0x0000 (base address)
+    
+    eui_header_t test_header;
+    test_header.internal   = 0;
+    test_header.response   = 0;
+    test_header.type       = 11; //float (4byte)
+    test_header.acknum     = 0;
+    test_header.offset     = 1; //force an offset
+    test_header.id_len     = strlen(test_message);
+    test_header.data_len   = sizeof(test_payload);
+
+    //test it against our mocked buffer
+    encode_result = encode_packet( &byte_into_buffer, &test_header, test_message, offset, &test_payload );
+
+    //ground-truth
+    uint8_t expected[] = { 
+        0x00,
+        0x07,
+        0x04, 0xAC, 0x03,       //header
+        0x61, 0x62, 0x63,       //msgid
+        0x01, 0x07,             //offset is 00, 00 but we have COBS on-top
+        0x14, 0xAE, 0x29, 0x42, //payload
+        0x48, 0x31,             //crc
+    };
+
+    TEST_ASSERT_EQUAL_UINT8_ARRAY( expected, serial_buffer, sizeof(expected) );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder didn't return expected status code" );
+}
 
 /*
     for( uint16_t i = 0; i < sizeof(expected); i++)
@@ -336,5 +371,3 @@ TEST( SerialEncoder, encode_packet_float )
 //test null pointer
 //test null msgid
 //test null payloads
-//test offset functionality
-//test ack functionality

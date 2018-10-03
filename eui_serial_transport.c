@@ -145,7 +145,7 @@ encode_packet(  callback_uint8_t    out_char,
 
 /*
     If byte 0x00 seen, cancel all parsing
-    first byte is COBS offset, bytes falling on the offset location are 0x00,I take the new offset byte
+    first byte is COBS offset, bytes falling on the offset location are 0x00,
     crc the actual data (COB corrected)
     then process the packet
         header 3 bytes
@@ -159,22 +159,22 @@ decode_packet(uint8_t byte_in, eui_packet_t *p_link_in)
 {
     if( 0x00 == byte_in )
     {
+        //reset
         p_link_in->parser.state = 0;
         p_link_in->crc_in = 0xFFFF;
     }
     else
     {
-        if( 0x00 == p_link_in->parser.frame_offset )
+        if( 0x01 < p_link_in->parser.frame_offset )
+        {
+            //we are now one byte closer to the next offset
+            p_link_in->parser.frame_offset -= 1;
+        }
+        else
         {
             //offset has expired, this inbound byte should be the next data framing byte
             p_link_in->parser.frame_offset = byte_in;
             byte_in = 0x00; //replace with pre-COBS byte.
-        }
-        else
-        {
-            //we are now one byte closer to the next offset
-            p_link_in->parser.frame_offset -= 1;
-
         }
 
         //CRC data up to the packet's CRC
