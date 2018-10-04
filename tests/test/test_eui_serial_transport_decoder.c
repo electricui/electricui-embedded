@@ -336,7 +336,7 @@ TEST( SerialDecoder, decode_packet_invalidCRC )
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( parser_error, decode_result, "Decoder didn't error on invalid CRC byte1" );
 }
 
-TEST( SerialDecoder, decode_packet_offset )
+TEST( SerialDecoder, decode_packet_offset_last )
 {
     eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = { 
@@ -373,5 +373,46 @@ TEST( SerialDecoder, decode_packet_offset )
     TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Offset should be zero" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.data_in, sizeof(expected_payload) );
     TEST_ASSERT_EQUAL_UINT16( 0x3148, test_interface.crc_in );
+
+}
+
+
+TEST( SerialDecoder, decode_packet_offset )
+{
+    eui_packet_t test_interface = {0};
+    uint8_t inbound_bytes[] = { 
+        0x00,
+        0x08,
+        0x02, 0x94, 0x03,       //header
+        0x61, 0x62, 0x63,       //msgid
+        0x02, 0x05,             //offset is 02, 00 but we have COBS on-top
+        0x29, 0x42,             //payload
+        0xD8, 0x96,             //crc
+    };
+
+    uint8_t expected_payload[] = { 
+        0x29, 0x42,
+    };
+
+    for( uint16_t rxByte = 0; rxByte < sizeof(inbound_bytes); rxByte++ )
+    {
+        decode_result = decode_packet( inbound_bytes[rxByte], &test_interface );
+    }
+    
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( parser_complete, decode_result, "Decoder didn't finish with a valid packet" );
+
+    //check parsed results from data structure directly
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 2, test_interface.header.data_len,    "Unexpected data_length" );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 5, test_interface.header.type,        "Unexpected type"   );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.internal,    "Expected dev msg"  );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.header.offset,      "Unexpected offset bit"         );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 3, test_interface.header.id_len,      "Msg length err"    );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.response,    "Didn't expect a response bit"  );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.acknum,      "Unexpected ack number"         );
+
+    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.msgid_in);
+    TEST_ASSERT_EQUAL_UINT16_MESSAGE( 2, test_interface.offset_in, "Offset should be two bytes" );
+    TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.data_in, sizeof(expected_payload) );
+    TEST_ASSERT_EQUAL_UINT16( 0x96D8, test_interface.crc_in );
 
 }
