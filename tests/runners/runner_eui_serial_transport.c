@@ -29,7 +29,6 @@ TEST_GROUP_RUNNER( SerialCOBS )
 TEST_GROUP_RUNNER( SerialEncoder )
 {
     RUN_TEST_CASE( SerialEncoder, encode_packet_simple )
-
     RUN_TEST_CASE( SerialEncoder, encode_packet )
     RUN_TEST_CASE( SerialEncoder, encode_packet_short_id )
     RUN_TEST_CASE( SerialEncoder, encode_packet_long_id )
@@ -39,6 +38,7 @@ TEST_GROUP_RUNNER( SerialEncoder )
     RUN_TEST_CASE( SerialEncoder, encode_packet_float )
     RUN_TEST_CASE( SerialEncoder, encode_packet_offset_last )
     RUN_TEST_CASE( SerialEncoder, encode_packet_offset )
+    RUN_TEST_CASE( SerialEncoder, encode_packet_large )
 
 }
 
@@ -54,6 +54,7 @@ TEST_GROUP_RUNNER( SerialDecoder )
     RUN_TEST_CASE( SerialDecoder, decode_packet_invalidCRC )
     RUN_TEST_CASE( SerialDecoder, decode_packet_offset_last )
     RUN_TEST_CASE( SerialDecoder, decode_packet_offset )
+    RUN_TEST_CASE( SerialDecoder, decode_packet_large )
     
 }
 

@@ -43,7 +43,7 @@ uint8_t encode_header( eui_header_t *header, uint8_t *buffer )
         buffer[bytes_written] = header->data_len & 0xFF;
         bytes_written++;
         
-        buffer[bytes_written] |= (header->data_len & 0xC0) >> 6;
+        buffer[bytes_written] |= header->data_len >> 8;
         buffer[bytes_written] |= (header->type     & 0x0F) << 2;
         buffer[bytes_written] |= header->internal  << 6;
         buffer[bytes_written] |= header->offset    << 7;
