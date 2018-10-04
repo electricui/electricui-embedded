@@ -270,13 +270,13 @@ parse_decoded_packet(uint8_t byte_in, eui_packet_t *p_link_in)
 #ifndef EUI_CONF_OFFSETS_DISABLED
         case exp_offset_b1:
             //ingest first byte
-            p_link_in->offset_in    = (uint16_t)byte_in << 8;
+            p_link_in->offset_in    = byte_in;
             p_link_in->parser.state = exp_offset_b2;
         break;
 
         case exp_offset_b2:
             //ingest second offset byte
-            p_link_in->offset_in    |= byte_in;
+            p_link_in->offset_in     |= ((uint16_t)byte_in << 8);
             p_link_in->parser.state  = exp_data;
         break;
 #endif
