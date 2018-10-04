@@ -123,20 +123,106 @@ TEST( SerialLoopback, encode_decode_headerbits )
 
 TEST( SerialLoopback, encode_decode_short_id )
 {
-    TEST_IGNORE();
+    eui_packet_t test_interface = {0};
 
+    //encoder inputs
+    const char * test_id = "t";
+    uint8_t test_payload[] = { 42 };
+
+    eui_header_t test_header;
+    test_header.internal   = 0;
+    test_header.response   = 0;
+    test_header.type       = 5;
+    test_header.acknum     = 0;
+    test_header.offset     = 0;
+    test_header.id_len     = strlen(test_id);
+    test_header.data_len   = sizeof(test_payload);
+
+    encode_packet(&loopback_interface, &test_header, test_id, 0, &test_payload);
+
+    for( uint16_t rxByte = 0; rxByte < lb_buf_pos; rxByte++ )
+    {
+        decode_packet( loopback_buffer[rxByte], &test_interface );
+    }
+
+    //Test the decoded results against the inputs provided to the encoder
+    TEST_ASSERT_EQUAL_INT( sizeof(test_payload), test_interface.header.data_len );
+    TEST_ASSERT_EQUAL_INT( test_header.type, test_interface.header.type         );
+    TEST_ASSERT_EQUAL_INT( test_header.internal, test_interface.header.internal );
+    TEST_ASSERT_EQUAL_INT( test_header.offset, test_interface.header.offset     );
+    TEST_ASSERT_EQUAL_INT( strlen(test_id), test_interface.header.id_len        );
+    TEST_ASSERT_EQUAL_INT( test_header.response, test_interface.header.response );
+    TEST_ASSERT_EQUAL_INT( test_header.acknum, test_interface.header.acknum     );
+    TEST_ASSERT_EQUAL_STRING( test_id, test_interface.msgid_in                  );
+    TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Offset buffer garbage appeared" );
+    TEST_ASSERT_EQUAL_UINT8_ARRAY( test_payload, test_interface.data_in, sizeof(test_payload)       );
 }
 
 TEST( SerialLoopback, encode_decode_long_id )
 {
-    TEST_IGNORE();
+    eui_packet_t test_interface = {0};
 
+    //encoder inputs
+    const char * test_id = "abcdefghijklmno";
+    uint8_t test_payload[] = { 42 };
+
+    eui_pkt_settings_t test_header;
+    test_header.internal  = 0;
+    test_header.response  = 0;
+    test_header.type      = 5;
+
+    //test it against our mocked buffer
+    encode_packet_simple(&loopback_interface, &test_header, test_id, sizeof(test_payload), &test_payload);
+
+    for( uint16_t rxByte = 0; rxByte < lb_buf_pos; rxByte++ )
+    {
+        decode_packet( loopback_buffer[rxByte], &test_interface );
+    }
+
+    //Test the decoded results against the inputs provided to the encoder
+    TEST_ASSERT_EQUAL_INT( sizeof(test_payload), test_interface.header.data_len );
+    TEST_ASSERT_EQUAL_INT( test_header.type, test_interface.header.type         );
+    TEST_ASSERT_EQUAL_INT( test_header.internal, test_interface.header.internal );
+    TEST_ASSERT_EQUAL_INT( 0, test_interface.header.offset                      );
+    TEST_ASSERT_EQUAL_INT( strlen(test_id), test_interface.header.id_len        );
+    TEST_ASSERT_EQUAL_INT( 0, test_interface.header.response                    );
+    TEST_ASSERT_EQUAL_INT( 0, test_interface.header.acknum                      );
+    TEST_ASSERT_EQUAL_STRING( test_id, test_interface.msgid_in                  );
+    TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Offset buffer garbage appeared" );
+    TEST_ASSERT_EQUAL_UINT8_ARRAY( test_payload, test_interface.data_in, sizeof(test_payload)       );
 }
 
 TEST( SerialLoopback, encode_decode_no_data )
 {
-    TEST_IGNORE();
+    eui_packet_t test_interface = {0};
 
+    //encoder inputs
+    const char * test_id = "abc";
+    uint8_t test_payload[] = { };
+
+    eui_pkt_settings_t test_header;
+    test_header.internal  = 0;
+    test_header.response  = 0;
+    test_header.type      = 5;
+
+    //test it against our mocked buffer
+    encode_packet_simple(&loopback_interface, &test_header, test_id, sizeof(test_payload), &test_payload);
+
+    for( uint16_t rxByte = 0; rxByte < lb_buf_pos; rxByte++ )
+    {
+        decode_packet( loopback_buffer[rxByte], &test_interface );
+    }
+
+    //Test the decoded results against the inputs provided to the encoder
+    TEST_ASSERT_EQUAL_INT( 0, test_interface.header.data_len                    );
+    TEST_ASSERT_EQUAL_INT( test_header.type, test_interface.header.type         );
+    TEST_ASSERT_EQUAL_INT( test_header.internal, test_interface.header.internal );
+    TEST_ASSERT_EQUAL_INT( 0, test_interface.header.offset                      );
+    TEST_ASSERT_EQUAL_INT( strlen(test_id), test_interface.header.id_len        );
+    TEST_ASSERT_EQUAL_INT( 0, test_interface.header.response                    );
+    TEST_ASSERT_EQUAL_INT( 0, test_interface.header.acknum                      );
+    TEST_ASSERT_EQUAL_STRING( test_id, test_interface.msgid_in                  );
+    TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Offset buffer garbage appeared" );
 }
 
 TEST( SerialLoopback, encode_decode_long_data )
@@ -173,21 +259,15 @@ TEST( SerialLoopback, encode_decode_long_data )
     test_header.id_len     = strlen(test_id);
     test_header.data_len   = sizeof(test_payload);
 
-
-    printf("\nTest data: %li bytes\n", sizeof(test_payload));
-
     //test it against our mocked buffer
     // encode_packet_simple(&loopback_interface, &test_header, test_id, sizeof(test_payload), &test_payload);
     encode_packet(&loopback_interface, &test_header, test_id, 0, &test_payload);
 
     for( uint16_t rxByte = 0; rxByte < lb_buf_pos; rxByte++ )
     {
-        printf("[%d]: %X\n", rxByte, loopback_buffer[rxByte]);
         decode_packet( loopback_buffer[rxByte], &test_interface );
     }
     
-    printf("\nDecoded length: %i bytes\n", test_interface.header.data_len);
-
     //Test the decoded results against the inputs provided to the encoder
     TEST_ASSERT_EQUAL_INT( sizeof(test_payload), test_interface.header.data_len );
     TEST_ASSERT_EQUAL_INT( test_header.type, test_interface.header.type         );
@@ -204,6 +284,42 @@ TEST( SerialLoopback, encode_decode_long_data )
 
 TEST( SerialLoopback, encode_decode_many_zeros )
 {
-    TEST_IGNORE();
+    eui_packet_t test_interface = {0};
+
+    //encoder inputs
+    const char * test_id = "abc";
+    uint8_t test_payload[] = {
+        0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00
+    };
+
+    eui_header_t test_header;
+    test_header.internal   = 0;
+    test_header.response   = 0;
+    test_header.type       = 5;
+    test_header.acknum     = 0;
+    test_header.offset     = 0;
+    test_header.id_len     = strlen(test_id);
+    test_header.data_len   = sizeof(test_payload);
+
+    //test it against our mocked buffer
+    // encode_packet_simple(&loopback_interface, &test_header, test_id, sizeof(test_payload), &test_payload);
+    encode_packet(&loopback_interface, &test_header, test_id, 0, &test_payload);
+
+    for( uint16_t rxByte = 0; rxByte < lb_buf_pos; rxByte++ )
+    {
+        decode_packet( loopback_buffer[rxByte], &test_interface );
+    }
+    
+    //Test the decoded results against the inputs provided to the encoder
+    TEST_ASSERT_EQUAL_INT( sizeof(test_payload), test_interface.header.data_len );
+    TEST_ASSERT_EQUAL_INT( test_header.type, test_interface.header.type         );
+    TEST_ASSERT_EQUAL_INT( test_header.internal, test_interface.header.internal );
+    TEST_ASSERT_EQUAL_INT( 0, test_interface.header.offset                      );
+    TEST_ASSERT_EQUAL_INT( strlen(test_id), test_interface.header.id_len        );
+    TEST_ASSERT_EQUAL_INT( 0, test_interface.header.response                    );
+    TEST_ASSERT_EQUAL_INT( 0, test_interface.header.acknum                      );
+    TEST_ASSERT_EQUAL_STRING( test_id, test_interface.msgid_in                  );
+    TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Offset buffer garbage appeared" );
+    TEST_ASSERT_EQUAL_UINT8_ARRAY( test_payload, test_interface.data_in, sizeof(test_payload)       );
 
 }
