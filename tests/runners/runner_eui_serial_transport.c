@@ -37,8 +37,9 @@ TEST_GROUP_RUNNER( SerialEncoder )
     RUN_TEST_CASE( SerialEncoder, encode_packet_response )
     RUN_TEST_CASE( SerialEncoder, encode_packet_acknum )
     RUN_TEST_CASE( SerialEncoder, encode_packet_float )
+    RUN_TEST_CASE( SerialEncoder, encode_packet_offset_last )
     RUN_TEST_CASE( SerialEncoder, encode_packet_offset )
-    
+
 }
 
 TEST_GROUP_RUNNER( SerialDecoder )
@@ -51,6 +52,7 @@ TEST_GROUP_RUNNER( SerialDecoder )
     RUN_TEST_CASE( SerialDecoder, decode_packet_acknum )
     RUN_TEST_CASE( SerialDecoder, decode_packet_float )
     RUN_TEST_CASE( SerialDecoder, decode_packet_invalidCRC )
+    RUN_TEST_CASE( SerialDecoder, decode_packet_offset_last )
     RUN_TEST_CASE( SerialDecoder, decode_packet_offset )
     
 }
