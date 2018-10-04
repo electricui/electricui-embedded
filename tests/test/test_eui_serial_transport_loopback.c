@@ -85,7 +85,7 @@ TEST( SerialLoopback, encode_decode_headerbits )
 
     //encoder inputs
     const char * test_id = "abc";
-    uint8_t test_payload[] = { 42 };
+    uint8_t test_payload[] = { 0x42, 0x41, 0x40, 0x39, 0x38, 0x37, 0x36, 0x35 };
 
     eui_header_t test_header;
     test_header.internal   = 1;
@@ -94,9 +94,11 @@ TEST( SerialLoopback, encode_decode_headerbits )
     test_header.acknum     = 1;
     test_header.offset     = 1;
     test_header.id_len     = strlen(test_id);
-    test_header.data_len   = sizeof(test_payload);
+    test_header.data_len   = 3;
 
-    uint16_t offset_address = 0x0F;
+    uint16_t offset_address = 0x04;
+    uint8_t offset_payload_expected[] = { /*0x42, 0x41, 0x40, 0x39,*/ 0x38, 0x37, 0x36, /* 0x35 */ };
+
 
     //test it against our mocked buffer
     encode_packet(&loopback_interface, &test_header, test_id, offset_address, &test_payload);
@@ -106,13 +108,8 @@ TEST( SerialLoopback, encode_decode_headerbits )
         decode_packet( loopback_buffer[rxByte], &test_interface );
     }
 
-    // for( uint16_t i = 0; i < lb_buf_pos; i++)
-    // {     
-    //     printf("[%d]: %X\n", i, loopback_buffer[i]);
-    // }
-
     //Test the decoded results against the inputs provided to the encoder
-    TEST_ASSERT_EQUAL_INT( sizeof(test_payload), test_interface.header.data_len );
+    TEST_ASSERT_EQUAL_INT( sizeof(offset_payload_expected), test_interface.header.data_len );
     TEST_ASSERT_EQUAL_INT( test_header.type, test_interface.header.type         );
     TEST_ASSERT_EQUAL_INT( test_header.internal, test_interface.header.internal );
     TEST_ASSERT_EQUAL_INT( test_header.offset, test_interface.header.offset     );
@@ -121,7 +118,7 @@ TEST( SerialLoopback, encode_decode_headerbits )
     TEST_ASSERT_EQUAL_INT( test_header.acknum, test_interface.header.acknum     );
     TEST_ASSERT_EQUAL_STRING( test_id, test_interface.msgid_in                  );
     TEST_ASSERT_EQUAL_UINT16_MESSAGE( offset_address, test_interface.offset_in, "Offset buffer garbage appeared" );
-    TEST_ASSERT_EQUAL_UINT8_ARRAY( test_payload, test_interface.data_in, sizeof(test_payload)       );
+    TEST_ASSERT_EQUAL_UINT8_ARRAY( offset_payload_expected, test_interface.data_in, sizeof(offset_payload_expected) );
 
 }
 
