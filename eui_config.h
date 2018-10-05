@@ -26,11 +26,6 @@
 //#define PAYLOAD_SIZE_MAX 512
 
 
-// Disable error reporting to the UI (saves a few bytes silences link)
-
-//#define EUI_CONF_ERROR_DISABLE
-
-
 // Disable outbound message queuing
 
 // #define EUI_CONF_COOPERATIVE_DISABLE
@@ -40,7 +35,6 @@
 #define EUI_INTERNAL_LIB_VER	"o"
 #define EUI_INTERNAL_BOARD_ID	"i"
 #define EUI_INTERNAL_SESSION_ID	"j"
-#define EUI_INTERNAL_ERROR_ID	"e"
 #define EUI_INTERNAL_HEARTBEAT	"h"
 #define EUI_DEFAULT_INTERFACE	"k"
 
