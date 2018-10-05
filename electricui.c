@@ -1,7 +1,62 @@
 #include <string.h>
 #include "electricui.h"
 
-//internal
+// Private functions
+static callback_uint8_t
+auto_output( void );
+
+static void
+handle_packet_data( eui_interface_t *valid_packet, eui_header_t *header, eui_message_t *msgObjPtr );
+
+static void
+handle_packet_empty( eui_header_t *header, eui_message_t *msgObjPtr );
+
+static void
+handle_packet_response( eui_interface_t *valid_packet, eui_header_t *header, eui_message_t *msgObjPtr );
+
+static void
+handle_packet_callback( eui_message_t *msgObjPtr );
+
+static void
+cb_dev_interface_complete( eui_interface_t *p_link );
+
+static void
+validate_offset_range( uint16_t base, uint16_t offset, uint16_t type_bytes, uint16_t size, uint16_t *start, uint16_t *end);
+
+//application layer functionality
+static void
+announce_board( void );
+
+static void
+announce_dev_msg_readonly( void );
+
+static void
+announce_dev_msg_writable( void );
+
+static void
+announce_dev_vars_readonly( void );
+
+static void
+announce_dev_vars_writable( void );
+
+static euiVariableCount_t
+send_tracked_message_id_list( uint8_t read_only );
+
+static euiVariableCount_t
+send_tracked_variables( uint8_t read_only );
+
+//interface management
+eui_interface_t     *interfaceArray;
+uint8_t             numInterfaces;
+
+//dev interface
+eui_message_t       *devObjectArray;
+euiVariableCount_t  numDevObjects;
+
+eui_cb_t            developer_handshake_cb;
+eui_pkt_settings_t  temp_header;
+
+//internal eUI tracked variables
 uint8_t library_version[] = { VER_MAJOR, VER_MINOR, VER_PATCH };
 
 eui_message_t internal_msg_store[] = 
@@ -109,7 +164,7 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
     return parse_status;
 }
 
-void
+static void
 handle_packet_data( eui_interface_t  *valid_packet,
                     eui_header_t    *header,
                     eui_message_t   *msgObjPtr )
@@ -152,7 +207,7 @@ handle_packet_data( eui_interface_t  *valid_packet,
     }
 }
 
-void
+static void
 handle_packet_empty( eui_header_t    *header,
                      eui_message_t   *msgObjPtr )
 {
@@ -180,7 +235,7 @@ handle_packet_empty( eui_header_t    *header,
 }
 
 // Check the inbound packet's response requirements and output as required
-void
+static void
 handle_packet_response( eui_interface_t  *packet_in,
                         eui_header_t    *header,
                         eui_message_t   *msgObjPtr )
@@ -238,7 +293,7 @@ handle_packet_response( eui_interface_t  *packet_in,
     }
 }
 
-void
+static void
 handle_packet_callback( eui_message_t *msgObjPtr )
 {
     // Call the callback assigned to this message ID
@@ -252,7 +307,7 @@ handle_packet_callback( eui_message_t *msgObjPtr )
 
 // Optional developer callback when a message has been parsed.
 // Allows for developer-side direct access to the packet data before erase.
-void
+static void
 cb_dev_interface_complete( eui_interface_t *p_link )
 {
     eui_cb_t dev_cb;
@@ -354,7 +409,7 @@ send_tracked_range( callback_uint8_t    output_function,
     }
 }
 
-void
+static void
 validate_offset_range(  uint16_t base,
                         uint16_t offset,
                         uint16_t  type_bytes,
@@ -485,7 +540,7 @@ setup_handshake_cb(eui_cb_t *dev_cb)
 
 
 //application layer callbacks
-void
+static void
 announce_board(void)
 {
     //repond to search request with board info
@@ -510,7 +565,7 @@ announce_board(void)
     }
 }
 
-void
+static void
 announce_dev_msg_readonly(void)
 {
     euiVariableCount_t num_read_only  = 0;
@@ -526,7 +581,7 @@ announce_dev_msg_readonly(void)
                             &num_read_only);
 }
 
-void
+static void
 announce_dev_msg_writable(void)
 {
     euiVariableCount_t num_writable  = 0;
@@ -542,19 +597,19 @@ announce_dev_msg_writable(void)
                             &num_writable);
 }
 
-void
+static void
 announce_dev_vars_readonly(void)
 {
     send_tracked_variables(READ_ONLY_FLAG);
 }
 
-void
+static void
 announce_dev_vars_writable(void)
 {
     send_tracked_variables(WRITABLE_FLAG);
 }
 
-euiVariableCount_t
+static euiVariableCount_t
 send_tracked_message_id_list(uint8_t read_only)
 {
     euiVariableCount_t variables_sent = 0;
@@ -602,7 +657,7 @@ send_tracked_message_id_list(uint8_t read_only)
     return variables_sent;
 }
 
-euiVariableCount_t
+static euiVariableCount_t
 send_tracked_variables(uint8_t read_only)
 {
     euiVariableCount_t sent_variables = 0;
