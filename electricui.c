@@ -19,9 +19,6 @@ eui_message_t internal_msg_store[] =
 
     EUI_FUNC(EUI_INTERNAL_SEARCH, announce_board),
 
-#ifndef EUI_CONF_ERROR_DISABLE
-    EUI_UINT8(EUI_INTERNAL_ERROR_ID, last_error),
-#endif
 };
 
 
@@ -68,7 +65,7 @@ auto_output(void)
     return interfaceArray[default_interface].output_func;
 }
 
-void
+uint8_t
 parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
 {
     uint8_t parse_status = decode_packet(inbound_byte, &p_link->packet);
@@ -96,7 +93,7 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
         }
         else  //search didn't return a pointer to the object
         {
-            report_error( err_unknown_id );
+            parse_status = status_unknown_id;
         }
 
         cb_dev_interface_complete( p_link );
@@ -105,9 +102,11 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
     }
     else if( parse_status >= parser_error )
     {
-        report_error(err_parser_generic);
+        parse_status = status_parser_generic;
         memset( &p_link->packet, 0, sizeof(eui_packet_t) );        
     }
+
+    return parse_status;
 }
 
 void
@@ -115,12 +114,14 @@ handle_packet_data( eui_interface_t  *valid_packet,
                     eui_header_t    *header,
                     eui_message_t   *msgObjPtr )
 {
+    uint8_t status = 0;
+
     //ignore data in callbacks or offset messages, ignore read only data
     if( header->type == TYPE_OFFSET_METADATA 
         || header->type == TYPE_CALLBACK 
         || msgObjPtr->type >> 7 )
     {
-        report_error( err_todo_functionality );
+        status = status_todo;
     }
     else
     {
@@ -146,7 +147,7 @@ handle_packet_data( eui_interface_t  *valid_packet,
         }
         else
         {
-            report_error( err_invalid_offset );
+            status = status_offset_er;
         }
     }
 }
@@ -155,6 +156,7 @@ void
 handle_packet_empty( eui_header_t    *header,
                      eui_message_t   *msgObjPtr )
 {
+    uint8_t status = 0;
     if( (msgObjPtr->type & 0x0F) == TYPE_CALLBACK )
     {
         if( (header->response && header->acknum) 
@@ -164,7 +166,14 @@ handle_packet_empty( eui_header_t    *header,
             eui_cb_t cb_packet_h;
             cb_packet_h = msgObjPtr->payload;
 
-            (cb_packet_h) ? cb_packet_h() : report_error(err_missing_callback);
+            if(cb_packet_h)
+            {
+                cb_packet_h();
+            }
+            else
+            {
+                status = status_missing_callback;
+            }
         }
     }
     //todo: handle ack responses here in the future?
@@ -610,21 +619,6 @@ send_tracked_variables(uint8_t read_only)
         }
     }
     return sent_variables;
-}
-
-void
-report_error(uint8_t error)
-{
-#ifndef EUI_CONF_ERROR_DISABLE
-    last_error = error;
-
-    temp_header.internal  = MSG_INTERNAL;
-    temp_header.response  = MSG_NRESP;
-
-    send_tracked(   auto_output(), 
-                    find_message_object( EUI_INTERNAL_ERROR_ID, MSG_INTERNAL ), 
-                    &temp_header);
-#endif
 }
 
 // END electricui.c
