@@ -6,7 +6,7 @@
 TEST_GROUP( SerialEncoder );
 
 //mock an outbound putc style per-byte interface
-uint8_t serial_buffer[1024] = { 0 };
+uint8_t serial_buffer[1024] = { 0xFF };
 uint16_t serial_position    = 0;
 uint8_t encode_result       = 0;
 
@@ -26,7 +26,7 @@ void byte_into_buffer(uint8_t outbound)
 TEST_SETUP( SerialEncoder )
 {
     //run before each test
-    memset(serial_buffer, 0, sizeof(serial_buffer));
+    memset(serial_buffer, 0xFF, sizeof(serial_buffer));
     serial_position = 0;
     encode_result = 0;
 }

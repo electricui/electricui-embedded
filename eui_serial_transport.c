@@ -133,7 +133,7 @@ encode_packet(  callback_uint8_t    out_char,
         encode_framing( pk_tmp, pk_i+1);    //+1 to account for null byte at end
 
         //write data
-        for( uint16_t i = 0; i < pk_i; i++ )
+        for( uint16_t i = 0; i <= pk_i; i++ )
         {
             out_char( pk_tmp[i] );
         }
