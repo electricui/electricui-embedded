@@ -4,7 +4,7 @@
 #define LED_PIN 13
 
 // Simple variables to modify the LED behaviour
-uint16_t  blink_enable = 0; //if the blinker should be running
+uint8_t   blink_enable = 0; //if the blinker should be running
 uint8_t   led_state  = 0;   //track if the LED is illuminated
 uint16_t  glow_time  = 200; //in milliseconds
 uint16_t  dark_time  = 200; //in milliseconds
