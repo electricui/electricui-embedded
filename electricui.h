@@ -44,7 +44,7 @@ typedef struct {
 typedef struct {
     eui_packet_t        packet;
     callback_uint8_t    output_func;
-    eui_cb_t            interface_cb;
+    callback_uint8_t    interface_cb;
 } eui_interface_t;
 
 enum status_codes {
@@ -55,6 +55,11 @@ enum status_codes {
     status_missing_callback,
     status_offset_er,
     status_todo,
+};
+
+enum callback_codes {
+    cb_generic = 0,
+    cb_todo,
 };
 
 eui_message_t *
@@ -79,9 +84,6 @@ setup_dev_msg( eui_message_t *msgArray, euiVariableCount_t numObjects );
 
 void
 setup_identifier( char * uuid, uint8_t bytes );
-
-void
-setup_handshake_cb( eui_cb_t *dev_cb );
 
 void
 send_message( const char * msg_id );
