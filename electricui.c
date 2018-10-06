@@ -18,9 +18,6 @@ static void
 handle_packet_callback( eui_message_t *msgObjPtr );
 
 static void
-cb_dev_interface_complete( eui_interface_t *p_link );
-
-static void
 validate_offset_range( uint16_t base, uint16_t offset, uint16_t type_bytes, uint16_t size, uint16_t *start, uint16_t *end);
 
 //application layer functionality
@@ -53,9 +50,6 @@ uint8_t             numInterfaces;
 eui_message_t       *devObjectArray;
 euiVariableCount_t  numDevObjects;
 
-eui_cb_t            developer_handshake_cb;
-eui_pkt_settings_t  temp_header;
-
 //internal eUI tracked variables
 uint8_t library_version[] = { VER_MAJOR, VER_MINOR, VER_PATCH };
 
@@ -73,7 +67,6 @@ eui_message_t internal_msg_store[] =
     EUI_FUNC(EUI_INTERNAL_AV_RW, announce_dev_vars_writable),
 
     EUI_FUNC(EUI_INTERNAL_SEARCH, announce_board),
-
 };
 
 
@@ -151,7 +144,13 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
             parse_status = status_unknown_id;
         }
 
-        cb_dev_interface_complete( p_link );
+        callback_uint8_t dev_cb;
+        dev_cb = p_link->interface_cb;
+
+        if(dev_cb)
+        {
+            dev_cb( cb_generic );    //status code 0 to start with
+        }
 
         memset( &p_link->packet, 0, sizeof(eui_packet_t) );        
     }
@@ -305,20 +304,6 @@ handle_packet_callback( eui_message_t *msgObjPtr )
     }
 }
 
-// Optional developer callback when a message has been parsed.
-// Allows for developer-side direct access to the packet data before erase.
-static void
-cb_dev_interface_complete( eui_interface_t *p_link )
-{
-    eui_cb_t dev_cb;
-    dev_cb = p_link->interface_cb;
-
-    if(dev_cb)
-    {
-        dev_cb();
-    }
-}
-
 void
 send_tracked(   callback_uint8_t    output_function, 
                 eui_message_t       *msgObjPtr, 
@@ -460,6 +445,7 @@ validate_offset_range(  uint16_t base,
 void
 send_message(const char * msg_id)
 {
+    eui_pkt_settings_t  temp_header;
     temp_header.internal  = MSG_DEV;
     temp_header.response  = MSG_NRESP;
 
@@ -471,6 +457,7 @@ send_message(const char * msg_id)
 void
 send_message_on(const char * msg_id, eui_interface_t *active_interface)
 {
+    eui_pkt_settings_t  temp_header;
     temp_header.internal  = MSG_DEV;
     temp_header.response  = MSG_NRESP;
 
@@ -528,22 +515,12 @@ setup_identifier(char * uuid, uint8_t bytes)
     }
 }
 
-void
-setup_handshake_cb(eui_cb_t *dev_cb)
-{
-    //store the function pointer to the developer side
-    if(dev_cb)
-    {
-        developer_handshake_cb = *dev_cb;
-    }
-}
-
-
 //application layer callbacks
 static void
 announce_board(void)
 {
     //repond to search request with board info
+    eui_pkt_settings_t  temp_header;
     temp_header.internal  = MSG_INTERNAL;
     temp_header.response  = MSG_NRESP;
 
@@ -558,11 +535,6 @@ announce_board(void)
     send_tracked(   auto_output(),
                     find_message_object(EUI_INTERNAL_SESSION_ID, MSG_INTERNAL),
                     &temp_header);
-
-    if(developer_handshake_cb)
-    {
-        developer_handshake_cb();
-    }
 }
 
 static void
@@ -571,6 +543,7 @@ announce_dev_msg_readonly(void)
     euiVariableCount_t num_read_only  = 0;
     num_read_only = send_tracked_message_id_list(READ_ONLY_FLAG);
 
+    eui_pkt_settings_t  temp_header;
     temp_header.internal  = MSG_INTERNAL;
     temp_header.response  = MSG_NRESP;
     temp_header.type      = TYPE_UINT8;
@@ -587,6 +560,7 @@ announce_dev_msg_writable(void)
     euiVariableCount_t num_writable  = 0;
     num_writable = send_tracked_message_id_list(WRITABLE_FLAG);
 
+    eui_pkt_settings_t  temp_header;
     temp_header.internal  = MSG_INTERNAL;
     temp_header.response  = MSG_NRESP;
     temp_header.type      = TYPE_UINT8;
@@ -614,6 +588,7 @@ send_tracked_message_id_list(uint8_t read_only)
 {
     euiVariableCount_t variables_sent = 0;
 
+    eui_pkt_settings_t  temp_header;
     temp_header.internal  = MSG_INTERNAL;
     temp_header.response  = MSG_NRESP;
     temp_header.type      = TYPE_CUSTOM;
@@ -661,6 +636,7 @@ static euiVariableCount_t
 send_tracked_variables(uint8_t read_only)
 {
     euiVariableCount_t sent_variables = 0;
+    eui_pkt_settings_t  temp_header;
     temp_header.internal  = MSG_DEV;
     temp_header.response  = MSG_NRESP;
 
