@@ -5,10 +5,10 @@
 static callback_uint8_t
 auto_output( void );
 
-static void
+static uint8_t
 handle_packet_data( eui_interface_t *valid_packet, eui_header_t *header, eui_message_t *msgObjPtr );
 
-static void
+static uint8_t
 handle_packet_empty( eui_header_t *header, eui_message_t *msgObjPtr );
 
 static void
@@ -135,6 +135,7 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
             {
                 handle_packet_empty( &header, p_msglocal );
             }
+            // todo use status codes from functions
 
             handle_packet_response( p_link, &header, p_msglocal );
             handle_packet_callback( p_msglocal );
@@ -163,7 +164,7 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
     return parse_status;
 }
 
-static void
+static uint8_t
 handle_packet_data( eui_interface_t  *valid_packet,
                     eui_header_t    *header,
                     eui_message_t   *msgObjPtr )
@@ -195,7 +196,7 @@ handle_packet_data( eui_interface_t  *valid_packet,
         //Ensure data won't exceed bounds with invalid offsets
         if( valid_packet->packet.offset_in + bytes_to_write <= msgObjPtr->size )
         {
-            memcpy( (char *)msgObjPtr->payload + valid_packet->packet.offset_in,
+            memcpy( (uint8_t *)msgObjPtr->payload + valid_packet->packet.offset_in,
                     valid_packet->packet.data_in,
                     bytes_to_write );
         }
@@ -204,9 +205,11 @@ handle_packet_data( eui_interface_t  *valid_packet,
             status = status_offset_er;
         }
     }
+
+    return status;
 }
 
-static void
+static uint8_t
 handle_packet_empty( eui_header_t    *header,
                      eui_message_t   *msgObjPtr )
 {
@@ -231,6 +234,8 @@ handle_packet_empty( eui_header_t    *header,
         }
     }
     //todo: handle ack responses here in the future?
+
+    return status;
 }
 
 // Check the inbound packet's response requirements and output as required
