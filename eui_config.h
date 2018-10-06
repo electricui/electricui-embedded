@@ -50,8 +50,6 @@
     typedef uint8_t euiVariableCount_t;
 #endif
 
-#define CALLBACK_SIZE 1
-
 #define READ_ONLY_MASK 0x80
 #define READ_ONLY_FLAG 0x01
 #define WRITABLE_FLAG 0x00
