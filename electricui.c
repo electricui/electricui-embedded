@@ -363,7 +363,7 @@ send_tracked_range( callback_uint8_t    output_function,
                     uint16_t            end_addr ) 
 {
 
-    uint16_t data_range[]   = { base_addr, end_addr };
+    uint16_t data_range[2]  = { 0 };
     validate_offset_range(  base_addr,
                             end_addr,
                             (msgObjPtr->type & 0x0F),
@@ -419,7 +419,7 @@ send_tracked_range( callback_uint8_t    output_function,
 static void
 validate_offset_range(  uint16_t base,
                         uint16_t offset,
-                        uint16_t  type_bytes,
+                        uint16_t type_bytes,
                         uint16_t size,
                         uint16_t *start,
                         uint16_t *end )
