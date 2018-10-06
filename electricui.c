@@ -14,8 +14,10 @@ handle_packet_empty( eui_header_t *header, eui_message_t *msgObjPtr );
 static void
 handle_packet_response( eui_interface_t *valid_packet, eui_header_t *header, eui_message_t *msgObjPtr );
 
-static void
-handle_packet_callback( eui_message_t *msgObjPtr );
+#ifdef EUI_CONF_VARIABLE_CALLBACKS
+    static void
+    handle_packet_callback( eui_message_t *msgObjPtr );
+#endif
 
 static void
 validate_offset_range( uint16_t base, uint16_t offset, uint16_t type_bytes, uint16_t size, uint16_t *start, uint16_t *end);
@@ -116,7 +118,7 @@ auto_output(void)
 uint8_t
 parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
 {
-    uint8_t parse_status = decode_packet(inbound_byte, &p_link->packet);
+    uint8_t parse_status = eui_decode(inbound_byte, &p_link->packet);
 
     if( parse_status == parser_complete )
     {
@@ -138,7 +140,11 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
             // todo use status codes from functions
 
             handle_packet_response( p_link, &header, p_msglocal );
+
+#ifdef EUI_CONF_VARIABLE_CALLBACKS
             handle_packet_callback( p_msglocal );
+#endif
+
         }
         else  //search didn't return a pointer to the object
         {
@@ -257,11 +263,11 @@ handle_packet_response( eui_interface_t  *packet_in,
             tmp_header.offset     = header->offset;
             tmp_header.data_len   = 0;
 
-            encode_packet(  packet_in->output_func, 
-                            &tmp_header, 
-                            msgObjPtr->msgID, 
-                            packet_in->packet.offset_in, 
-                            msgObjPtr->payload ); 
+            eui_encode( packet_in->output_func, 
+                        &tmp_header, 
+                        msgObjPtr->msgID, 
+                        packet_in->packet.offset_in, 
+                        msgObjPtr->payload ); 
         }
         else
         {
@@ -297,6 +303,7 @@ handle_packet_response( eui_interface_t  *packet_in,
     }
 }
 
+#ifdef EUI_CONF_VARIABLE_CALLBACKS
 static void
 handle_packet_callback( eui_message_t *msgObjPtr )
 {
@@ -308,6 +315,7 @@ handle_packet_callback( eui_message_t *msgObjPtr )
         dev_var_cb();
     }
 }
+#endif
 
 void
 send_tracked(   callback_uint8_t    output_function, 
@@ -319,11 +327,11 @@ send_tracked(   callback_uint8_t    output_function,
     //decide if data will fit in a normal message, or requires multi-packet output
     if(msgObjPtr->size <= PAYLOAD_SIZE_MAX)
     {
-        encode_packet_simple(   output_function, 
-                                settings, 
-                                msgObjPtr->msgID, 
-                                msgObjPtr->size, 
-                                msgObjPtr->payload );
+        eui_encode_simple(  output_function, 
+                            settings, 
+                            msgObjPtr->msgID, 
+                            msgObjPtr->size, 
+                            msgObjPtr->payload );
     }
 #ifndef EUI_CONF_OFFSETS_DISABLED
     else
@@ -365,11 +373,11 @@ send_tracked_range( callback_uint8_t    output_function,
     tmp_header.data_len     = sizeof(base_addr) * 2; //base and end are sent
     tmp_header.type         = TYPE_OFFSET_METADATA;
 
-    encode_packet(  output_function,
-                    &tmp_header,
-                    msgObjPtr->msgID,
-                    0x00,
-                    &data_range);
+    eui_encode( output_function,
+                &tmp_header,
+                msgObjPtr->msgID,
+                0x00,
+                &data_range);
 
     //send the offset packets
     tmp_header.offset = 1;
@@ -391,11 +399,11 @@ send_tracked_range( callback_uint8_t    output_function,
         //the current position through the buffer in bytes is also the end offset
         end_addr -= tmp_header.data_len;  
 
-        encode_packet(  output_function,
-                        &tmp_header,
-                        msgObjPtr->msgID,
-                        end_addr,
-                        msgObjPtr->payload );
+        eui_encode( output_function,
+                    &tmp_header,
+                    msgObjPtr->msgID,
+                    end_addr,
+                    msgObjPtr->payload );
     }
 }
 
@@ -510,7 +518,7 @@ setup_identifier(char * uuid, uint8_t bytes)
         //generate a 'hashed' int16 of their UUID
         for(uint8_t i = 0; i < bytes; i++)
         {
-            crc16(uuid[i], &board_identifier);
+            eui_crc(uuid[i], &board_identifier);
         }
     }
     else
@@ -552,11 +560,11 @@ announce_dev_msg_readonly(void)
     temp_header.internal  = MSG_INTERNAL;
     temp_header.response  = MSG_NRESP;
     temp_header.type      = TYPE_UINT8;
-    encode_packet_simple(   auto_output(),
-                            &temp_header,
-                            EUI_INTERNAL_AM_RO_END,
-                            sizeof(num_read_only),
-                            &num_read_only);
+    eui_encode_simple(  auto_output(),
+                        &temp_header,
+                        EUI_INTERNAL_AM_RO_END,
+                        sizeof(num_read_only),
+                        &num_read_only);
 }
 
 static void
@@ -569,11 +577,11 @@ announce_dev_msg_writable(void)
     temp_header.internal  = MSG_INTERNAL;
     temp_header.response  = MSG_NRESP;
     temp_header.type      = TYPE_UINT8;
-    encode_packet_simple(   auto_output(),
-                            &temp_header, 
-                            EUI_INTERNAL_AM_RW_END,
-                            sizeof(num_writable),
-                            &num_writable);
+    eui_encode_simple(  auto_output(),
+                        &temp_header, 
+                        EUI_INTERNAL_AM_RW_END,
+                        sizeof(num_writable),
+                        &num_writable);
 }
 
 static void
@@ -621,11 +629,11 @@ send_tracked_message_id_list(uint8_t read_only)
         if( (msgBufferPos >= (sizeof(msgBuffer) - MESSAGEID_SIZE/2)) || (i >= numDevObjects - 1) )
         {
             const char * headerID = (read_only) ? EUI_INTERNAL_AM_RO_LIST : EUI_INTERNAL_AM_RW_LIST;
-            encode_packet_simple(   auto_output(),
-                                    &temp_header,
-                                    headerID,
-                                    msgBufferPos,
-                                    &msgBuffer );
+            eui_encode_simple(  auto_output(),
+                                &temp_header,
+                                headerID,
+                                msgBufferPos,
+                                &msgBuffer );
 
             //cleanup
             memset(msgBuffer, 0, sizeof(msgBuffer));

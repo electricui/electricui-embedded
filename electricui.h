@@ -5,10 +5,8 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
-#include "eui_serial_transport.h"
-#include "eui_macro.h"
 #include "eui_config.h"
+#include "eui_macro.h"
 
 // Warnings based on configuration flags (depends on compiler support)
 #ifdef EUI_CONF_QUEUE_DISABLE
@@ -17,12 +15,6 @@ extern "C" {
 
 #ifdef EUI_CONF_OFFSETS_DISABLED
     #warning "ElectricUI will not handle data larger than PAYLOAD_SIZE_MAX"
-#endif
-
-#ifdef EUI_CONF_MANY_VARIABLES
-    typedef uint16_t euiVariableCount_t;
-#else
-    typedef uint8_t euiVariableCount_t;
 #endif
 
 #define VER_MAJOR 0     //library versions follow semvar2 style
@@ -36,9 +28,9 @@ typedef struct {
     uint8_t       type;
     uint16_t      size;
     void          *payload;
-// #ifdef EUI_CONF_VARIABLE_CALLBACKS
+#ifdef EUI_CONF_VARIABLE_CALLBACKS
     eui_cb_t callback;
-// #endif
+#endif
 } eui_message_t;
 
 typedef struct {
@@ -101,4 +93,4 @@ uint8_t     default_interface;
 }
 #endif
 
-#endif
+#endif //end EUI_H
