@@ -114,7 +114,7 @@ encode_packet(  callback_uint8_t    out_char,
 #endif
 
         //payload data
-        memcpy( &pk_tmp[pk_i], payload + offset, header->data_len );
+        memcpy( &pk_tmp[pk_i], (uint8_t *)payload + offset, header->data_len );
         pk_i += header->data_len;
 
         //calculate CRC
