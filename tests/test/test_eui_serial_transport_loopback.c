@@ -6,7 +6,7 @@
 TEST_GROUP( SerialLoopback );
 
 //mock an outbound putc style per-byte interface
-uint8_t loopback_buffer[1024]   = { 0 };
+uint8_t loopback_buffer[1024]   = { 0xFF };
 uint16_t lb_buf_pos             = 0;
 
 void loopback_interface(uint8_t outbound)
@@ -24,7 +24,7 @@ void loopback_interface(uint8_t outbound)
 
 TEST_SETUP( SerialLoopback )
 {
-    memset(loopback_buffer, 0, sizeof(loopback_buffer));
+    memset(loopback_buffer, 0xFF, sizeof(loopback_buffer));
     lb_buf_pos = 0;
 }
 
