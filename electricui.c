@@ -6,13 +6,17 @@ static callback_uint8_t
 auto_output( void );
 
 static uint8_t
-handle_packet_data( eui_interface_t *valid_packet, eui_header_t *header, eui_message_t *msgObjPtr );
+handle_packet_data( eui_interface_t *valid_packet,
+                    eui_header_t *header,
+                    eui_message_t *msgObjPtr );
 
 static uint8_t
 handle_packet_empty( eui_header_t *header, eui_message_t *msgObjPtr );
 
 static void
-handle_packet_response( eui_interface_t *valid_packet, eui_header_t *header, eui_message_t *msgObjPtr );
+handle_packet_response( eui_interface_t *valid_packet, 
+                        eui_header_t *header,
+                        eui_message_t *msgObjPtr );
 
 #ifdef EUI_CONF_VARIABLE_CALLBACKS
     static void
@@ -20,7 +24,12 @@ handle_packet_response( eui_interface_t *valid_packet, eui_header_t *header, eui
 #endif
 
 static void
-validate_offset_range( uint16_t base, uint16_t offset, uint16_t type_bytes, uint16_t size, uint16_t *start, uint16_t *end);
+validate_offset_range(  uint16_t base, 
+                        uint16_t offset, 
+                        uint16_t type_bytes,
+                        uint16_t size,
+                        uint16_t *start,
+                        uint16_t *end );
 
 //application layer functionality
 static void
