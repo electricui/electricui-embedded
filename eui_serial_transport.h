@@ -1,7 +1,6 @@
 #ifndef EUI_SERIAL_TRANSPORT_H
 #define EUI_SERIAL_TRANSPORT_H
 
-#include <stdint.h>
 #include "eui_config.h"
 
 #define PACKET_BASE_SIZE    ( sizeof(eui_header_t) \
@@ -18,19 +17,6 @@
     #define PAYLOAD_SIZE_MAX  120 //default inbound buffer size
 #endif
 
-#define MSG_INTERNAL        1
-#define MSG_DEV             0
-#define MSG_RESP            1
-#define MSG_NRESP           0
-#define MSG_OFFSET_PACKET   1
-#define MSG_STANDARD_PACKET 0
-
-#define CALLBACK_SIZE 1
-
-#define READ_ONLY_MASK 0x80
-#define READ_ONLY_FLAG 0x01
-#define WRITABLE_FLAG 0x00
-
 typedef struct {
     unsigned data_len   : 10;
     unsigned type       : 4;
@@ -46,22 +32,6 @@ typedef struct {
     unsigned response   : 1;
     unsigned type       : 4;
 } eui_pkt_settings_t;
-
-typedef enum {
-        TYPE_CALLBACK = 0,
-        TYPE_CUSTOM,
-        TYPE_OFFSET_METADATA,
-        TYPE_BYTE,
-        TYPE_CHAR,
-        TYPE_INT8,
-        TYPE_UINT8,
-        TYPE_INT16,
-        TYPE_UINT16,
-        TYPE_INT32,
-        TYPE_UINT32,
-        TYPE_FLOAT,
-        TYPE_DOUBLE,
-} euiType_t;
 
 typedef void (*callback_uint8_t)(uint8_t);
 
