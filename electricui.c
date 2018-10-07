@@ -148,24 +148,24 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
             }
             // todo use status codes from functions
 
-            handle_packet_response( p_link, &header, p_msglocal );
+            if( header.response )
+            {
+                handle_packet_response( p_link, &header, p_msglocal );
+            }
 
 #ifdef EUI_CONF_VARIABLE_CALLBACKS
             handle_packet_callback( p_msglocal );
 #endif
-
         }
         else  //search didn't return a pointer to the object
         {
+            p_link->interface_cb( cb_untracked );
             parse_status = status_unknown_id;
         }
 
-        callback_uint8_t dev_cb;
-        dev_cb = p_link->interface_cb;
-
-        if(dev_cb)
+        if(p_link->interface_cb)
         {
-            dev_cb( cb_generic );    //status code 0 to start with
+            p_link->interface_cb( cb_generic );    //status code 0 to start with
         }
 
         memset( &p_link->packet, 0, sizeof(eui_packet_t) );        
@@ -313,17 +313,15 @@ handle_packet_response( eui_interface_t  *packet_in,
 }
 
 #ifdef EUI_CONF_VARIABLE_CALLBACKS
-static void
-handle_packet_callback( eui_message_t *msgObjPtr )
-{
-    // Call the callback assigned to this message ID
-    eui_cb_t dev_var_cb;
-    dev_var_cb = msgObjPtr->callback;
-    if(dev_var_cb)
+    static void
+    handle_packet_callback( eui_message_t *msgObjPtr )
     {
-        dev_var_cb();
+        // Call the callback assigned to this message ID
+        if(msgObjPtr->callback)
+        {
+            msgObjPtr->callback();
+        }
     }
-}
 #endif
 
 void

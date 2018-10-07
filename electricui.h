@@ -51,6 +51,7 @@ enum status_codes {
 
 enum callback_codes {
     cb_generic = 0,
+    cb_untracked,
     cb_todo,
 };
 
