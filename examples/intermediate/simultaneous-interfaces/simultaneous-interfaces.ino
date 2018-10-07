@@ -1,22 +1,31 @@
 #include "electricui.h"
 
-#ifndef HAVE_HWSERIAL1
-  #include <SoftwareSerial.h>
+#ifndef ESP32
+  #ifndef HAVE_HWSERIAL1
+    #include <SoftwareSerial.h>
 
-  SoftwareSerial Serial1(10, 11);
+    SoftwareSerial Serial1(10, 11);
+  #endif
 #endif
 
 //example interactive data
-uint8_t led_brightness  = 2;
-uint8_t btn1_state      = 0;
-uint8_t btn2_state      = 0;
+// Simple variables to modify the LED behaviour
+uint8_t   blink_enable = 0; //if the blinker should be running
+uint8_t   led_state  = 0;   //track if the LED is illuminated
+uint16_t  glow_time  = 200; //in milliseconds
+uint16_t  dark_time  = 200; //in milliseconds
+
+// Keep track of how much time we've spent on or off
+uint16_t time_on = 0;
+uint16_t time_off = 0;
+
 uint16_t delta_time     = 0;
 uint16_t loop_time      = 0;
 
 //example function called by UI
 void toggleLed()
 {
-  digitalWrite(4, !digitalRead(4));
+  digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
 }
 
 //example variable types
@@ -65,10 +74,10 @@ imu_t example_imu = { 0.002, 0.003, -9.782 };
 //internal index of developer-space message metadata
 eui_message_t dev_msg_store[] = {
 
-    EUI_UINT8( "led", led_brightness ),
-    EUI_FUNC(  "tgl", toggleLed ),
-    EUI_UINT8( "btA", btn1_state ),
-    EUI_UINT8( "btB", btn2_state ),
+    EUI_UINT8( "led_blink",  blink_enable ),
+    EUI_UINT8( "led_state",  led_state ),
+    EUI_UINT16("lit_time",   glow_time ),
+    EUI_UINT16("unlit_time", dark_time ),
     EUI_UINT16("lop", delta_time ),
 
     //type examples
@@ -90,22 +99,29 @@ eui_message_t dev_msg_store[] = {
 };
 
 eui_interface_t transport_methods[] = {
-    EUI_INTERFACE( &cdc_tx_putc ),
-    EUI_INTERFACE( &uart_tx_putc ),
+    EUI_INTERFACE( &serial0_tx ),
+    EUI_INTERFACE( &serial1_tx ),
 };
 
 void setup() 
 {
-  Serial.begin(115200);   // USB Connector 
-  Serial1.begin(115200);  // Second hardware or SoftwareSerial UART
+  Serial.begin(115200);   // USB Connector
 
-  pinMode(4, OUTPUT);     // set led to output
+  //most arduino boards will use the next hardware serial, or a softserial
+  Serial1.begin(115200);  
+
+
+  pinMode(LED_BUILTIN, OUTPUT);
   randomSeed( analogRead(A4) );
 
   //eUI setup
   EUI_LINK(transport_methods);
   EUI_TRACK(dev_msg_store);
   setup_identifier("hello", 5);
+
+  //led timers
+  time_on = millis();
+  time_off = millis();
 
   loop_time = micros(); //loop counter in microseconds
 }
@@ -117,20 +133,35 @@ void loop()
   uart_rx_handler();  //check serial rx fifo
 
   //Interact with the real world
-  analogWrite(9, led_brightness);   //draw to led
-  btn1_state = digitalRead(5);      //buttonA on helloboard
-  btn2_state = digitalRead(8);      //buttonB
-
-  if(led_status_counter++ >= 200)
+  if( led_state == LOW ) //LED is off
   {
-    digitalWrite(13, !digitalRead(13));
-    led_status_counter = 0;
+      if( millis() - time_off > dark_time )
+      {
+          led_state = 1;
+          time_on = millis();
+      }
   }
+  else  //led is on
+  {
+      if( millis() - time_on > glow_time )
+      {
+          led_state = 0;
+          time_off = millis();
+      }
+  }
+
+  if(blink_enable == 0)
+  {
+      digitalWrite( LED_BUILTIN, LOW );
+  }
+  else
+  {
+      digitalWrite( LED_BUILTIN, led_state ); //allow the led to blink
+  }
+
 
   delta_time = micros() - loop_time;  //counter diff between last loop, and now
   loop_time = micros();
-
-  delay(rand()%(10-1) + 1); //randomly select loop delay for 1-10ms to simulate varying cpu load
 }
 
 void uart_rx_handler()
@@ -149,12 +180,12 @@ void uart_rx_handler()
 }
 
 //helps us pretend what most other microcontrollers use as an output function
-void cdc_tx_putc(uint8_t data)
+void serial0_tx(uint8_t data)
 {
   Serial.write(data);  //output over usb connector
 }
 
-void uart_tx_putc(uint8_t data)
+void serial1_tx(uint8_t data)
 {
   Serial1.write(data); //write to second serial port (or software serial on 10/11 if none exists)
 }

@@ -17,7 +17,7 @@ typedef struct {
 uint8_t rgb_brightness  = 50;
 rgb_t   led_colour[STRIP_LENGTH] = { 0, 0, 0 };
 
-const eui_message_t dev_msg_store[] = 
+eui_message_t dev_msg_store[] = 
 {
     EUI_UINT8( "bright", rgb_brightness ),
     EUI_CUSTOM("rgb", led_colour ),

@@ -1,11 +1,5 @@
 #include "electricui.h"
 
-#ifndef HAVE_HWSERIAL1
-  #include <SoftwareSerial.h>
-
-  SoftwareSerial Serial1(10, 11);
-#endif
-  
 //example interactive data
 uint8_t led_brightness  = 2;
 uint8_t btn1_state      = 0;
@@ -16,7 +10,7 @@ uint16_t loop_time      = 0;
 //example function called by UI
 void toggleLed()
 {
-  digitalWrite(4, !digitalRead(4));
+  digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
 }
 
 //example variable types
@@ -63,8 +57,8 @@ rgb_t example_rgb = { 182, 236, 20 };
 imu_t example_imu = { 0.002, 0.003, -9.782 };
 
 //internal index of developer-space message metadata
-eui_message_t dev_msg_store[] = {
-
+eui_message_t dev_msg_store[] = 
+{
     EUI_UINT8( "led", led_brightness ),
     EUI_FUNC(  "tgl", toggleLed ),
     EUI_UINT8( "btA", btn1_state ),
@@ -89,19 +83,18 @@ eui_message_t dev_msg_store[] = {
     EUI_CUSTOM( "imu", example_imu ),
 };
 
-eui_interface_t usb_comms; //eui Transport interface holding object
-eui_interface_t uart_comms;
+eui_interface_t serial_comms; //eui Transport interface holding object
 
 void setup() 
 {
   Serial.begin(115200);   // USB Connector 
-  Serial1.begin(115200);  // Second hardware or SoftwareSerial UART
-  pinMode(4, OUTPUT);     //set led to output
+
+  pinMode(LED_BUILTIN, OUTPUT);     //set led to output
   randomSeed( analogRead(A4) );
 
   //eUI setup
-  usb_comms.output_func = &cdc_tx_putc;
-  uart_comms.output_func = &uart_tx_putc;
+  serial_comms.output_func = &serial_tx_putc;
+  setup_interface(&serial_comms, 1);
   setup_dev_msg(dev_msg_store, ARR_ELEM(dev_msg_store));
   setup_identifier("hello", 5);
 
@@ -115,44 +108,23 @@ void loop()
   uart_rx_handler();  //check serial rx fifo
 
   //Interact with the real world
-  analogWrite(9, led_brightness);   //draw to led
   btn1_state = digitalRead(5);      //buttonA on helloboard
   btn2_state = digitalRead(8);      //buttonB
 
-  if(led_status_counter++ >= 200)
-  {
-    digitalWrite(13, !digitalRead(13));
-    led_status_counter = 0;
-  }
-
   delta_time = micros() - loop_time;  //counter diff between last loop, and now
   loop_time = micros();
-
-  delay(rand()%(10-1) + 1); //randomly select loop delay for 1-10ms to simulate varying cpu load
 }
 
 void uart_rx_handler()
 {
-  //USB CDC VCP
   while(Serial.available() > 0)  //rx has data
   {  
-    parse_packet(Serial.read(), &usb_comms);  //eat a byte
-  }
-
-  //Hardware Serial Port
-  while(Serial1.available() > 0)
-  {  
-    parse_packet(Serial1.read(), &uart_comms);
+    parse_packet(Serial.read(), &serial_comms);  //eat a byte
   }
 }
 
 //helps us pretend what most other microcontrollers use as an output function
-void cdc_tx_putc(uint8_t data)
+void serial_tx_putc(uint8_t data)
 {
   Serial.write(data);  //output on usb cdc virtual com
-}
-
-void uart_tx_putc(uint8_t data)
-{
-  Serial1.write(data); //write to second serial port (or software serial on 10/11 if none exists)
 }

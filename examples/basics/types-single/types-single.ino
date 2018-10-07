@@ -13,7 +13,7 @@ uint32_t example_uint32 = 654321;
 float    example_float  = 3.14159;
 double   example_double = 6.14159;
 
-char example_char = "a";
+char example_char = 'a';
 
 eui_message_t dev_msg_store[] = 
 {

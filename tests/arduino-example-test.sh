@@ -13,7 +13,8 @@ toolchain=arduino-builder
 declare -a target_platform=(	"arduino:avr:leonardo" 
 								"arduino:avr:uno" 
 								"arduino:avr:mega:cpu=atmega2560"
-								)
+								"esp32:esp32:esp32thing:FlashFreq=80,UploadSpeed=921600"
+							)
 
 # todo test the esp32 and 8266 as it uses g++ toolchain!
 
@@ -30,7 +31,16 @@ do
 	do
 		tests_run=$((tests_run+1))
 		# Run the build against the platform, capture (and suppress) output
-		result=`$bin_path/$toolchain -hardware $hardware_path -tools $tool_arg -tools $hardware_path/tools/avr -libraries $user_sketchbook/libraries -libraries ../ -fqbn $platform $sketch 2>&1`
+		result=`$bin_path/$toolchain                       \
+		-hardware $hardware_path                           \
+		-hardware $user_hidden_path/packages               \
+		-tools $tool_arg                                   \
+		-tools $hardware_path/tools/avr                    \
+		-tools $user_hidden_path/packages                  \
+		-libraries $user_sketchbook/libraries              \
+		-libraries ../                                     \
+		-fqbn $platform $sketch 2>&1`
+
 		# Check the build pass/fail status
 		if [ $? -eq 0 ]
 		then
