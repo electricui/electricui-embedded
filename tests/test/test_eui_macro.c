@@ -1,5 +1,5 @@
-#include "../../electricui.h"
-#include "../../eui_macro.h"
+#include "../../src/electricui.h"
+#include "../../src/eui_macro.h"
 #include "unity.h"
 #include "unity_fixture.h"
 

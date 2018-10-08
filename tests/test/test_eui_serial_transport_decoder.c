@@ -1,4 +1,4 @@
-#include "../../eui_serial_transport.h"
+#include "../../src/eui_serial_transport.h"
 #include "unity.h"
 #include "unity_fixture.h"
 

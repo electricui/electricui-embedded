@@ -37,7 +37,7 @@ UNITY_URL   = https://github.com/ThrowTheSwitch/Unity/archive/master.zip
 UNITY_ROOT  = Unity-master
 
 #Source paths
-SOURCE_ROOT = ..
+SOURCE_ROOT = ../src
 TEST_ROOT   = test
 RUNNER_ROOT = runners
 
