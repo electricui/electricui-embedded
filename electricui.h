@@ -84,12 +84,6 @@ send_message( const char * msg_id );
 void
 send_message_on( const char * msg_id, eui_interface_t *active_interface );
 
-// eUI variables accessible to developer
-uint8_t     heartbeat;
-uint16_t    board_identifier;
-uint8_t     session_identifier;
-uint8_t     default_interface;
-
 #ifdef __cplusplus
 }
 #endif
