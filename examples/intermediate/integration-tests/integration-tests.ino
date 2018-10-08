@@ -90,7 +90,6 @@ void setup()
   Serial.begin(115200);   // USB Connector 
 
   pinMode(LED_BUILTIN, OUTPUT);     //set led to output
-  randomSeed( analogRead(A4) );
 
   //eUI setup
   serial_comms.output_func = &serial_tx_putc;

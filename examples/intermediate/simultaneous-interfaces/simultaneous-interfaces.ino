@@ -1,6 +1,8 @@
 #include "electricui.h"
 
-#ifndef ESP32
+#if defined(ESP32) || defined(ESP8266)
+
+#else
   #ifndef HAVE_HWSERIAL1
     #include <SoftwareSerial.h>
 
@@ -107,12 +109,10 @@ void setup()
 {
   Serial.begin(115200);   // USB Connector
 
-  //most arduino boards will use the next hardware serial, or a softserial
+  //most arduino targets will use the next hardware serial (or softserial from top of file)
   Serial1.begin(115200);  
 
-
   pinMode(LED_BUILTIN, OUTPUT);
-  randomSeed( analogRead(A4) );
 
   //eUI setup
   EUI_LINK(transport_methods);
