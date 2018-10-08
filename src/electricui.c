@@ -10,9 +10,6 @@ handle_packet_data( eui_interface_t *valid_packet,
                     eui_header_t *header,
                     eui_message_t *msgObjPtr );
 
-static uint8_t
-handle_packet_empty( eui_header_t *header, eui_message_t *msgObjPtr );
-
 static void
 handle_packet_response( eui_interface_t *valid_packet, 
                         eui_header_t *header,
@@ -148,15 +145,32 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
             {
                 handle_packet_data( p_link, &header, p_msglocal );
             }
-            else
-            {
-                handle_packet_empty( &header, p_msglocal );
-            }
-            // todo use status codes from functions
 
             if( header.response )
             {
                 handle_packet_response( p_link, &header, p_msglocal );
+            }
+            else
+            {
+                if( (p_msglocal->type & 0x0F) == TYPE_CALLBACK )
+                {
+                    if( (header.response && header.acknum) 
+                        || (!header.response && !header.acknum) )
+                    {
+                        //create a function to call from the internal stored pointer
+                        eui_cb_t cb_packet_h;
+                        cb_packet_h = p_msglocal->payload;
+
+                        if(cb_packet_h)
+                        {
+                            cb_packet_h();
+                        }
+                        else
+                        {
+                            parse_status = status_missing_callback;
+                        }
+                    }
+                }
             }
 
 #ifdef EUI_CONF_VARIABLE_CALLBACKS
@@ -230,90 +244,57 @@ handle_packet_data( eui_interface_t  *valid_packet,
     return status;
 }
 
-static uint8_t
-handle_packet_empty( eui_header_t    *header,
-                     eui_message_t   *msgObjPtr )
-{
-    uint8_t status = 0;
-    if( (msgObjPtr->type & 0x0F) == TYPE_CALLBACK )
-    {
-        if( (header->response && header->acknum) 
-            || (!header->response && !header->acknum) )
-        {
-            //create a function to call from the internal stored pointer
-            eui_cb_t cb_packet_h;
-            cb_packet_h = msgObjPtr->payload;
-
-            if(cb_packet_h)
-            {
-                cb_packet_h();
-            }
-            else
-            {
-                status = status_missing_callback;
-            }
-        }
-    }
-    //todo: handle ack responses here in the future?
-
-    return status;
-}
-
 // Check the inbound packet's response requirements and output as required
 static void
 handle_packet_response( eui_interface_t  *packet_in,
                         eui_header_t    *header,
                         eui_message_t   *msgObjPtr )
 {
-    if(header->response)
+    if(header->acknum)
     {
-        if(header->acknum)
-        {
-            eui_header_t tmp_header;
-            tmp_header.internal   = header->internal;
-            tmp_header.response   = MSG_NRESP;
-            tmp_header.type       = msgObjPtr->type;
-            tmp_header.id_len     = strlen(msgObjPtr->msgID);
-            tmp_header.acknum     = header->acknum;
-            tmp_header.offset     = header->offset;
-            tmp_header.data_len   = 0;
+        eui_header_t tmp_header = { .internal   = header->internal,
+                                    .response   = MSG_NRESP,
+                                    .type       = msgObjPtr->type,
+                                    .id_len     = strlen(msgObjPtr->msgID),
+                                    .acknum     = header->acknum,
+                                    .offset     = header->offset,
+                                    .data_len   = 0  };
 
-            eui_encode( packet_in->output_func, 
-                        &tmp_header, 
-                        msgObjPtr->msgID, 
-                        packet_in->packet.offset_in, 
-                        msgObjPtr->payload ); 
-        }
+        eui_encode( packet_in->output_func, 
+                    &tmp_header, 
+                    msgObjPtr->msgID, 
+                    packet_in->packet.offset_in, 
+                    msgObjPtr->payload ); 
+    }
+    else
+    {
+        //respond with data to fufil query behaviour
+        eui_pkt_settings_t res_header = { .internal = header->internal, 
+                                          .response = MSG_NRESP, 
+                                          .type     = msgObjPtr->type };
+
+        if(header->type == TYPE_OFFSET_METADATA)
+        {
+#ifndef EUI_CONF_OFFSETS_DISABLED
+            uint16_t base_address = 0;
+            uint16_t end_address  = 0; 
+            
+            base_address = (uint16_t)packet_in->packet.data_in[1] << 8; 
+            base_address |= packet_in->packet.data_in[0];
+
+            end_address  = (uint16_t)packet_in->packet.data_in[3] << 8; 
+            end_address  |= packet_in->packet.data_in[2];
+
+            send_tracked_range( packet_in->output_func,
+                                msgObjPtr,
+                                &res_header,
+                                base_address,
+                                end_address );
+#endif
+        } 
         else
         {
-            //respond with data to fufil query behaviour
-            eui_pkt_settings_t res_header = { .internal = header->internal, 
-                                              .response = MSG_NRESP, 
-                                              .type     = msgObjPtr->type };
-
-            if(header->type == TYPE_OFFSET_METADATA)
-            {
-#ifndef EUI_CONF_OFFSETS_DISABLED
-                uint16_t base_address = 0;
-                uint16_t end_address  = 0; 
-                
-                base_address = (uint16_t)packet_in->packet.data_in[1] << 8; 
-                base_address |= packet_in->packet.data_in[0];
-
-                end_address  = (uint16_t)packet_in->packet.data_in[3] << 8; 
-                end_address  |= packet_in->packet.data_in[2];
-
-                send_tracked_range( packet_in->output_func,
-                                    msgObjPtr,
-                                    &res_header,
-                                    base_address,
-                                    end_address );
-#endif
-            } 
-            else
-            {
-                send_tracked(packet_in->output_func, msgObjPtr, &res_header);      
-            }
+            send_tracked(packet_in->output_func, msgObjPtr, &res_header);      
         }
     }
 }

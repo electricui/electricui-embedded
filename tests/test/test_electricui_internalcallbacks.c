@@ -1,4 +1,4 @@
-#include "../../electricui.h"
+#include "../../src/electricui.h"
 #include "unity.h"
 #include "unity_fixture.h"
 #include <string.h>

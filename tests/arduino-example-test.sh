@@ -38,7 +38,7 @@ do
 		-tools $hardware_path/tools/avr                    \
 		-tools $user_hidden_path/packages                  \
 		-libraries $user_sketchbook/libraries              \
-		-libraries ../                                     \
+		-libraries ../src                                  \
 		-fqbn $platform $sketch 2>&1`
 
 		# Check the build pass/fail status
