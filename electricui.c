@@ -54,12 +54,18 @@ static euiVariableCount_t
 send_tracked_variables( uint8_t read_only );
 
 //interface management
-eui_interface_t     *interfaceArray;
-uint8_t             numInterfaces;
+static eui_interface_t     *interfaceArray;
+static uint8_t             numInterfaces;
 
 //dev interface
-eui_message_t       *devObjectArray;
-euiVariableCount_t  numDevObjects;
+static eui_message_t       *devObjectArray;
+static euiVariableCount_t  numDevObjects;
+
+// eUI variables accessible to developer
+static uint8_t     heartbeat;
+static uint16_t    board_identifier;
+static uint8_t     session_identifier;
+static uint8_t     active_interface;
 
 //internal eUI tracked variables
 uint8_t library_version[] = { VER_MAJOR, VER_MINOR, VER_PATCH };
@@ -70,7 +76,7 @@ eui_message_t internal_msg_store[] =
     EUI_UINT16_RO(EUI_INTERNAL_BOARD_ID, board_identifier),
     EUI_UINT8(EUI_INTERNAL_SESSION_ID, session_identifier),
     EUI_UINT8(EUI_INTERNAL_HEARTBEAT, heartbeat),
-    EUI_UINT8(EUI_DEFAULT_INTERFACE, default_interface),
+    EUI_UINT8(EUI_DEFAULT_INTERFACE, active_interface),
 
     EUI_FUNC(EUI_INTERNAL_AM_RO, announce_dev_msg_readonly),
     EUI_FUNC(EUI_INTERNAL_AM_RW, announce_dev_msg_writable),
@@ -121,7 +127,7 @@ auto_output(void)
 
     //todo intelligently select an interface
 
-    return interfaceArray[default_interface].output_func;
+    return interfaceArray[active_interface].output_func;
 }
 
 uint8_t
