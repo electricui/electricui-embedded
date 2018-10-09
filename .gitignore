@@ -1,4 +1,9 @@
-/tests/Unity-master
+test/build/artifacts
+test/build/gcov
+test/builld/logs 
+test/build/temp
+test/build/test
+test/vendor/
 
 # Prerequisites
 *.d

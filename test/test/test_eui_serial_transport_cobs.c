@@ -1,24 +1,33 @@
-#include "../../src/eui_serial_transport.h"
 #include "unity.h"
-#include "unity_fixture.h"
+#include <stdlib.h>
+ 
+// MODULE UNDER TEST
+#include "eui_serial_transport.h"
+ 
+// DEFINITIONS 
+ 
+// PRIVATE TYPES
+ 
+// PRIVATE DATA
 
-TEST_GROUP( SerialCOBS );
-
-
-TEST_SETUP( SerialCOBS )
+// PRIVATE FUNCTIONS
+ 
+// SETUP, TEARDOWN
+ 
+void setUp(void)
 {
-    //run before each test
+
+}
+ 
+void tearDown(void)
+{
 
 }
 
-TEST_TEAR_DOWN( SerialCOBS )
-{
-    //run after each test
-
-}
+// TESTS
 
 // these basic tests follow https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing examples
-TEST( SerialCOBS, COBS_Basic_1)
+void test_cobs_basic_1( void )
 {
     uint8_t test_payload[] = { 
         0x00,
@@ -43,7 +52,7 @@ TEST( SerialCOBS, COBS_Basic_1)
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong status" );
 }
 
-TEST( SerialCOBS, COBS_Basic_2)
+void test_cobs_basic_2( void )
 {
     uint8_t test_payload[] = { 
         0x00,
@@ -70,7 +79,7 @@ TEST( SerialCOBS, COBS_Basic_2)
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong status" );
 }
 
-TEST( SerialCOBS, COBS_Basic_3)
+void test_cobs_basic_3( void )
 {
     uint8_t test_payload[] = { 
         0x00,
@@ -101,7 +110,7 @@ TEST( SerialCOBS, COBS_Basic_3)
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong status" );
 }
 
-TEST( SerialCOBS, COBS_Basic_4)
+void test_cobs_basic_4( void )
 {
     uint8_t test_payload[] = { 
         0x00,
@@ -132,7 +141,7 @@ TEST( SerialCOBS, COBS_Basic_4)
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong status" );
 }
 
-TEST( SerialCOBS, COBS_Basic_5)
+void test_cobs_basic_5( void )
 {
     uint8_t test_payload[] = { 
         0x00,
@@ -164,7 +173,7 @@ TEST( SerialCOBS, COBS_Basic_5)
 }
 
 // Expect 00 FF 01 02 03 ... FD FE 00
-TEST( SerialCOBS, COBS_Basic_6)
+void test_cobs_basic_6( void )
 {
     uint8_t test_payload[ 3 + 0xFE ] = { 0 };
 
@@ -204,7 +213,7 @@ TEST( SerialCOBS, COBS_Basic_6)
 }
 
 // Expect 00 01 FF 01 02 ... FC FD FE 00
-TEST( SerialCOBS, COBS_Basic_7)
+void test_cobs_basic_7( void )
 {
     uint8_t test_payload[ 3 + 0xFF ] = { 0 };
 
@@ -244,7 +253,7 @@ TEST( SerialCOBS, COBS_Basic_7)
 }
 
 // Expect 00 FF 01 02 03 ... FD FE 02 FF 00
-TEST( SerialCOBS, COBS_Basic_8)
+void test_cobs_basic_8( void )
 {
     uint8_t test_payload[ 4 + 0xFF ] = { 0 };
 
@@ -286,7 +295,7 @@ TEST( SerialCOBS, COBS_Basic_8)
 }
 
 // Expect 00 FF 02 03 04 ... FE FF 01 01 00
-TEST( SerialCOBS, COBS_Basic_9)
+void test_cobs_basic_9( void )
 {
     uint8_t test_payload[ 4 + 0xFF ] = { 0 };
 
@@ -331,7 +340,7 @@ TEST( SerialCOBS, COBS_Basic_9)
 }
 
 // Expect 00 FE 03 04 05 ... FF 02 01 00
-TEST( SerialCOBS, COBS_Basic_10)
+void test_cobs_basic_10( void )
 {
     uint8_t test_payload[ 3 + 0xFF ] = { 0 };
 
@@ -371,12 +380,12 @@ TEST( SerialCOBS, COBS_Basic_10)
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong status" );
 }
 
-TEST( SerialCOBS, COBS_Long)
+void test_cobs_long( void )
 {
     TEST_IGNORE_MESSAGE("TODO: Long (1kb?) data streams with multiple overlaps");
 }
 
-TEST( SerialCOBS, COBS_Realworld)
+void test_cobs_realworld( void )
 {
     uint8_t test_payload[] = { 
         0x00,
@@ -406,7 +415,6 @@ TEST( SerialCOBS, COBS_Realworld)
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE( expected, test_payload, sizeof(expected), "Encoding not valid" );
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong status" );
 }
-
 
 /*
     for( uint16_t i = 0; i < sizeof(test_payload); i++)

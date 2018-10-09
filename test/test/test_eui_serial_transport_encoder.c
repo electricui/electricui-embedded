@@ -1,15 +1,20 @@
-#include "../../src/eui_serial_transport.h"
 #include "unity.h"
-#include "unity_fixture.h"
 #include <string.h>
-
-TEST_GROUP( SerialEncoder );
-
+ 
+// MODULE UNDER TEST
+#include "eui_serial_transport.h"
+ 
+// DEFINITIONS 
+ 
+// PRIVATE TYPES
+ 
+// PRIVATE DATA
 //mock an outbound putc style per-byte interface
 uint8_t serial_buffer[1024] = { 0xFF };
 uint16_t serial_position    = 0;
 uint8_t encode_result       = 0;
 
+// PRIVATE FUNCTIONS
 void byte_into_buffer(uint8_t outbound)
 {
     if( serial_position < 1024 )
@@ -22,22 +27,24 @@ void byte_into_buffer(uint8_t outbound)
         TEST_ASSERT_MESSAGE( 1, "Mocked serial interface reports an issue");
     }
 }
-
-TEST_SETUP( SerialEncoder )
+ 
+// SETUP, TEARDOWN
+ 
+void setUp(void)
 {
-    //run before each test
     memset(serial_buffer, 0xFF, sizeof(serial_buffer));
     serial_position = 0;
     encode_result = 0;
 }
-
-TEST_TEAR_DOWN( SerialEncoder )
+ 
+void tearDown(void)
 {
-    //run after each test
 
 }
 
-TEST( SerialEncoder, encode_packet_simple )
+// TESTS
+
+void test_encode_packet_simple( void )
 {
     //input parameters
     const char * test_message = "abc";
@@ -72,7 +79,7 @@ TEST( SerialEncoder, encode_packet_simple )
 //test when args are null
 
 
-TEST( SerialEncoder, encode_packet )
+void test_encode_packet( void )
 {
     //input parameters
     const char * test_message = "abc";
@@ -108,7 +115,7 @@ TEST( SerialEncoder, encode_packet )
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder didn't return expected status code" );
 }
 
-TEST( SerialEncoder, encode_packet_short_id )
+void test_encode_packet_short_id( void )
 {
     //input parameters
     const char * test_message = "a";
@@ -143,7 +150,7 @@ TEST( SerialEncoder, encode_packet_short_id )
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder didn't return expected status code" );
 }
 
-TEST( SerialEncoder, encode_packet_long_id )
+void test_encode_packet_long_id( void )
 {
     //input parameters
     const char * test_message = "abcdefghijklmno";
@@ -178,7 +185,7 @@ TEST( SerialEncoder, encode_packet_long_id )
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder didn't return expected status code" );
 }
 
-TEST( SerialEncoder, encode_packet_internal )
+void test_encode_packet_internal( void )
 {
     //input parameters
     const char * test_message = "abc";
@@ -213,7 +220,7 @@ TEST( SerialEncoder, encode_packet_internal )
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder didn't return expected status code" );
 }
 
-TEST( SerialEncoder, encode_packet_response )
+void test_encode_packet_response( void )
 {
     //input parameters
     const char * test_message = "abc";
@@ -248,8 +255,7 @@ TEST( SerialEncoder, encode_packet_response )
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder didn't return expected status code" );
 }
 
-TEST( SerialEncoder, encode_packet_acknum)
-{
+void test_encode_packet_acknum( void ){
     //input parameters
     const char * test_message = "abc";
     uint8_t test_payload[] = { 
@@ -283,7 +289,7 @@ TEST( SerialEncoder, encode_packet_acknum)
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder didn't return expected status code" );
 }
 
-TEST( SerialEncoder, encode_packet_float )
+void test_encode_packet_float( void )
 {
     //input parameters
     const char * test_message = "abc";
@@ -318,7 +324,7 @@ TEST( SerialEncoder, encode_packet_float )
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder didn't return expected status code" );
 }
 
-TEST( SerialEncoder, encode_packet_offset_last )
+void test_encode_packet_offset_last( void )
 {
     //input parameters
     const char * test_message = "abc";
@@ -355,7 +361,7 @@ TEST( SerialEncoder, encode_packet_offset_last )
 }
 
 //use offsets to encode 2 bytes from a 4 byte array
-TEST( SerialEncoder, encode_packet_offset )
+void test_encode_packet_offset( void )
 {
     //input parameters
     const char * test_message = "abc";
@@ -392,7 +398,7 @@ TEST( SerialEncoder, encode_packet_offset )
 }
 
 //use offsets to encode 2 bytes from a 4 byte array
-TEST( SerialEncoder, encode_packet_large )
+void test_encode_packet_large( void )
 {
     //input parameters
     const char * test_message = "abc";

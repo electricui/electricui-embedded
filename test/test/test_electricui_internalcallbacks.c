@@ -1,10 +1,15 @@
-#include "../../src/electricui.h"
 #include "unity.h"
-#include "unity_fixture.h"
 #include <string.h>
+ 
+// MODULE UNDER TEST
+#include "electricui.h"
+#include "mock_eui_serial_transport.h"
 
-TEST_GROUP( InternalEUICallbacks );
-
+// DEFINITIONS 
+ 
+// PRIVATE TYPES
+ 
+// PRIVATE DATA
 char      test_char    = 'a';
 uint8_t   test_uint    = 21;
 
@@ -20,10 +25,12 @@ eui_message_t internal_callback_test_store[] = {
 const uint16_t number_ro_expected = 2;
 const uint16_t number_rw_expected = 2;
 
-uint8_t 	callback_serial_buffer[1024] 	= { 0 };
-uint16_t 	callback_serial_position    	= 0;
+uint8_t     callback_serial_buffer[1024]    = { 0 };
+uint16_t    callback_serial_position        = 0;
 
+eui_interface_t mock_interface = { 0 };
 
+// PRIVATE FUNCTIONS
 void callback_mocked_output(uint8_t outbound)
 {
     if( callback_serial_position < 1024 )
@@ -37,31 +44,32 @@ void callback_mocked_output(uint8_t outbound)
     }
 }
 
-eui_interface_t mock_interface = { 0 };
-
-TEST_SETUP( InternalEUICallbacks )
+// SETUP, TEARDOWN
+ 
+void setUp(void)
 {
-	//wipe the mocked serial buffer
+    //wipe the mocked serial buffer
     memset(callback_serial_buffer, 0, sizeof(callback_serial_buffer));
     callback_serial_position = 0;
 
     //reset the state of everything else
-	test_char = 'a';
-	test_uint = 21;
-	
-	setup_identifier( (char*)"a", 1 );
+    test_char = 'a';
+    test_uint = 21;
+    
+    setup_identifier( (char*)"a", 1 );
     setup_dev_msg(internal_callback_test_store, ARR_ELEM(internal_callback_test_store));
     mock_interface.output_func = &callback_mocked_output;
     setup_interface( &mock_interface, 1);
 }
-
-TEST_TEAR_DOWN( InternalEUICallbacks )
+ 
+void tearDown(void)
 {
-    //run after each test
 
 }
 
-TEST( InternalEUICallbacks, announce_board )
+// TESTS
+
+void test_announce_board( void )
 {
     //expect the library version, board ID and session ID (lv, bi, si)
     TEST_IGNORE();
@@ -97,7 +105,7 @@ TEST( InternalEUICallbacks, announce_board )
     TEST_ASSERT_EQUAL_HEX8_ARRAY_MESSAGE( expected, callback_serial_buffer, sizeof(expected), "Annoucement didn't publish expected messages" );
 }
 
-TEST( InternalEUICallbacks, announce_dev_msg_readonly )
+void test_announce_dev_msg_readonly( void )
 {
     TEST_IGNORE_MESSAGE("TODO: Establish byte-stream for readonly");
     // announce_dev_msg_readonly();
@@ -119,7 +127,7 @@ TEST( InternalEUICallbacks, announce_dev_msg_readonly )
 
 }
 
-TEST( InternalEUICallbacks, announce_dev_msg_writable )
+void test_announce_dev_msg_writable( void )
 {
     TEST_IGNORE_MESSAGE("TODO: Establish byte-stream for writable");
     // announce_dev_msg_writable();
@@ -140,7 +148,7 @@ TEST( InternalEUICallbacks, announce_dev_msg_writable )
     TEST_ASSERT_EQUAL_HEX8_ARRAY_MESSAGE( expected, callback_serial_buffer, sizeof(expected), "Dev Message CB didn't publish expected messages" );
 }
 
-TEST( InternalEUICallbacks, announce_dev_vars_readonly )
+void test_announce_dev_vars_readonly( void )
 {
     TEST_IGNORE_MESSAGE("TODO: Establish byte-stream for read only");
     // announce_dev_vars_readonly();
@@ -162,7 +170,7 @@ TEST( InternalEUICallbacks, announce_dev_vars_readonly )
     TEST_ASSERT_EQUAL_HEX8_ARRAY_MESSAGE( expected, callback_serial_buffer, sizeof(expected), "Dev variable transfer didn't match" );
 }
 
-TEST( InternalEUICallbacks, announce_dev_vars_writable )
+void test_announce_dev_vars_writable( void )
 {
     TEST_IGNORE_MESSAGE("TODO: Establish byte-stream for writable");
     // announce_dev_vars_writable();
@@ -184,7 +192,7 @@ TEST( InternalEUICallbacks, announce_dev_vars_writable )
     TEST_ASSERT_EQUAL_HEX8_ARRAY_MESSAGE( expected, callback_serial_buffer, sizeof(expected), "Dev variable transfer didn't match" );
 }
 
-TEST( InternalEUICallbacks, send_msgID_list_callback )
+void test_send_msgID_list_callback( void )
 {
     TEST_IGNORE();
 
@@ -357,7 +365,7 @@ TEST( InternalEUICallbacks, send_msgID_list_callback )
     TEST_ASSERT_EQUAL_INT_MESSAGE( number_ro_expected, msgID_count, "Large set - Read-Only msgID count incorrect" );
 }
 
-TEST( InternalEUICallbacks, send_variable_callback )
+void test_send_variable_callback( void )
 {
     TEST_IGNORE_MESSAGE("TODO");
 
@@ -371,7 +379,7 @@ TEST( InternalEUICallbacks, send_variable_callback )
 
 }
 
-TEST( InternalEUICallbacks, setup_identifier )
+void test_setup_identifier( void )
 {
     TEST_IGNORE_MESSAGE("TODO: Test boardID setup");
 }

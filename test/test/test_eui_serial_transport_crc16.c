@@ -1,20 +1,27 @@
-#include "../../src/eui_serial_transport.h"
 #include "unity.h"
-#include "unity_fixture.h"
 #include <stdlib.h>
-
-TEST_GROUP( SerialCRC16 );
-
+ 
+// MODULE UNDER TEST
+#include "eui_serial_transport.h"
+ 
+// DEFINITIONS 
 #define CRC_DIVISOR 0xFFFF
+ 
+// PRIVATE TYPES
+ 
+// PRIVATE DATA
 
 time_t t;
 
 uint16_t temp_crc_1 = 0;
 uint16_t temp_crc_2 = 0;
 
-TEST_SETUP( SerialCRC16 )
+// PRIVATE FUNCTIONS
+ 
+// SETUP, TEARDOWN
+ 
+void setUp(void)
 {
-    //run before each test
     srand((unsigned) time(&t)); //seed rand()
 
     //handy reference https://crccalc.com
@@ -22,14 +29,15 @@ TEST_SETUP( SerialCRC16 )
     temp_crc_1 = CRC_DIVISOR;
     temp_crc_2 = CRC_DIVISOR;
 }
-
-TEST_TEAR_DOWN( SerialCRC16 )
+ 
+void tearDown(void)
 {
-    //run after each test
 
 }
-
-TEST( SerialCRC16, CRC16_Basic)
+ 
+// TESTS
+ 
+void test_basic(void)
 {
     crc16( 0x00, &temp_crc_1 );
     TEST_ASSERT_EQUAL_HEX( 0xE1F0, temp_crc_1 );
@@ -56,7 +64,7 @@ TEST( SerialCRC16, CRC16_Basic)
     TEST_ASSERT_EQUAL_HEX( 0x3B37, temp_crc_1 );
 }
 
-TEST( SerialCRC16, CRC16_Reflect)
+void test_reflection(void)
 {
     //warm it up
     crc16( 0x06, &temp_crc_1 );
@@ -79,7 +87,7 @@ TEST( SerialCRC16, CRC16_Reflect)
     TEST_ASSERT_MESSAGE( 0x0000 == temp_crc_1, "Reflection of CRC check (fuzzed inputs)" )
 }
 
-TEST( SerialCRC16, CRC16_Repeated0x00 )
+void test_repeated_zeros(void)
 {
     //repeated null bytes should give unique crc 
     for(uint8_t i = 0x00; i < 8; i++)
@@ -131,7 +139,7 @@ TEST( SerialCRC16, CRC16_Repeated0x00 )
     TEST_ASSERT_MESSAGE( temp_crc_1 != temp_crc_2, "Consecutive 0x00 aren't handled after 0xFFFF (attack with seed)" )
 }
 
-TEST( SerialCRC16, CRC16_Fuzzed )
+void test_fuzz(void)
 {
     temp_crc_1 = CRC_DIVISOR;
     temp_crc_2 = 0x0000;    //will act as the 'previous step' for this test, don't make them the same to start with

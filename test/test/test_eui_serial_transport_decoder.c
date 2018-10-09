@@ -1,25 +1,33 @@
-#include "../../src/eui_serial_transport.h"
 #include "unity.h"
-#include "unity_fixture.h"
-
-TEST_GROUP( SerialDecoder );
-
+#include <stdlib.h>
+ 
+// MODULE UNDER TEST
+#include "eui_serial_transport.h"
+ 
+// DEFINITIONS 
+ 
+// PRIVATE TYPES
+ 
+// PRIVATE DATA
 uint8_t decode_result = 0;
 
-
-TEST_SETUP( SerialDecoder )
+// PRIVATE FUNCTIONS
+ 
+// SETUP, TEARDOWN
+ 
+void setUp(void)
 {
-    //run before each test
     decode_result = 0;
 }
-
-TEST_TEAR_DOWN( SerialDecoder )
+ 
+void tearDown(void)
 {
-    //run after each test
 
 }
 
-TEST( SerialDecoder, decode_packet )
+// TESTS
+
+void test_decode_packet( void )
 {
     eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = { 
@@ -57,7 +65,7 @@ TEST( SerialDecoder, decode_packet )
     TEST_ASSERT_EQUAL_UINT16( 0xBA64, test_interface.crc_in );
 }
 
-TEST( SerialDecoder, decode_packet_short_id )
+void test_decode_packet_short_id( void )
 {
     eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = {
@@ -95,7 +103,7 @@ TEST( SerialDecoder, decode_packet_short_id )
     TEST_ASSERT_EQUAL_UINT16( 0xE008, test_interface.crc_in );
 }
 
-TEST( SerialDecoder, decode_packet_long_id )
+void test_decode_packet_long_id( void )
 {
     eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = { 
@@ -133,7 +141,7 @@ TEST( SerialDecoder, decode_packet_long_id )
     TEST_ASSERT_EQUAL_UINT16( 0x8B05, test_interface.crc_in );
 }
 
-TEST( SerialDecoder, decode_packet_internal )
+void test_decode_packet_internal( void )
 {
     eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = { 
@@ -171,7 +179,7 @@ TEST( SerialDecoder, decode_packet_internal )
     TEST_ASSERT_EQUAL_UINT16( 0xD074, test_interface.crc_in );
 }
 
-TEST( SerialDecoder, decode_packet_response )
+void test_decode_packet_response( void )
 {
     eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = { 
@@ -210,8 +218,7 @@ TEST( SerialDecoder, decode_packet_response )
     TEST_ASSERT_EQUAL_UINT16( 0xBE3E, test_interface.crc_in );
 }
 
-TEST( SerialDecoder, decode_packet_acknum)
-{
+void test_decode_packet_acknum( void ){
     eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = { 
         0x00,
@@ -248,7 +255,7 @@ TEST( SerialDecoder, decode_packet_acknum)
     TEST_ASSERT_EQUAL_UINT16( 0xA3B8, test_interface.crc_in );
 }
 
-TEST( SerialDecoder, decode_packet_float )
+void test_decode_packet_float( void )
 {
     eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = { 
@@ -286,7 +293,7 @@ TEST( SerialDecoder, decode_packet_float )
     TEST_ASSERT_EQUAL_UINT16( 0x1D8B, test_interface.crc_in );
 }
 
-TEST( SerialDecoder, decode_packet_invalidCRC )
+void test_decode_packet_invalidCRC( void )
 {
     //we expect the decoder to error on either CRC byte mismatch, it will reset when we send in the EOT or second byte.
     //therefore send only enough bytes to get it up to the point where it reports the failure
@@ -336,7 +343,7 @@ TEST( SerialDecoder, decode_packet_invalidCRC )
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( parser_error, decode_result, "Decoder didn't error on invalid CRC byte1" );
 }
 
-TEST( SerialDecoder, decode_packet_offset_last )
+void test_decode_packet_offset_last( void )
 {
     eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = { 
@@ -377,7 +384,7 @@ TEST( SerialDecoder, decode_packet_offset_last )
 }
 
 
-TEST( SerialDecoder, decode_packet_offset )
+void test_decode_packet_offset( void )
 {
     eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = { 
@@ -417,7 +424,7 @@ TEST( SerialDecoder, decode_packet_offset )
 
 }
 
-TEST( SerialDecoder, decode_packet_large )
+void test_decode_packet_large( void )
 {
     eui_packet_t test_interface = {0};
     uint8_t inbound_bytes[] = { 
