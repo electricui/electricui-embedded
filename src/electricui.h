@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 #include "eui_config.h"
-#include "eui_macro.h"
+#include "utilities/eui_macro.h"
 
 // Warnings based on configuration flags (depends on compiler support)
 #ifdef EUI_CONF_QUEUE_DISABLE

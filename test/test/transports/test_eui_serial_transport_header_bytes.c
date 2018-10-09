@@ -3,7 +3,8 @@
 
 // MODULE UNDER TEST
 #include "eui_serial_transport.h"
- 
+#include "eui_crc.h"
+
 // DEFINITIONS 
  
 // PRIVATE TYPES

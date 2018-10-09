@@ -1,7 +1,7 @@
 #ifndef EUI_SERIAL_TRANSPORT_H
 #define EUI_SERIAL_TRANSPORT_H
 
-#include "eui_config.h"
+#include "../eui_config.h"
 
 #define PACKET_BASE_SIZE    ( sizeof(eui_header_t) \
                             + sizeof(uint16_t) \
@@ -75,9 +75,6 @@ enum packet_signals {
     parser_complete,
     parser_error,
 };
-
-void
-crc16(uint8_t data, uint16_t *crc);
 
 uint8_t
 encode_header( eui_header_t *header, uint8_t *buffer );

@@ -3,6 +3,7 @@
 // MODULE UNDER TEST
 #include "electricui.h"
 #include "mock_eui_serial_transport.h"
+#include "mock_eui_crc.h"
 
 // DEFINITIONS 
  

@@ -1,5 +1,6 @@
 #include <string.h>
 #include "electricui.h"
+#include "utilities/eui_crc.h"
 
 // Private functions
 static callback_uint8_t
