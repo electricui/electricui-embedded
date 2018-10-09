@@ -473,3 +473,16 @@ void test_decode_packet_large( void )
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.data_in, sizeof(expected_payload) );
     TEST_ASSERT_EQUAL_UINT16( 0xF4BE, test_interface.crc_in );
 }
+
+void test_decode_packet_invalid_state( void )
+{
+    eui_packet_t test_interface = {0};
+
+    //exceed the last valid parser state
+    test_interface.parser.state = exp_crc_b2 + 0x01;
+    test_interface.parser.frame_offset = 0x05;  //appease COBS
+
+    decode_result = decode_packet( 0x0F, &test_interface );
+    
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( parser_error, decode_result, "Decoder didn't error with malformed state" );
+}
