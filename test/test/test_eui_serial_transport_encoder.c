@@ -74,9 +74,6 @@ void test_encode_packet_simple( void )
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE( expected, serial_buffer, sizeof(expected), "Payload not valid" );
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder didn't return expected status code" );
 }
-//test a few manually formed packets
-//test failure cases
-//test when args are null
 
 
 void test_encode_packet( void )
@@ -445,6 +442,101 @@ void test_encode_packet_large( void )
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected, serial_buffer, sizeof(expected) );
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder didn't return expected status code" );
 
+}
+
+void test_encode_packet_null_output_pointer( void )
+{
+    //input parameters
+    const char * test_message = "abc";
+    uint8_t test_payload[] = { 
+        42, 
+    };
+    uint16_t offset = 0;    
+
+    eui_header_t test_header;
+    test_header.internal   = 0;
+    test_header.response   = 0;
+    test_header.type       = 5; //int8
+    test_header.acknum     = 0;
+    test_header.offset     = (offset) ? 1 : 0;
+    test_header.id_len     = 0;
+    test_header.data_len   = sizeof(test_payload);
+
+    //test it against our mocked buffer
+    encode_result = encode_packet( 0, &test_header, 0, offset, &test_payload );
+
+    TEST_ASSERT_NOT_EQUAL( 0, encode_result );
+}
+
+void test_encode_packet_null_header( void )
+{
+    //input parameters
+    const char * test_message = "abc";
+    uint8_t test_payload[] = { 
+        42, 
+    };
+    uint16_t offset = 0;
+    
+    // eui_header_t test_header;
+
+    //test it against our mocked buffer
+    encode_result = encode_packet( &byte_into_buffer, 0, test_message, offset, &test_payload );
+
+    TEST_ASSERT_NOT_EQUAL( 0, encode_result );
+}
+
+void test_encode_packet_null_id( void )
+{
+    //input parameters
+    uint8_t test_payload[] = { 
+        42, 
+    };
+    uint16_t offset = 0;
+    
+    eui_header_t test_header;
+    test_header.internal   = 0;
+    test_header.response   = 0;
+    test_header.type       = 5; //int8
+    test_header.acknum     = 0;
+    test_header.offset     = (offset) ? 1 : 0;
+    test_header.id_len     = 0;
+    test_header.data_len   = sizeof(test_payload);
+
+    //test it against our mocked buffer
+    encode_result = encode_packet( &byte_into_buffer, &test_header, 0, offset, &test_payload );
+
+    TEST_ASSERT_NOT_EQUAL( 0, encode_result );
+}
+
+void test_encode_packet_null_data_pointer( void )
+{
+    //input parameters
+    const char * test_message = "abc";
+    uint8_t test_payload[] = { 
+        42, 
+    };
+    uint16_t offset = 0;
+    
+    eui_header_t test_header;
+    test_header.internal   = 0;
+    test_header.response   = 0;
+    test_header.type       = 5; //int8
+    test_header.acknum     = 0;
+    test_header.offset     = (offset) ? 1 : 0;
+    test_header.id_len     = strlen(test_message);
+    test_header.data_len   = sizeof(test_payload);
+
+    //test it against our mocked buffer
+    encode_result = encode_packet( &byte_into_buffer, &test_header, test_message, offset, 0 );
+
+    TEST_ASSERT_NOT_EQUAL( 0, encode_result );
+}
+
+void test_encode_packet_null_everything( void )
+{
+    encode_result = encode_packet( 0, 0, 0, 0, 0 );
+
+    TEST_ASSERT_NOT_EQUAL( 0, encode_result );
 }
 
 /*
