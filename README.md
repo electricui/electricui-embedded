@@ -1,4 +1,4 @@
-# electricui-embedded
+ge# electricui-embedded
 
 ElectricUI communications and handling library for use on simplistic embedded microcontrollers. Communicates with a ElectricUI compatible UI or device.
 
@@ -44,8 +44,16 @@ ___
 
 # Running tests
 
-See the [tests readme](/tests/README.md) for more information.
+Testing uses the [Ceedling](http://www.throwtheswitch.org/ceedling/) (Ruby|rake) based testing framework.
 
+I don't provide Ceedling's vendor files inside this repo, so first runs need to 're-initalise' the test structure.
+
+1. Use the provided `test/setup_tests.sh` script to begin with. 
+	- You might need to add execution permission first. From `/test`, run `chmod +x setup_tests.sh`.
+
+2. Run the `setup_tests.sh` script. If you don't have ceedling installed, it will prompt to install the ruby gem.
+
+3. Once setup, run `ceedling` or `ceedling test:all`.
 
 ___
 
