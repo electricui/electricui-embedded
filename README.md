@@ -55,6 +55,11 @@ I don't provide Ceedling's vendor files inside this repo, so first runs need to 
 
 3. Once setup, run `ceedling` or `ceedling test:all`.
 
+## Coverage Analysis
+
+Run `ceedling gcov:all` to generate the coverage reports.  
+Use `ceedling utils:gcov` to generate a pretty HTML report.
+
 ___
 
 # Overheads and Benchmarks
