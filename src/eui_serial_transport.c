@@ -85,6 +85,7 @@ uint8_t encode_framing( uint8_t *buffer, uint16_t buf_size )
 
     return 0;
 }
+
 uint8_t
 encode_packet(  callback_uint8_t    out_char, 
                 eui_header_t        *header, 
@@ -92,7 +93,7 @@ encode_packet(  callback_uint8_t    out_char,
                 uint16_t            offset, 
                 void*               payload )
 {
-    if(out_char)  //todo ASSERT if not valid?
+    if(out_char && header && msg_id && payload)
     {  
         uint8_t pk_tmp[1 + PACKET_BASE_SIZE + MESSAGEID_SIZE + PAYLOAD_SIZE_MAX ] = { 0 };
         uint16_t pk_i = 2; //leave room for the 0x00 and framing byte
@@ -137,6 +138,10 @@ encode_packet(  callback_uint8_t    out_char,
         {
             out_char( pk_tmp[i] );
         }
+    }
+    else
+    {
+        return 1; //error code
     }
 
     return 0;
