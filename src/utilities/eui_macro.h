@@ -1,5 +1,3 @@
-#include "eui_serial_transport.h"
-
 #define ARR_ELEM(a) (sizeof(a) / sizeof(*a))    //number of elements in array
 
 #define EUI_TRACK( INPUT_ARRAY ) 	( setup_dev_msg(INPUT_ARRAY, ARR_ELEM(INPUT_ARRAY)) )
