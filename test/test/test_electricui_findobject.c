@@ -1,9 +1,14 @@
-#include "../../src/electricui.h"
 #include "unity.h"
-#include "unity_fixture.h"
+ 
+// MODULE UNDER TEST
+#include "electricui.h"
+#include "mock_eui_serial_transport.h"
 
-TEST_GROUP( FindMessageObject );
-
+// DEFINITIONS 
+ 
+// PRIVATE TYPES
+ 
+// PRIVATE DATA
 char      testfind_char    = 'a';
 int8_t    testfind_int8    = -21;
 uint8_t   testfind_uint8   = 21;
@@ -21,19 +26,24 @@ eui_message_t test_findobject_store[] = {
     { .msgID = "",      .type = TYPE_UINT8,     .size = sizeof(testfind_uint8), .payload = &testfind_uint8   },
 };
 
-TEST_SETUP( FindMessageObject )
+// PRIVATE FUNCTIONS
+ 
+// SETUP, TEARDOWN
+
+void setUp(void)
 {
     //run before each test
     setup_dev_msg(test_findobject_store, ARR_ELEM(test_findobject_store));
 }
-
-TEST_TEAR_DOWN( FindMessageObject )
+ 
+void tearDown(void)
 {
-    //run after each test
 
 }
 
-TEST( FindMessageObject, find_message_object_developer )
+// TESTS
+
+void test_find_message_object_developer( void )
 {
     eui_message_t *expecting     = &test_findobject_store[1]; //int8 object
     eui_message_t *result_ptr;   //result should be a pointer to our expected element
@@ -45,7 +55,7 @@ TEST( FindMessageObject, find_message_object_developer )
     TEST_ASSERT_TRUE_MESSAGE( result_ptr == expecting, "Didn't return correct pointer")
 }
 
-TEST( FindMessageObject, find_message_object_internal )
+void test_find_message_object_internal( void )
 {
     TEST_IGNORE_MESSAGE("TODO: Need to allow tests to see the internal object array");
 
@@ -59,7 +69,7 @@ TEST( FindMessageObject, find_message_object_internal )
     TEST_ASSERT_TRUE_MESSAGE( result_ptr == expecting, "Didn't return correct pointer")
 }
 
-TEST( FindMessageObject, find_message_object_wrong_internal_flag )
+void test_find_message_object_wrong_internal_flag( void )
 {
     eui_message_t *result_ptr;
     const char * test_message   = "si8";
@@ -70,7 +80,7 @@ TEST( FindMessageObject, find_message_object_wrong_internal_flag )
     TEST_ASSERT_NULL_MESSAGE( result_ptr, "Swapped flag shouldn't return a pointer?")    //it shouldn't find anything
 }
 
-TEST( FindMessageObject, find_message_object_invalid_internal_flag )
+void test_find_message_object_invalid_internal_flag( void )
 {
     eui_message_t *result_ptr;
     const char * test_message   = "si8";
@@ -81,7 +91,7 @@ TEST( FindMessageObject, find_message_object_invalid_internal_flag )
     TEST_ASSERT_NULL_MESSAGE(result_ptr, "Invalid internal flag shouldn't return a pointer")    //it shouldn't find anything
 }
 
-TEST( FindMessageObject, find_message_object_invalid_id )
+void test_find_message_object_invalid_id( void )
 {
     eui_message_t *result_ptr;
     const char * test_message   = "666";
@@ -98,7 +108,7 @@ TEST( FindMessageObject, find_message_object_invalid_id )
     TEST_ASSERT_NULL_MESSAGE(result_ptr, "Found non-existant euiObject")
 }
 
-TEST( FindMessageObject, find_message_object_nullptr )
+void test_find_message_object_nullptr( void )
 {
     TEST_IGNORE_MESSAGE("Its not fair to require invalid pointer safety? (see note)");
 
@@ -121,7 +131,7 @@ TEST( FindMessageObject, find_message_object_nullptr )
     TEST_ASSERT_NULL_MESSAGE(result_ptr, "Found euiObject matching nullptr")
 }
 
-TEST( FindMessageObject, find_message_object_single_letter )
+void test_find_message_object_single_letter( void )
 {
     eui_message_t *expecting     = &test_findobject_store[0]; //int8 object
     eui_message_t *result_ptr;   //result should be a pointer to our expected element
@@ -133,7 +143,7 @@ TEST( FindMessageObject, find_message_object_single_letter )
     TEST_ASSERT_TRUE_MESSAGE( result_ptr == expecting, "Didn't return correct pointer")
 }
 
-TEST( FindMessageObject, find_message_object_max_letters )
+void test_find_message_object_max_letters( void )
 {
     eui_message_t *expecting     = &test_findobject_store[2];
     eui_message_t *result_ptr;   //result should be a pointer to our expected element
@@ -145,7 +155,7 @@ TEST( FindMessageObject, find_message_object_max_letters )
     TEST_ASSERT_TRUE_MESSAGE( result_ptr == expecting, "Didn't return correct pointer")
 }
 
-TEST( FindMessageObject, find_message_object_no_id )
+void test_find_message_object_no_id( void )
 {
     eui_message_t *expecting     = &test_findobject_store[4]; //int8 object
     eui_message_t *result_ptr;   //result should be a pointer to our expected element
@@ -157,7 +167,7 @@ TEST( FindMessageObject, find_message_object_no_id )
     TEST_ASSERT_TRUE_MESSAGE( result_ptr == expecting, "Didn't return correct pointer")
 }
 
-TEST( FindMessageObject, find_message_object_non_printable )
+void test_find_message_object_non_printable( void )
 {
     eui_message_t *expecting     = &test_findobject_store[3]; //int8 object
     eui_message_t *result_ptr;   //result should be a pointer to our expected element
@@ -169,12 +179,12 @@ TEST( FindMessageObject, find_message_object_non_printable )
     TEST_ASSERT_TRUE_MESSAGE( result_ptr == expecting, "Didn't return correct pointer")
 }
 
-TEST( FindMessageObject, find_message_devArrayNULL )
+void test_find_message_devArrayNULL( void )
 {
     TEST_IGNORE_MESSAGE("TODO: Test missing developer object array");
 }
 
-TEST( FindMessageObject, find_message_internalArrayNULL )
+void test_find_message_internalArrayNULL( void )
 {
     TEST_IGNORE_MESSAGE("TODO: Test missing internal object array");
 }

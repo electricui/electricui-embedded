@@ -1,17 +1,27 @@
-#include "../../src/electricui.h"
-#include "../../src/eui_macro.h"
 #include "unity.h"
-#include "unity_fixture.h"
+ 
+// MODULE UNDER TEST
+#include "eui_macro.h"
+#include "mock_electricui.h"
 
-TEST_GROUP( MacroValidation );
-
-void		macro_callback(void);
-
+// DEFINITIONS 
+ 
+// PRIVATE TYPES
+typedef struct {
+  float x;
+  float y;
+  float z;
+} macro_test_struct_t;
+ 
+// PRIVATE FUNCTIONS
+void macro_callback(void);
+ 
 void macro_callback(void)
 {
 	//this is a test function...
 }
 
+// PRIVATE DATA
 char      	macro_char    	= 'a';
 int8_t    	macro_int8    	= -10;
 uint8_t   	macro_uint8		= 10;
@@ -21,12 +31,6 @@ int32_t    	macro_int32    	= -10;
 uint32_t	macro_uint32   	= 10;
 float 		macro_float		= 10.0f;
 double 		macro_double 	= 10.0f;
-
-typedef struct {
-  float x;
-  float y;
-  float z;
-} macro_test_struct_t;
 
 macro_test_struct_t	macro_trifloat = { 10.0f, 100.0f, 1000.0f };
 
@@ -90,17 +94,21 @@ uint8_t small_array[1] 		=	{ 0 };
 uint8_t standard_array[40]	=	{ 0 };
 uint8_t large_array[350]	=	{ 0 };
 
-TEST_SETUP( MacroValidation )
+// SETUP, TEARDOWN
+ 
+void setUp(void)
+{
+
+}
+ 
+void tearDown(void)
 {
 
 }
 
-TEST_TEAR_DOWN( MacroValidation )
-{
+// TESTS
 
-}
-
-TEST( MacroValidation, Array_Element_Count )
+void test_array_element_count( void )
 {
 	TEST_ASSERT_EQUAL_INT_MESSAGE( 0, 	ARR_ELEM(no_array), 		"Null array elements incorrectly counted." );
 	TEST_ASSERT_EQUAL_INT_MESSAGE( 1, 	ARR_ELEM(small_array), 		"Small array elements incorrectly counted." );
@@ -111,12 +119,22 @@ TEST( MacroValidation, Array_Element_Count )
 	TEST_ASSERT_EQUAL_INT_MESSAGE( 11, ARR_ELEM(expected_object_array), "Ground-truth array elements incorrectly counted." );
 }
 
-TEST( MacroValidation, EUIObject_Macro_Test_Standard )
+void test_readwrite( void )
 {
     TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE(expected_object_array, macro_object_array, sizeof(eui_message_t), ARR_ELEM(expected_object_array), "Macro populated array != ground truth array"); 
 }
 
-TEST( MacroValidation, EUIObject_Macro_Test_Read_Only )
+void test_readonly( void )
 {
     TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE(expected_object_array_read_only, macro_object_array_read_only, sizeof(eui_message_t), ARR_ELEM(expected_object_array_read_only), "Read only macros != ground truth array"); 
+}
+
+void test_readwrite_array( void )
+{
+	TEST_IGNORE_MESSAGE("Add array macros");
+}
+
+void test_readonly_array( void )
+{
+	TEST_IGNORE_MESSAGE("Add array macros");
 }

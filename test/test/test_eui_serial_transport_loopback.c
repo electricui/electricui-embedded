@@ -1,14 +1,19 @@
-#include "../../src/eui_serial_transport.h"
 #include "unity.h"
-#include "unity_fixture.h"
 #include <string.h>
-
-TEST_GROUP( SerialLoopback );
-
+ 
+// MODULE UNDER TEST
+#include "eui_serial_transport.h"
+ 
+// DEFINITIONS 
+ 
+// PRIVATE TYPES
+ 
+// PRIVATE DATA
 //mock an outbound putc style per-byte interface
 uint8_t loopback_buffer[1024]   = { 0xFF };
 uint16_t lb_buf_pos             = 0;
 
+// PRIVATE FUNCTIONS
 void loopback_interface(uint8_t outbound)
 {
     if( lb_buf_pos < 1024 )
@@ -21,20 +26,24 @@ void loopback_interface(uint8_t outbound)
         TEST_ASSERT_MESSAGE( 1, "Mocked serial interface reports an issue");
     }
 }
-
-TEST_SETUP( SerialLoopback )
+ 
+// SETUP, TEARDOWN
+ 
+void setUp(void)
 {
     memset(loopback_buffer, 0xFF, sizeof(loopback_buffer));
     lb_buf_pos = 0;
 }
-
-TEST_TEAR_DOWN( SerialLoopback )
+ 
+void tearDown(void)
 {
 
 }
 
+// TESTS
+
 // Single byte payload
-TEST( SerialLoopback, encode_decode_simple )
+void test_encode_decode_simple( void )
 {
     //pass data to encoder
     //attach encoder to decoder
@@ -78,7 +87,7 @@ TEST( SerialLoopback, encode_decode_simple )
 }
 
 // All header bits are non-zero
-TEST( SerialLoopback, encode_decode_headerbits )
+void test_encode_decode_headerbits( void )
 {
     //decoder data structure
     eui_packet_t test_interface = {0};
@@ -121,7 +130,7 @@ TEST( SerialLoopback, encode_decode_headerbits )
 
 }
 
-TEST( SerialLoopback, encode_decode_short_id )
+void test_encode_decode_short_id( void )
 {
     eui_packet_t test_interface = {0};
 
@@ -158,7 +167,7 @@ TEST( SerialLoopback, encode_decode_short_id )
     TEST_ASSERT_EQUAL_UINT8_ARRAY( test_payload, test_interface.data_in, sizeof(test_payload)       );
 }
 
-TEST( SerialLoopback, encode_decode_long_id )
+void test_encode_decode_long_id( void )
 {
     eui_packet_t test_interface = {0};
 
@@ -192,7 +201,7 @@ TEST( SerialLoopback, encode_decode_long_id )
     TEST_ASSERT_EQUAL_UINT8_ARRAY( test_payload, test_interface.data_in, sizeof(test_payload)       );
 }
 
-TEST( SerialLoopback, encode_decode_no_data )
+void test_encode_decode_no_data( void )
 {
     eui_packet_t test_interface = {0};
 
@@ -225,7 +234,7 @@ TEST( SerialLoopback, encode_decode_no_data )
     TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Offset buffer garbage appeared" );
 }
 
-TEST( SerialLoopback, encode_decode_long_data )
+void test_encode_decode_long_data( void )
 {
     eui_packet_t test_interface = {0};
 
@@ -282,7 +291,7 @@ TEST( SerialLoopback, encode_decode_long_data )
 
 }
 
-TEST( SerialLoopback, encode_decode_many_zeros )
+void test_encode_decode_many_zeros( void )
 {
     eui_packet_t test_interface = {0};
 
