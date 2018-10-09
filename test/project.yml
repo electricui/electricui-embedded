@@ -73,7 +73,7 @@
   :arguments:
     - -lm
 :gcov:
- :html_report_type: basic
+ :html_report_type: detailed
 
 # LIBRARIES
 # These libraries are automatically injected into the build process. Those specified as
