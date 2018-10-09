@@ -60,13 +60,20 @@
     int8:     INT8
     bool:     UINT8
 
-:gcov:
-    :html_report_type: basic
 
 #:tools:
 # Ceedling defaults to using gcc for compiling, linking, etc.
 # As [:tools] is blank, gcc will be used (so long as it's in your system path)
 # See documentation to configure a given toolchain for use
+
+:tools_test_linker:
+  :arguments:
+    - -lm
+:tools_gcov_linker:
+  :arguments:
+    - -lm
+:gcov:
+ :html_report_type: basic
 
 # LIBRARIES
 # These libraries are automatically injected into the build process. Those specified as
@@ -88,4 +95,5 @@
     - stdout_pretty_tests_report
     - module_generator
     - raw_output_report
+    - gcov
 ...
