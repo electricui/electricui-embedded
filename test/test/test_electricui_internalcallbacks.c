@@ -5,6 +5,7 @@
 #include "electricui.h"
 #include "mock_eui_serial_transport.h"
 #include "mock_eui_crc.h"
+#include "mock_eui_offset_validation.h"
 
 // DEFINITIONS 
  
