@@ -58,16 +58,16 @@ void test_find_message_object_developer( void )
 
 void test_find_message_object_internal( void )
 {
-    TEST_IGNORE_MESSAGE("TODO: Need to allow tests to see the internal object array");
-
-    eui_message_t *expecting     = &test_findobject_store[0];    //todo fix this
+    //this one is hard, we can't easily reach into the static variables to grab the pointer
     eui_message_t *result_ptr;
-    const char * test_message   = "lv";
+    const char * test_message   = "o";
     uint8_t is_internal         = 1;
 
     result_ptr = find_message_object(test_message, is_internal);
 
-    TEST_ASSERT_TRUE_MESSAGE( result_ptr == expecting, "Didn't return correct pointer")
+    // We know that the variable will exist with that ID, so just see if we get a pointer back
+    //just assume that a non-zero pointer => works? This could use work
+    TEST_ASSERT_NOT_NULL_MESSAGE( result_ptr, "Didn't return correct pointer")
 }
 
 void test_find_message_object_wrong_internal_flag( void )
