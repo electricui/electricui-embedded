@@ -57,7 +57,8 @@ void setUp(void)
     test_char = 'a';
     test_uint = 21;
     
-    setup_identifier( (char*)"a", 1 );
+    // setup_identifier( (char*)"a", 1 );
+    
     setup_dev_msg(internal_callback_test_store, ARR_ELEM(internal_callback_test_store));
     mock_interface.output_func = &callback_mocked_output;
     setup_interface( &mock_interface, 1);
