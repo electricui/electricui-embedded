@@ -1,6 +1,7 @@
 #include <string.h>
 #include "electricui.h"
 #include "utilities/eui_crc.h"
+#include "utilities/eui_offset_validation.h"
 
 // Private functions
 static callback_uint8_t
@@ -20,14 +21,6 @@ handle_packet_response( eui_interface_t *valid_packet,
     static void
     handle_packet_callback( eui_message_t *msgObjPtr );
 #endif
-
-static void
-validate_offset_range(  uint16_t base, 
-                        uint16_t offset, 
-                        uint16_t type_bytes,
-                        uint16_t size,
-                        uint16_t *start,
-                        uint16_t *end );
 
 //application layer functionality
 static void
@@ -399,54 +392,6 @@ send_tracked_range( callback_uint8_t    output_function,
                     msgObjPtr->msgID,
                     end_addr,
                     msgObjPtr->payload );
-    }
-}
-
-static void
-validate_offset_range(  uint16_t base,
-                        uint16_t offset,
-                        uint16_t type_bytes,
-                        uint16_t size,
-                        uint16_t *start,
-                        uint16_t *end )
-{
-    uint8_t type_size = 0;
-
-    switch( type_bytes )
-    {
-        case TYPE_INT16:
-        case TYPE_UINT16:
-            type_size = 2;
-        break;
-
-        case TYPE_INT32:
-        case TYPE_UINT32:
-        case TYPE_FLOAT:
-            type_size = 4;
-        break;
-
-        case TYPE_DOUBLE:
-            type_size = 8;
-        break;
-
-        default:  
-            //single byte types and customs
-            type_size = 1;
-        break;
-    }
-
-    //shift the offset up to align with the type size
-    base    = ((base    + (type_size-1)) / type_size) * type_size;
-    offset  = ((offset  + (type_size-1)) / type_size) * type_size;
-
-    if( offset > size || !offset)
-    {
-        *end = size;
-    }
-
-    if( base >= offset)
-    {
-        *start = offset - type_size;
     }
 }
 
