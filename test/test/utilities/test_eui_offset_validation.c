@@ -157,7 +157,7 @@ void test_offset_validation_swap_ends( void )
                             &output_start,
                             &output_end );
 
-    TEST_ASSERT_EQUAL( 19, output_start );
+    TEST_ASSERT_EQUAL( 4, output_start );
     TEST_ASSERT_EQUAL( 20, output_end );
 
     validate_offset_range(  10,
@@ -238,6 +238,7 @@ void test_offset_validation_align_edge_into_overrun( void )
     uint16_t output_start  = 0;
     uint16_t output_end    = 0;
 
+    //should clamp upper bound to max
     validate_offset_range(  16,
                             22,
                             TYPE_FLOAT,
@@ -248,6 +249,7 @@ void test_offset_validation_align_edge_into_overrun( void )
     TEST_ASSERT_EQUAL( 16,  output_start );
     TEST_ASSERT_EQUAL( 20, output_end );
 
+    // should clamp lower edge to natural edge, downwards
     validate_offset_range(  17,
                             20,
                             TYPE_FLOAT,
@@ -267,4 +269,55 @@ void test_offset_validation_align_edge_into_overrun( void )
 
     TEST_ASSERT_EQUAL( 16,  output_start );
     TEST_ASSERT_EQUAL( 20, output_end );
+}
+
+void test_offset_validation_invalid_inputs( void )
+{
+	//invalid
+    uint16_t output_start  = 0;
+    uint16_t output_end    = 0;
+
+    //no data range requested, should spit back 'tail edge'
+    validate_offset_range(  0,
+                            0,
+                            TYPE_FLOAT,
+                            20,
+                            &output_start,
+                            &output_end );
+
+    TEST_ASSERT_EQUAL( 0, output_start );
+    TEST_ASSERT_EQUAL( 20, output_end );
+
+    //invalid existing types should be per-byte
+    validate_offset_range(  0,
+                            8,
+                            TYPE_CALLBACK,
+                            6,
+                            &output_start,
+                            &output_end );
+
+    TEST_ASSERT_EQUAL( 0,  output_start );
+    TEST_ASSERT_EQUAL( 6,  output_end );
+
+    //both values are out of bounds, clamp
+    validate_offset_range(  16,
+                            24,
+                            TYPE_FLOAT,
+                            10,
+                            &output_start,
+                            &output_end );
+
+    TEST_ASSERT_EQUAL( 6,  output_start );
+    TEST_ASSERT_EQUAL( 10,  output_end );
+
+    //unknown types should fallback to 1-byte mode
+    validate_offset_range(  0,
+                            6,
+                            150,
+                            10,
+                            &output_start,
+                            &output_end );
+
+    TEST_ASSERT_EQUAL( 0,  output_start );
+    TEST_ASSERT_EQUAL( 6,  output_end );
 }
