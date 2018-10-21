@@ -1,62 +1,9 @@
 #include <string.h>
 #include "electricui.h"
+#include "electricui_private.h"
 #include "utilities/eui_crc.h"
 #include "utilities/eui_offset_validation.h"
 
-// Private functions
-static callback_uint8_t
-auto_output( void );
-
-static uint8_t
-handle_packet_data( eui_interface_t *valid_packet,
-                    eui_header_t *header,
-                    eui_message_t *msgObjPtr );
-
-static void
-handle_packet_response( eui_interface_t *valid_packet, 
-                        eui_header_t *header,
-                        eui_message_t *msgObjPtr );
-
-#ifdef EUI_CONF_VARIABLE_CALLBACKS
-    static void
-    handle_packet_callback( eui_message_t *msgObjPtr );
-#endif
-
-//application layer functionality
-static void
-announce_board( void );
-
-static void
-announce_dev_msg_readonly( void );
-
-static void
-announce_dev_msg_writable( void );
-
-static void
-announce_dev_vars_readonly( void );
-
-static void
-announce_dev_vars_writable( void );
-
-static euiVariableCount_t
-send_tracked_message_id_list( uint8_t read_only );
-
-static euiVariableCount_t
-send_tracked_variables( uint8_t read_only );
-
-//interface management
-static eui_interface_t     *interfaceArray;
-static uint8_t             numInterfaces;
-
-//dev interface
-static eui_message_t       *devObjectArray;
-static euiVariableCount_t  numDevObjects;
-
-// eUI variables accessible to developer
-static uint8_t     heartbeat;
-static uint16_t    board_identifier;
-static uint8_t     session_identifier;
-static uint8_t     active_interface;
 
 //internal eUI tracked variables
 uint8_t library_version[] = { VER_MAJOR, VER_MINOR, VER_PATCH };
@@ -193,7 +140,7 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
     return parse_status;
 }
 
-static uint8_t
+uint8_t
 handle_packet_data( eui_interface_t  *valid_packet,
                     eui_header_t    *header,
                     eui_message_t   *msgObjPtr )
@@ -239,7 +186,7 @@ handle_packet_data( eui_interface_t  *valid_packet,
 }
 
 // Check the inbound packet's response requirements and output as required
-static void
+void
 handle_packet_response( eui_interface_t  *packet_in,
                         eui_header_t    *header,
                         eui_message_t   *msgObjPtr )
@@ -294,7 +241,7 @@ handle_packet_response( eui_interface_t  *packet_in,
 }
 
 #ifdef EUI_CONF_VARIABLE_CALLBACKS
-    static void
+    void
     handle_packet_callback( eui_message_t *msgObjPtr )
     {
         // Call the callback assigned to this message ID
@@ -469,7 +416,7 @@ setup_identifier(char * uuid, uint8_t bytes)
 }
 
 //application layer callbacks
-static void
+void
 announce_board(void)
 {
     //repond to search request with board info
@@ -490,7 +437,7 @@ announce_board(void)
                     &temp_header);
 }
 
-static void
+void
 announce_dev_msg_readonly(void)
 {
     euiVariableCount_t num_read_only  = 0;
@@ -507,7 +454,7 @@ announce_dev_msg_readonly(void)
                         &num_read_only);
 }
 
-static void
+void
 announce_dev_msg_writable(void)
 {
     euiVariableCount_t num_writable  = 0;
@@ -524,19 +471,19 @@ announce_dev_msg_writable(void)
                         &num_writable);
 }
 
-static void
+void
 announce_dev_vars_readonly(void)
 {
     send_tracked_variables(READ_ONLY_FLAG);
 }
 
-static void
+void
 announce_dev_vars_writable(void)
 {
     send_tracked_variables(WRITABLE_FLAG);
 }
 
-static euiVariableCount_t
+euiVariableCount_t
 send_tracked_message_id_list(uint8_t read_only)
 {
     euiVariableCount_t variables_sent = 0;
@@ -585,7 +532,7 @@ send_tracked_message_id_list(uint8_t read_only)
     return variables_sent;
 }
 
-static euiVariableCount_t
+euiVariableCount_t
 send_tracked_variables(uint8_t read_only)
 {
     euiVariableCount_t sent_variables = 0;
