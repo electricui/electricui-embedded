@@ -45,6 +45,6 @@ validate_offset_range(  uint16_t base,
 
     if( base >= offset)
     {
-        *start = offset - type_size;
+        *start = *end - type_size;
     }
 }

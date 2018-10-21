@@ -157,8 +157,8 @@ void test_offset_validation_swap_ends( void )
                             &output_start,
                             &output_end );
 
-    TEST_ASSERT_EQUAL( 0, output_start );
-    TEST_ASSERT_EQUAL( 4, output_end );
+    TEST_ASSERT_EQUAL( 19, output_start );
+    TEST_ASSERT_EQUAL( 20, output_end );
 
     validate_offset_range(  10,
                             4,
@@ -167,16 +167,104 @@ void test_offset_validation_swap_ends( void )
                             &output_start,
                             &output_end );
 
-    TEST_ASSERT_EQUAL( 4, output_start );
-    TEST_ASSERT_EQUAL( 10, output_end );
+    TEST_ASSERT_EQUAL( 3, output_start );
+    TEST_ASSERT_EQUAL( 4, output_end );
 }
 
 void test_offset_validation_overrun_input( void )
 {
-    TEST_IGNORE_MESSAGE("TODO: Test long input");
+    uint16_t output_start  = 0;
+    uint16_t output_end    = 0;
+
+    validate_offset_range(  4,
+                            40,
+                            TYPE_INT8,
+                            20,
+                            &output_start,
+                            &output_end );
+
+    TEST_ASSERT_EQUAL( 4, output_start );
+    TEST_ASSERT_EQUAL( 20, output_end );
+
+    validate_offset_range(  10,
+                            40,
+                            TYPE_INT8,
+                            20,
+                            &output_start,
+                            &output_end );
+
+    TEST_ASSERT_EQUAL( 10, output_start );
+    TEST_ASSERT_EQUAL( 20, output_end );
 }
 
 void test_offset_validation_align_edge( void )
 {
-    TEST_IGNORE_MESSAGE("TODO: Test edge alignment");
+    uint16_t output_start  = 0;
+    uint16_t output_end    = 0;
+
+    validate_offset_range(  0,
+                            11,
+                            TYPE_FLOAT,
+                            20,
+                            &output_start,
+                            &output_end );
+
+    TEST_ASSERT_EQUAL( 0,  output_start );
+    TEST_ASSERT_EQUAL( 12, output_end );
+
+    validate_offset_range(  3,
+                            16,
+                            TYPE_FLOAT,
+                            20,
+                            &output_start,
+                            &output_end );
+
+    TEST_ASSERT_EQUAL( 4,  output_start );
+    TEST_ASSERT_EQUAL( 16, output_end );
+
+    validate_offset_range(  3,
+                            14,
+                            TYPE_FLOAT,
+                            20,
+                            &output_start,
+                            &output_end );
+
+    TEST_ASSERT_EQUAL( 4,  output_start );
+    TEST_ASSERT_EQUAL( 16, output_end );
+}
+
+void test_offset_validation_align_edge_into_overrun( void )
+{
+    uint16_t output_start  = 0;
+    uint16_t output_end    = 0;
+
+    validate_offset_range(  16,
+                            22,
+                            TYPE_FLOAT,
+                            20,
+                            &output_start,
+                            &output_end );
+
+    TEST_ASSERT_EQUAL( 16,  output_start );
+    TEST_ASSERT_EQUAL( 20, output_end );
+
+    validate_offset_range(  17,
+                            20,
+                            TYPE_FLOAT,
+                            20,
+                            &output_start,
+                            &output_end );
+
+    TEST_ASSERT_EQUAL( 16,  output_start );
+    TEST_ASSERT_EQUAL( 20, output_end );
+
+    validate_offset_range(  19,
+                            23,
+                            TYPE_FLOAT,
+                            20,
+                            &output_start,
+                            &output_end );
+
+    TEST_ASSERT_EQUAL( 16,  output_start );
+    TEST_ASSERT_EQUAL( 20, output_end );
 }
