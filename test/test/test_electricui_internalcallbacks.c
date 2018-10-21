@@ -195,13 +195,12 @@ void test_announce_dev_vars_writable( void )
 
     TEST_ASSERT_EQUAL_HEX8_ARRAY_MESSAGE( expected, callback_serial_buffer, sizeof(expected), "Dev variable transfer didn't match" );
 }
-
+/*
 void test_send_msgID_list_callback( void )
 {
     TEST_IGNORE();
 
     //only tests that the function counts the number of messageID's sent, we use the higher level callback test for byte-level tests
-    uint16_t msgID_count = 0;
     uint16_t number_ro_expected = 0;
     uint16_t number_rw_expected = 0;
 
@@ -217,11 +216,15 @@ void test_send_msgID_list_callback( void )
     number_rw_expected = 2;
     setup_dev_msg( ro_rw_testset, ARR_ELEM(ro_rw_testset) );
 
-    // msgID_count = send_tracked_message_id_list( 0 );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( number_rw_expected, msgID_count, "Base - Writable msgID count incorrect" );
+    // encode_packet_simple_Expect();
 
-    // msgID_count = send_tracked_message_id_list( 1 );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( number_ro_expected, msgID_count, "Base - Read-Only msgID count incorrect" );
+    TEST_ASSERT_EQUAL_INT_MESSAGE(  number_rw_expected, 
+                                    send_tracked_message_id_list( 0 ), 
+                                    "Base - Writable msgID count incorrect" );
+
+    TEST_ASSERT_EQUAL_INT_MESSAGE(  number_ro_expected, 
+                                    send_tracked_message_id_list( 1 ), 
+                                    "Base - Read-Only msgID count incorrect" );
 
     //test an array with nothing
     eui_message_t empty_testset[] = { };
@@ -230,11 +233,13 @@ void test_send_msgID_list_callback( void )
     number_rw_expected = 0;
     setup_dev_msg( empty_testset, ARR_ELEM(empty_testset) );
 
-    // msgID_count = send_tracked_message_id_list( 0 );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( number_rw_expected, msgID_count, "Empty - Writable msgID count incorrect" );
+    TEST_ASSERT_EQUAL_INT_MESSAGE(  number_rw_expected, 
+                                    send_tracked_message_id_list( 0 ), 
+                                    "Empty - Writable msgID count incorrect" );
 
-    // msgID_count = send_tracked_message_id_list( 1 );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( number_ro_expected, msgID_count, "Empty - Read-Only msgID count incorrect" );
+    TEST_ASSERT_EQUAL_INT_MESSAGE(  number_ro_expected, 
+                                    send_tracked_message_id_list( 1 ), 
+                                    "Empty - Read-Only msgID count incorrect" );
 
     //test writable only
     eui_message_t rw_testset[] = {
@@ -246,11 +251,13 @@ void test_send_msgID_list_callback( void )
     number_rw_expected = 2;
     setup_dev_msg( rw_testset, ARR_ELEM(rw_testset) );
 
-    // msgID_count = send_tracked_message_id_list( 0 );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( number_rw_expected, msgID_count, "Read Only - Writable msgID count incorrect" );
+    TEST_ASSERT_EQUAL_INT_MESSAGE(  number_rw_expected, 
+                                    send_tracked_message_id_list( 0 ), 
+                                    "Read Only - Writable msgID count incorrect" );
 
-    // msgID_count = send_tracked_message_id_list( 1 );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( number_ro_expected, msgID_count, "Read Only - Read-Only msgID count incorrect" );
+    TEST_ASSERT_EQUAL_INT_MESSAGE(  number_ro_expected, 
+                                    send_tracked_message_id_list( 1 ), 
+                                    "Read Only - Read-Only msgID count incorrect" );
 
     //test writable only
     eui_message_t ro_testset[] = {
@@ -262,11 +269,13 @@ void test_send_msgID_list_callback( void )
     number_rw_expected = 0;
     setup_dev_msg( ro_testset, ARR_ELEM(ro_testset) );
 
-    // msgID_count = send_tracked_message_id_list( 0 );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( number_rw_expected, msgID_count, "Writable Only - Writable msgID count incorrect" );
+    TEST_ASSERT_EQUAL_INT_MESSAGE(  number_rw_expected, 
+                                    send_tracked_message_id_list( 0 ), 
+                                    "Writable Only - Writable msgID count incorrect" );
 
-    // msgID_count = send_tracked_message_id_list( 1 );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( number_ro_expected, msgID_count, "Writable Only - Read-Only msgID count incorrect" );
+    TEST_ASSERT_EQUAL_INT_MESSAGE(  number_ro_expected, 
+                                    send_tracked_message_id_list( 1 ), 
+                                    "Writable Only - Read-Only msgID count incorrect" );
 
     //test mixed order of vars
     eui_message_t mixed_testset[] = {
@@ -288,11 +297,13 @@ void test_send_msgID_list_callback( void )
     number_rw_expected = 6;
     setup_dev_msg( mixed_testset, ARR_ELEM(mixed_testset) );
 
-    // msgID_count = send_tracked_message_id_list( 0 );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( number_rw_expected, msgID_count, "Mixed set - Writable msgID count incorrect" );
+    TEST_ASSERT_EQUAL_INT_MESSAGE(  number_rw_expected, 
+                                    send_tracked_message_id_list( 0 ), 
+                                    "Mixed set - Writable msgID count incorrect" );
 
-    // msgID_count = send_tracked_message_id_list( 1 );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( number_ro_expected, msgID_count, "Mixed set - Read-Only msgID count incorrect" );
+    TEST_ASSERT_EQUAL_INT_MESSAGE(  number_ro_expected, 
+                                    send_tracked_message_id_list( 1 ), 
+                                    "Mixed set - Read-Only msgID count incorrect" );
 
     //test many vars (should force a few messages to be sent)
     eui_message_t large_testset[] = {
@@ -362,13 +373,15 @@ void test_send_msgID_list_callback( void )
     number_rw_expected = 30;
     setup_dev_msg( large_testset, ARR_ELEM(large_testset) );
 
-    // msgID_count = send_tracked_message_id_list( 0 );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( number_rw_expected, msgID_count, "Large set - Writable msgID count incorrect" );
+    TEST_ASSERT_EQUAL_INT_MESSAGE(  number_rw_expected, 
+                                    send_tracked_message_id_list( 0 ), 
+                                    "Large set - Writable msgID count incorrect" );
 
-    // msgID_count = send_tracked_message_id_list( 1 );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( number_ro_expected, msgID_count, "Large set - Read-Only msgID count incorrect" );
+    TEST_ASSERT_EQUAL_INT_MESSAGE(  number_ro_expected, 
+                                    send_tracked_message_id_list( 1 ), 
+                                    "Large set - Read-Only msgID count incorrect" );
 }
-
+*/
 void test_send_variable_callback( void )
 {
     TEST_IGNORE_MESSAGE("TODO");
