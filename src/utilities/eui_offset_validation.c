@@ -35,8 +35,8 @@ validate_offset_range(  uint16_t base,
     }
 
     //shift the offset up to align with the type size
-    base    = ((base    + (type_size-1)) / type_size) * type_size;
-    offset  = ((offset  + (type_size-1)) / type_size) * type_size;
+    *start  = ((base    + (type_size-1)) / type_size) * type_size;
+    *end    = ((offset  + (type_size-1)) / type_size) * type_size;
 
     if( offset > size || !offset)
     {
