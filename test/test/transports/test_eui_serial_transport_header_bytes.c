@@ -115,8 +115,8 @@ void test_header_serialise_overflow_payload(void)
     test_header.acknum     = 0;
     test_header.offset     = 0;
     test_header.id_len     = 1;
-    test_header.data_len   = 1025;  //overflows to 0x01
-
+    test_header.data_len   = 1023;  
+    test_header.data_len  += 2;     //overflows to 0x01
     uint8_t buffer[5] = { 0xFF };
     uint8_t expected[] = { 0x01, 0x00, 0x01 };
     uint8_t result = encode_header( &test_header, &buffer[0] );
@@ -133,8 +133,9 @@ void test_header_serialise_overflow_messageid(void)
     test_header.type       = 0;
     test_header.acknum     = 0;
     test_header.offset     = 0;
-    test_header.id_len     = 16;
-    test_header.data_len   = 1;  //overflows to 0x01
+    test_header.id_len     = 15;
+    test_header.id_len    += 1; //overflows to 0x01
+    test_header.data_len   = 1;
 
     uint8_t buffer[5] = { 0xFF };
     uint8_t expected[] = { 0x01, 0x00, 0x00 };
@@ -163,7 +164,6 @@ void test_header_invalid_both(void)
 
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected, buffer, sizeof(expected) );
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, result, "Unexpected return count" );
-
 }
 
 void test_header_invalid_header(void)

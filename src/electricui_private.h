@@ -1,3 +1,8 @@
+#ifndef EUI_PRIVATE_H
+#define EUI_PRIVATE_H
+
+#include "eui_types.h"
+
 // Private functions
 callback_uint8_t
 auto_output( void );
@@ -52,3 +57,5 @@ uint8_t     heartbeat;
 uint16_t    board_identifier;
 uint8_t     session_identifier;
 uint8_t     active_interface;
+
+#endif //end EUI_PRIVATE_H

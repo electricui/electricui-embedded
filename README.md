@@ -1,4 +1,4 @@
-ge# electricui-embedded
+# electricui-embedded
 
 ElectricUI communications and handling library for use on simplistic embedded microcontrollers. Communicates with a ElectricUI compatible UI or device.
 

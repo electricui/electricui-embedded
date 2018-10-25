@@ -7,6 +7,7 @@ extern "C" {
 
 #include "eui_config.h"
 #include "utilities/eui_macro.h"
+#include "eui_types.h"
 
 // Warnings based on configuration flags (depends on compiler support)
 #ifdef EUI_CONF_QUEUE_DISABLE
@@ -21,39 +22,11 @@ extern "C" {
 #define VER_MINOR 6
 #define VER_PATCH 0
 
-typedef void (*eui_cb_t)(void);            //callback with no data
-
-typedef struct {
-    const char*   msgID;
-    uint8_t       type;
-    uint16_t      size;
-    void          *payload;
-#ifdef EUI_CONF_VARIABLE_CALLBACKS
-    eui_cb_t callback;
-#endif
-} eui_message_t;
-
 typedef struct {
     eui_packet_t        packet;
     callback_uint8_t    output_func;
     callback_uint8_t    interface_cb;
 } eui_interface_t;
-
-enum status_codes {
-    status_ok = 0,
-    status_crc_err,
-    status_parser_generic,
-    status_unknown_id,
-    status_missing_callback,
-    status_offset_er,
-    status_todo,
-};
-
-enum callback_codes {
-    cb_generic = 0,
-    cb_untracked,
-    cb_todo,
-};
 
 eui_message_t *
 find_message_object( const char * msg_id, uint8_t is_internal );

@@ -1,5 +1,5 @@
 #include "eui_offset_validation.h"
-#include "eui_config.h"
+#include "../eui_types.h"
 
 void
 validate_offset_range(  uint16_t base,

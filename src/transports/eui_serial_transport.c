@@ -86,7 +86,7 @@ encode_packet(  callback_uint8_t    out_char,
 {
     if(out_char && header && msg_id && payload)
     {  
-        uint8_t pk_tmp[1 + PACKET_BASE_SIZE + MESSAGEID_SIZE + PAYLOAD_SIZE_MAX ] = { 0 };
+        uint8_t pk_tmp[1 + PACKET_BASE_SIZE + MSGID_SIZE + PAYLOAD_SIZE_MAX ] = { 0 };
         uint16_t pk_i = 2; //leave room for the 0x00 and framing byte
 
         // write header bytes into the buffer
@@ -234,7 +234,7 @@ parse_decoded_packet(uint8_t byte_in, eui_packet_t *p_link_in)
             if( p_link_in->parser.id_bytes_in >= p_link_in->header.id_len )
             {
                 //terminate msgID string if shorter than max size
-                if( p_link_in->parser.id_bytes_in < MESSAGEID_SIZE )
+                if( p_link_in->parser.id_bytes_in < MSGID_SIZE )
                 {
                     p_link_in->msgid_in[p_link_in->parser.id_bytes_in] = '\0';
                 }

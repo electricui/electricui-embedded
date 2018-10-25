@@ -34,6 +34,11 @@
 
 // #define EUI_CONF_COOPERATIVE_DISABLE
 
+#define MESSAGEID_BITS      4
+
+#ifndef MESSAGEID_SIZE_MAX
+    #define MESSAGEID_SIZE    ( 1 << MESSAGEID_BITS )
+#endif
 
 
 #ifndef EUI_OVERRIDE_DEFAULT_PROTOCOL
@@ -44,11 +49,6 @@
     #define eui_decode(DATA, INTERFACE)  decode_packet(DATA, INTERFACE)
 #endif
 
-#ifdef EUI_CONF_MANY_VARIABLES
-    typedef uint16_t euiVariableCount_t;
-#else
-    typedef uint8_t euiVariableCount_t;
-#endif
 
 #define READ_ONLY_MASK 0x80
 #define READ_ONLY_FLAG 0x01
@@ -60,23 +60,6 @@
 #define MSG_NRESP           0
 #define MSG_OFFSET_PACKET   1
 #define MSG_STANDARD_PACKET 0
-
-// Default supported message types
-typedef enum {
-        TYPE_CALLBACK = 0,
-        TYPE_CUSTOM,
-        TYPE_OFFSET_METADATA,
-        TYPE_BYTE,
-        TYPE_CHAR,
-        TYPE_INT8,
-        TYPE_UINT8,
-        TYPE_INT16,
-        TYPE_UINT16,
-        TYPE_INT32,
-        TYPE_UINT32,
-        TYPE_FLOAT,
-        TYPE_DOUBLE,
-} euiType_t;
 
 // Configure internal message ID strings
 #define EUI_INTERNAL_LIB_VER	"o"

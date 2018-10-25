@@ -1,4 +1,4 @@
-#ifndef EUI_OFS_VAL
+#ifndef EUI_OFS_VAL_H
 #define EUI_OFS_VAL_H
 
 #include <stdint.h>
