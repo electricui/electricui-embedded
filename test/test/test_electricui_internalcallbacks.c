@@ -28,34 +28,19 @@ eui_message_t internal_callback_test_store[] = {
 const uint16_t number_ro_expected = 2;
 const uint16_t number_rw_expected = 2;
 
-uint8_t     callback_serial_buffer[1024]    = { 0 };
-uint16_t    callback_serial_position        = 0;
-
 eui_interface_t mock_interface = { 0 };
 
 // PRIVATE FUNCTIONS
 void callback_mocked_output(uint8_t outbound)
 {
-    if( callback_serial_position < 1024 )
-    {
-        callback_serial_buffer[ callback_serial_position ] = outbound;
-        callback_serial_position++;
-    }
-    else
-    {
-        TEST_ASSERT_MESSAGE( 1, "Mocked serial interface reports an issue");
-    }
+
 }
 
 // SETUP, TEARDOWN
  
 void setUp(void)
 {
-    //wipe the mocked serial buffer
-    memset(callback_serial_buffer, 0, sizeof(callback_serial_buffer));
-    callback_serial_position = 0;
-
-    //reset the state of everything else
+    //reset the state of everything
     test_char = 'a';
     test_uint = 21;
     

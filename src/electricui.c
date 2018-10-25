@@ -62,10 +62,14 @@ callback_uint8_t
 auto_output(void)
 {
     //work out which interface to output data on, and pass callback to the relevant function
-
     //todo intelligently select an interface
 
-    return interfaceArray[active_interface].output_func;
+    if(numInterfaces)
+    {
+        return interfaceArray[active_interface].output_func;
+    }
+
+    return 0;
 }
 
 uint8_t
@@ -257,27 +261,31 @@ send_tracked(   callback_uint8_t    output_function,
                 eui_message_t       *msgObjPtr, 
                 eui_pkt_settings_t  *settings )
 {
-    settings->type = msgObjPtr->type;
-
-    //decide if data will fit in a normal message, or requires multi-packet output
-    if(msgObjPtr->size <= PAYLOAD_SIZE_MAX)
+    if(output_function && msgObjPtr)
     {
-        eui_encode_simple(  output_function, 
-                            settings, 
-                            msgObjPtr->msgID, 
-                            msgObjPtr->size, 
-                            msgObjPtr->payload );
-    }
+        settings->type = msgObjPtr->type;
+ 
+        //decide if data will fit in a normal message, or requires multi-packet output
+        if(msgObjPtr->size <= PAYLOAD_SIZE_MAX)
+        {
+            eui_encode_simple(  output_function, 
+                                settings, 
+                                msgObjPtr->msgID, 
+                                msgObjPtr->size, 
+                                msgObjPtr->payload );
+        }
 #ifndef EUI_CONF_OFFSETS_DISABLED
-    else
-    {
-        send_tracked_range( output_function,
-                            msgObjPtr,
-                            settings,
-                            0,
-                            msgObjPtr->size );
+        else
+        {
+            send_tracked_range( output_function,
+                                msgObjPtr,
+                                settings,
+                                0,
+                                msgObjPtr->size );
+        }
+#endif        
     }
-#endif
+
 }
 
 
@@ -345,25 +353,32 @@ send_tracked_range( callback_uint8_t    output_function,
 void
 send_message(const char * msg_id)
 {
-    eui_pkt_settings_t  temp_header;
-    temp_header.internal  = MSG_DEV;
-    temp_header.response  = MSG_NRESP;
+    if(msg_id)
+    {
+        eui_pkt_settings_t  temp_header;
+        temp_header.internal  = MSG_DEV;
+        temp_header.response  = MSG_NRESP;
 
-    send_tracked(   auto_output(),
-                    find_message_object( msg_id, MSG_DEV ),
-                    &temp_header);
+        send_tracked(   auto_output(),
+                        find_message_object( msg_id, MSG_DEV ),
+                        &temp_header);
+        
+    }
 }
 
 void
 send_message_on(const char * msg_id, eui_interface_t *active_interface)
 {
-    eui_pkt_settings_t  temp_header;
-    temp_header.internal  = MSG_DEV;
-    temp_header.response  = MSG_NRESP;
+    if(msg_id && active_interface)
+    {
+        eui_pkt_settings_t  temp_header;
+        temp_header.internal  = MSG_DEV;
+        temp_header.response  = MSG_NRESP;
 
-    send_tracked(   active_interface->output_func,
-                    find_message_object( msg_id, MSG_DEV ),
-                    &temp_header);
+        send_tracked(   active_interface->output_func,
+                        find_message_object( msg_id, MSG_DEV ),
+                        &temp_header);
+    }
 }
 
 //application layer developer setup helpers
