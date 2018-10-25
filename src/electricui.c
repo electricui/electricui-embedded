@@ -80,9 +80,9 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
     if( parse_status == parser_complete )
     {
         //Use deconstructed header for convenience, find pointer to stored object
-        eui_header_t  header     = *(eui_header_t*)&p_link->packet.header;
-        eui_message_t *p_msglocal = find_message_object( (char*)p_link->packet.msgid_in, 
-                                                        header.internal );  
+        eui_header_t  header        = *(eui_header_t*)&p_link->packet.header;
+        eui_message_t *p_msglocal   = find_message_object( (char*)p_link->packet.msgid_in, 
+                                                            header.internal );  
         
         if( p_msglocal )
         {
@@ -91,31 +91,29 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
                 handle_packet_data( p_link, &header, p_msglocal );
             }
 
+            if( (p_msglocal->type & 0x0F) == TYPE_CALLBACK )
+            {
+                if( (header.response && header.acknum) 
+                    || (!header.response && !header.acknum) )
+                {
+                    //create a function to call from the internal stored pointer
+                    eui_cb_t cb_packet_h;
+                    cb_packet_h = p_msglocal->payload;
+
+                    if(cb_packet_h)
+                    {
+                        cb_packet_h();
+                    }
+                    else
+                    {
+                        parse_status = status_missing_callback;
+                    }
+                }
+            }
+
             if( header.response )
             {
                 handle_packet_response( p_link, &header, p_msglocal );
-            }
-            else
-            {
-                if( (p_msglocal->type & 0x0F) == TYPE_CALLBACK )
-                {
-                    if( (header.response && header.acknum) 
-                        || (!header.response && !header.acknum) )
-                    {
-                        //create a function to call from the internal stored pointer
-                        eui_cb_t cb_packet_h;
-                        cb_packet_h = p_msglocal->payload;
-
-                        if(cb_packet_h)
-                        {
-                            cb_packet_h();
-                        }
-                        else
-                        {
-                            parse_status = status_missing_callback;
-                        }
-                    }
-                }
             }
 
 #ifdef EUI_CONF_VARIABLE_CALLBACKS
@@ -160,25 +158,12 @@ handle_packet_data( eui_interface_t  *valid_packet,
     }
     else
     {
-        //work out the correct length of the write (clamp length to actual size)
-        // TODO work out if we want larger per-packet writes?
-        uint8_t bytes_to_write = 0;
-        
-        if( valid_packet->packet.parser.data_bytes_in <= msgObjPtr->size )
-        {
-            bytes_to_write = valid_packet->packet.parser.data_bytes_in;
-        }
-        else
-        {
-            bytes_to_write = msgObjPtr->size;
-        }
-
         //Ensure data won't exceed bounds with invalid offsets
-        if( valid_packet->packet.offset_in + bytes_to_write <= msgObjPtr->size )
+        if( valid_packet->packet.offset_in + header->data_len <= msgObjPtr->size )
         {
             memcpy( (uint8_t *)msgObjPtr->payload + valid_packet->packet.offset_in,
                     valid_packet->packet.data_in,
-                    bytes_to_write );
+                    header->data_len );
         }
         else
         {
