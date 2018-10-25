@@ -533,7 +533,7 @@ send_tracked_message_id_list(uint8_t read_only)
 }
 
 euiVariableCount_t
-send_tracked_variables(uint8_t read_only)
+send_tracked_variables( uint8_t read_or_writable )
 {
     euiVariableCount_t sent_variables = 0;
     eui_pkt_settings_t  temp_header;
@@ -543,7 +543,7 @@ send_tracked_variables(uint8_t read_only)
     for(euiVariableCount_t i = 0; i < numDevObjects; i++)
     {
         //only send messages which have the specified read-only bit state
-        if( devObjectArray[i].type >> 7 == read_only )
+        if( devObjectArray[i].type >> 7 == read_or_writable )
         {
             send_tracked( auto_output(), devObjectArray + i, &temp_header);
             sent_variables++;
