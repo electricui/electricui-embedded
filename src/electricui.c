@@ -236,7 +236,7 @@ handle_packet_response( eui_interface_t  *packet_in,
                                 base_address,
                                 end_address );
 #endif
-        } 
+        }
         else
         {
             send_tracked(packet_in->output_func, msgObjPtr, &res_header);      
