@@ -3,11 +3,6 @@
 
 #include <stdint.h>
 
-// Add the ability to provide a callback pointer to each tracked variable
-
-// #define EUI_CONF_VARIABLE_CALLBACKS
-
-
 // Increase supported variable count to 65535
 // Default 255 message support is probably enough for most people
 
@@ -18,13 +13,6 @@
 
 // #define EUI_CONF_OFFSETS_DISABLED
 
-
-// The protocol limits ID lengths to a maximum of 15 characters
-// Manually define a maximum here to reduce buffer size usage
-
-//#define MESSAGEID_SIZE_MAX 12
-
-
 // Default payload size for the inbound parsing buffer is 120 bytes.
 // Manually reduce or increase the size as shown below.
 
@@ -34,11 +22,6 @@
 
 // #define EUI_CONF_COOPERATIVE_DISABLE
 
-#define MESSAGEID_BITS      4
-
-#ifndef MESSAGEID_SIZE_MAX
-    #define MESSAGEID_SIZE    ( 1 << MESSAGEID_BITS )
-#endif
 
 
 #ifndef EUI_OVERRIDE_DEFAULT_PROTOCOL

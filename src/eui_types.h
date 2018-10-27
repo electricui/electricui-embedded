@@ -22,6 +22,7 @@ enum eui_type {
 
 enum eui_callback_codes {
     cb_generic = 0,
+    cb_tracked,
     cb_untracked,
     cb_todo,
 };
@@ -31,6 +32,7 @@ enum eui_status_codes {
     status_crc_err,
     status_parser_generic,
     status_unknown_id,
+    status_known_id,
     status_missing_callback,
     status_offset_er,
     status_todo,
@@ -72,9 +74,6 @@ typedef struct {
     uint8_t       type;
     uint16_t      size;
     void          *payload;
-#ifdef EUI_CONF_VARIABLE_CALLBACKS
-    eui_cb_t callback;
-#endif
 } eui_message_t;
 
 #endif //end EUI_TYPES

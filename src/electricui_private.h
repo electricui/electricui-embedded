@@ -8,12 +8,12 @@ callback_uint8_t
 auto_output( void );
 
 uint8_t
-handle_packet_data( eui_interface_t *valid_packet,
-                    eui_header_t *header,
-                    eui_message_t *msgObjPtr );
+handle_packet_action( 	eui_interface_t *valid_packet,
+                        eui_header_t *header,
+                    	eui_message_t *msgObjPtr );
 
 void
-handle_packet_response( eui_interface_t *valid_packet, 
+handle_packet_response( eui_interface_t *valid_packet,
                         eui_header_t *header,
                         eui_message_t *msgObjPtr );
 

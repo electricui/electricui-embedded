@@ -164,7 +164,7 @@ void test_ingest_data_packet( void )
     test_pk_ptr->crc_in = 0xfefe;
 
     decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, parser_complete);
-    TEST_ASSERT_EQUAL_INT8( parser_complete , parse_packet( 0x00, &test_interface ) );
+    TEST_ASSERT_EQUAL_INT8( status_known_id , parse_packet( 0x00, &test_interface ) );
 
     //inbound byte is written to the local variable
     TEST_ASSERT_EQUAL_INT8(0x0A, test_uint);
@@ -195,7 +195,7 @@ void test_ingest_data_packet_readonly( void )
     test_pk_ptr->crc_in = 0xfefe;
 
     decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, parser_complete);
-    TEST_ASSERT_EQUAL_INT8( parser_complete , parse_packet( 0x00, &test_interface ) );
+    TEST_ASSERT_EQUAL_INT8( status_known_id , parse_packet( 0x00, &test_interface ) );
 
     //inbound byte is should not be written
     TEST_ASSERT_EQUAL_INT8(20, test_uint);
@@ -290,7 +290,7 @@ void test_ingest_response_packet_query( void )
 
     decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, parser_complete);
     encode_packet_simple_ExpectAnyArgsAndReturn( 0 );
-    TEST_ASSERT_EQUAL_INT8( parser_complete , parse_packet( 0x00, &test_interface ) );
+    TEST_ASSERT_EQUAL_INT8( status_known_id , parse_packet( 0x00, &test_interface ) );
 
     //only querying... check existing value intact
     TEST_ASSERT_EQUAL_INT8( 20, test_uint);
@@ -334,7 +334,7 @@ void test_ingest_response_packet_query_offset( void )
     {
         encode_packet_ExpectAnyArgsAndReturn( 0 );
     }
-    TEST_ASSERT_EQUAL_INT8( parser_complete , parse_packet( 0x00, &test_interface ) );
+    TEST_ASSERT_EQUAL_INT8( status_known_id , parse_packet( 0x00, &test_interface ) );
 
     //only querying... check existing value intact
     uint8_t ground_truth[250] = { 20 };
@@ -366,7 +366,7 @@ void test_ingest_response_packet_ack( void )
 
     decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, parser_complete);
     encode_packet_ExpectAnyArgsAndReturn( 0 );
-    TEST_ASSERT_EQUAL_INT8( parser_complete , parse_packet( 0x00, &test_interface ) );
+    TEST_ASSERT_EQUAL_INT8( status_known_id , parse_packet( 0x00, &test_interface ) );
 
     TEST_ASSERT_EQUAL_INT8( 0x0E, test_uint);
 
@@ -395,7 +395,7 @@ void test_ingest_callback_packet_silent( void )
     test_pk_ptr->crc_in = 0xfefe;
 
     decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, parser_complete);
-    TEST_ASSERT_EQUAL_INT8( parser_complete , parse_packet( 0x00, &test_interface ) );
+    TEST_ASSERT_EQUAL_INT8( status_known_id , parse_packet( 0x00, &test_interface ) );
 
     TEST_ASSERT_EQUAL_INT8( 20, test_uint);
     TEST_ASSERT_EQUAL_INT8( 1, test_cb_hit);    //check our callback has been called
@@ -456,7 +456,7 @@ void test_ingest_callback_packet_ack( void )
 
     decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, parser_complete);    
     encode_packet_ExpectAnyArgsAndReturn( 0 );
-    TEST_ASSERT_EQUAL_INT8( parser_complete , parse_packet( 0x00, &test_interface ) );
+    TEST_ASSERT_EQUAL_INT8( status_known_id , parse_packet( 0x00, &test_interface ) );
 
     TEST_ASSERT_EQUAL_INT8( 20, test_uint);
     TEST_ASSERT_EQUAL_INT8( 1, test_cb_hit);    //check our callback has been called
@@ -487,7 +487,7 @@ void test_ingest_callback_packet_query( void )
 
     decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, parser_complete);    
     encode_packet_simple_ExpectAnyArgsAndReturn( 0 );
-    TEST_ASSERT_EQUAL_INT8( parser_complete , parse_packet( 0x00, &test_interface ) );
+    TEST_ASSERT_EQUAL_INT8( status_known_id , parse_packet( 0x00, &test_interface ) );
 
     TEST_ASSERT_EQUAL_INT8( 20, test_uint);
     TEST_ASSERT_EQUAL_INT8( 0, test_cb_hit);    //check our callback has been called
