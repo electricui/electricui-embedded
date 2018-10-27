@@ -46,7 +46,7 @@ void
 setup_interface( eui_interface_t *link_array, uint8_t link_count );
 
 void
-setup_dev_msg( eui_message_t *msgArray, euiVariableCount_t numObjects );
+setup_dev_msg( eui_message_t *msgArray, eui_variable_count_t numObjects );
 
 void
 setup_identifier( char * uuid, uint8_t bytes );

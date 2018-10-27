@@ -20,13 +20,13 @@ enum eui_type {
     TYPE_DOUBLE,
 };
 
-enum callback_codes {
+enum eui_callback_codes {
     cb_generic = 0,
     cb_untracked,
     cb_todo,
 };
 
-enum status_codes {
+enum eui_status_codes {
     status_ok = 0,
     status_crc_err,
     status_parser_generic,
@@ -37,9 +37,9 @@ enum status_codes {
 };
 
 #ifdef EUI_CONF_MANY_VARIABLES
-    typedef uint16_t euiVariableCount_t;
+    typedef uint16_t eui_variable_count_t;
 #else
-    typedef uint8_t euiVariableCount_t;
+    typedef uint8_t eui_variable_count_t;
 #endif
 
 // Callback without data

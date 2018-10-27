@@ -38,10 +38,10 @@ announce_dev_vars_readonly( void );
 void
 announce_dev_vars_writable( void );
 
-euiVariableCount_t
+eui_variable_count_t
 send_tracked_message_id_list( uint8_t read_only );
 
-euiVariableCount_t
+eui_variable_count_t
 send_tracked_variables( uint8_t read_only );
 
 //interface management
@@ -50,7 +50,7 @@ uint8_t             numInterfaces;
 
 //dev interface
 eui_message_t       *devObjectArray;
-euiVariableCount_t  numDevObjects;
+eui_variable_count_t  numDevObjects;
 
 // eUI variables accessible to developer
 uint8_t     heartbeat;
