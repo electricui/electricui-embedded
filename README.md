@@ -1,6 +1,6 @@
-# electricui-embedded
+# Electric UI Embedded Library
 
-ElectricUI communications and handling library for use on simplistic embedded microcontrollers. Communicates with a ElectricUI compatible UI or device.
+Provides a default binary serial protocol, and the higher level handling functionality for use on embedded microcontrollers or other C/C++ compatible platforms. Intended for use with a ElectricUI compatible UI or device.
 
 See the docs or website for more information.
 
@@ -20,7 +20,7 @@ Unix (your Arduino sketchbook location may vary by OS/install):
 sudo ln -s ~/projects/electricui-embedded/ ~/Arduino/libraries/electricui
 ```
 
-Windows/Arduino can demonstrate issues with symbolic links across drives.
+Windows/Arduino can demonstrate issues with symbolic links across drives (ExFAT doesn't support them).
 
 If you don't plan on developing electricui-embedded, copy or clone it straight into your libraries folder.
 
@@ -33,18 +33,16 @@ If you don't plan on developing electricui-embedded, copy or clone it straight i
 
 ### Other Microcontrollers 
 
-1. Just clone the repo and use the electricui files. Import into your project as normal and ensure the minimum setup functions are called.
+1. Just clone the repo and use the electricui files. Import into your project as normal `#include "electricui.h"` and ensure the minimum setup functions are called.
 
-2. The library assumes that you will provide a pointer to the serial tx function which accepts a char, this could be putc() or similar single byte uart_tx_write(uint8) function.
+2. The library assumes that you will provide a pointer to the serial tx function which accepts a byte, this could be putc() or similar single byte uart_tx_write(uint8) function.
 
 3. For for more detail, follow the docs or example Arduino code which shows the minimum setup and usage examples.
-
-___
 
 
 # Running tests
 
-Testing uses the [Ceedling](http://www.throwtheswitch.org/ceedling/) (Ruby|rake) based testing framework.
+Testing uses the [Ceedling](http://www.throwtheswitch.org/ceedling/) (Ruby/rake) based testing framework.
 
 I don't provide Ceedling's vendor files inside this repo, so first runs need to 're-initalise' the test structure.
 
@@ -55,33 +53,31 @@ I don't provide Ceedling's vendor files inside this repo, so first runs need to 
 
 3. Once setup, run `ceedling` or `ceedling test:all`.
 
+There are also a series of small scripts for other various analysis checks.
+
 ## Coverage Analysis
 
 Run `ceedling gcov:all` to generate the coverage reports.  
-Use `ceedling utils:gcov` to generate a pretty HTML report.
+Use `ceedling utils:gcov` to generate a pretty HTML report. It will be located in the `/test/build/artifacts/gcov` folder.
 
-___
+## Lint Checks
+
+`lint_checks.sh` provides a minimalist launch process for the [oclint](http://oclint.org/) static analysis tool.  
+It will provide a report detailing the occurances of style violations (code smells) with varying severity levels.
+
+## Arduino Example Script validation
+
+The `arduino-example-test.sh` provides automated batch compile validation for the example suite, across a range of devices.  
+Assumes a \*nix shell and the Arduino IDE is installed (arduino-builder is used).
+
+## Fuzzing
+
+TODO: Provide fuzzing script/lib files for [american fuzzy lop (afl-fuzz)](http://lcamtuf.coredump.cx/afl/).
+
 
 # Overheads and Benchmarks
 
-*OUTDATED*
+The library has a reasonably small footprint, around 280 bytes of RAM and around 2.8k of codespace.  
+Using the tracked variable functionality uses 3 bytes and 2 pointers per tracked variable (so 8 bytes on your Arduino Uno).
 
-TODO: Re-run these and compare.
-
-The baseline "starting consumption without eUI" is shown first, subsequent rows are adding something to the previous setup.
-
-Uses the Arduino avr-g++ compiler with default settings (-0s, C++11)
-
-|                       | Flash           | Global Vars       |
-| --------------------- | --------------- | ----------------- |
-| No eUI                | 5354            | 327               |
-| eUI, 1 conn           | 7956            | 563               |
-| +extra conn           | 8054      	  | 706               |
-| +track the uint8      | 8084      	  | 716               |
-| +track all vars       | 8296            | 908               |
-
-Cost of adding eUI to project               = 2602 bytes of PROGMEM, 236 bytes of RAM
-Cost of additional eUI connection methods   = 98 bytes of PROGMEM,   143 bytes of RAM each
-Cost of tracking a variable with eUI        = 30 bytes of PROGMEM,   10 bytes of RAM.
-
-These results will vary with quantity and type due to alignment of flash words/pages, compiler optimisation etc.
+These numbers will vary based on your target architecture, word alignment and compiler settings.
