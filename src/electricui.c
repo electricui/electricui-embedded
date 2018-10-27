@@ -4,45 +4,44 @@
 #include "utilities/eui_crc.h"
 #include "utilities/eui_offset_validation.h"
 
-
 //internal eUI tracked variables
 uint8_t library_version[] = { VER_MAJOR, VER_MINOR, VER_PATCH };
 
 eui_message_t internal_msg_store[] = 
 {
-    EUI_UINT8_RO(EUI_INTERNAL_LIB_VER, library_version),
-    EUI_UINT16_RO(EUI_INTERNAL_BOARD_ID, board_identifier),
-    EUI_UINT8(EUI_INTERNAL_SESSION_ID, session_identifier),
-    EUI_UINT8(EUI_INTERNAL_HEARTBEAT, heartbeat),
-    EUI_UINT8(EUI_DEFAULT_INTERFACE, active_interface),
+    EUI_UINT8_RO(   EUI_INTERNAL_LIB_VER,       library_version     ),
+    EUI_UINT16_RO(  EUI_INTERNAL_BOARD_ID,      board_identifier    ),
+    EUI_UINT8(      EUI_INTERNAL_SESSION_ID,    session_identifier  ),
+    EUI_UINT8(      EUI_INTERNAL_HEARTBEAT,     heartbeat           ),
+    EUI_UINT8(      EUI_DEFAULT_INTERFACE,      active_interface    ),
 
-    EUI_FUNC(EUI_INTERNAL_AM_RO, announce_dev_msg_readonly),
-    EUI_FUNC(EUI_INTERNAL_AM_RW, announce_dev_msg_writable),
-    EUI_FUNC(EUI_INTERNAL_AV_RO, announce_dev_vars_readonly),
-    EUI_FUNC(EUI_INTERNAL_AV_RW, announce_dev_vars_writable),
+    EUI_FUNC(   EUI_INTERNAL_AM_RO, announce_dev_msg_readonly   ),
+    EUI_FUNC(   EUI_INTERNAL_AM_RW, announce_dev_msg_writable   ),
+    EUI_FUNC(   EUI_INTERNAL_AV_RO, announce_dev_vars_readonly  ),
+    EUI_FUNC(   EUI_INTERNAL_AV_RW, announce_dev_vars_writable  ),
 
-    EUI_FUNC(EUI_INTERNAL_SEARCH, announce_board),
+    EUI_FUNC(   EUI_INTERNAL_SEARCH, announce_board ),
 };
 
 
 eui_message_t * 
-find_message_object(const char * msg_id, uint8_t is_internal)
+find_message_object( const char * msg_id, uint8_t is_internal )
 {
     eui_message_t *foundMsgPtr = 0;
 
-    if(is_internal == MSG_INTERNAL)
+    if( MSG_INTERNAL == is_internal )
     {
         //search the internal array for matching messageID
-        for(eui_variable_count_t i = 0; i < ARR_ELEM(internal_msg_store); i++)
+        for(eui_variable_count_t i = 0; i < ARR_ELEM( internal_msg_store ); i++)
         {
             if( strcmp( msg_id, internal_msg_store[i].msgID ) == 0 )
             {
                 foundMsgPtr = &internal_msg_store[i];
-                i = ARR_ELEM(internal_msg_store);
+                i = ARR_ELEM( internal_msg_store );
             }
         }
     }
-    else if (is_internal == MSG_DEV)
+    else if ( MSG_DEV == is_internal )
     {
         //search developer space array for matching messageID
         for(eui_variable_count_t i = 0; i < numDevObjects; i++)
@@ -59,12 +58,12 @@ find_message_object(const char * msg_id, uint8_t is_internal)
 }
 
 callback_uint8_t
-auto_output(void)
+auto_output( void )
 {
     //work out which interface to output data on, and pass callback to the relevant function
     //todo intelligently select an interface
 
-    if(numInterfaces)
+    if( numInterfaces )
     {
         return interfaceArray[active_interface].output_func;
     }
@@ -77,7 +76,7 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
 {
     uint8_t parse_status = eui_decode(inbound_byte, &p_link->packet);
 
-    if( parse_status == parser_complete )
+    if( parser_complete == parse_status )
     {
         eui_header_t   header       = *(eui_header_t*)&p_link->packet.header;
         eui_message_t *p_msglocal   = find_message_object(  (char*)p_link->packet.msgid_in,
@@ -114,7 +113,7 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
 
         memset( &p_link->packet, 0, sizeof(eui_packet_t) );
     }
-    else if( parse_status >= parser_error )
+    else if( parser_error <= parse_status )
     {
         memset( &p_link->packet, 0, sizeof(eui_packet_t) );
 
@@ -232,12 +231,12 @@ send_tracked(   callback_uint8_t    output_function,
                 eui_message_t       *msgObjPtr,
                 eui_pkt_settings_t  *settings )
 {
-    if(output_function && msgObjPtr)
+    if( output_function && msgObjPtr )
     {
         settings->type = msgObjPtr->type;
  
         //decide if data will fit in a normal message, or requires multi-packet output
-        if(msgObjPtr->size <= PAYLOAD_SIZE_MAX)
+        if( msgObjPtr->size <= PAYLOAD_SIZE_MAX )
         {
             eui_encode_simple(  output_function,
                                 settings,
@@ -321,11 +320,11 @@ send_tracked_range( callback_uint8_t    output_function,
 }
 
 void
-send_message(const char * msg_id)
+send_message( const char * msg_id )
 {
-    if(msg_id)
+    if( msg_id )
     {
-        eui_pkt_settings_t  temp_header;
+        eui_pkt_settings_t      temp_header;
         temp_header.internal  = MSG_DEV;
         temp_header.response  = MSG_NRESP;
 
@@ -339,9 +338,9 @@ send_message(const char * msg_id)
 void
 send_message_on(const char * msg_id, eui_interface_t *active_interface)
 {
-    if(msg_id && active_interface)
+    if( msg_id && active_interface )
     {
-        eui_pkt_settings_t  temp_header;
+        eui_pkt_settings_t      temp_header;
         temp_header.internal  = MSG_DEV;
         temp_header.response  = MSG_NRESP;
 
@@ -353,9 +352,9 @@ send_message_on(const char * msg_id, eui_interface_t *active_interface)
 
 //application layer developer setup helpers
 void
-setup_interface(eui_interface_t *link_array, uint8_t link_count)
+setup_interface( eui_interface_t *link_array, uint8_t link_count )
 {
-    if(link_array && link_count)
+    if( link_array && link_count )
     {
         interfaceArray  = link_array;
         numInterfaces   = link_count;
@@ -368,9 +367,9 @@ setup_interface(eui_interface_t *link_array, uint8_t link_count)
 }
 
 void
-setup_dev_msg(eui_message_t *msgArray, eui_variable_count_t numObjects)
+setup_dev_msg( eui_message_t *msgArray, eui_variable_count_t numObjects )
 {
-    if(msgArray && numObjects)
+    if( msgArray && numObjects )
     {
         devObjectArray  = msgArray;
         numDevObjects   = numObjects;
@@ -383,9 +382,9 @@ setup_dev_msg(eui_message_t *msgArray, eui_variable_count_t numObjects)
 }
 
 void
-setup_identifier(char * uuid, uint8_t bytes)
+setup_identifier( char * uuid, uint8_t bytes )
 {
-    if(uuid && bytes)
+    if( uuid && bytes )
     {
         //generate a 'hashed' int16 of their UUID
         for(uint8_t i = 0; i < bytes; i++)
@@ -402,7 +401,7 @@ setup_identifier(char * uuid, uint8_t bytes)
 
 //application layer callbacks
 void
-announce_board(void)
+announce_board( void )
 {
     //repond to search request with board info
     eui_pkt_settings_t  temp_header;
@@ -423,12 +422,12 @@ announce_board(void)
 }
 
 void
-announce_dev_msg_readonly(void)
+announce_dev_msg_readonly( void )
 {
     eui_variable_count_t num_read_only  = 0;
-    num_read_only = send_tracked_message_id_list(READ_ONLY_FLAG);
+    num_read_only = send_tracked_message_id_list( READ_ONLY_FLAG );
 
-    eui_pkt_settings_t  temp_header;
+    eui_pkt_settings_t      temp_header;
     temp_header.internal  = MSG_INTERNAL;
     temp_header.response  = MSG_NRESP;
     temp_header.type      = TYPE_UINT8;
@@ -440,12 +439,12 @@ announce_dev_msg_readonly(void)
 }
 
 void
-announce_dev_msg_writable(void)
+announce_dev_msg_writable( void )
 {
     eui_variable_count_t num_writable  = 0;
-    num_writable = send_tracked_message_id_list(WRITABLE_FLAG);
+    num_writable = send_tracked_message_id_list( WRITABLE_FLAG );
 
-    eui_pkt_settings_t  temp_header;
+    eui_pkt_settings_t      temp_header;
     temp_header.internal  = MSG_INTERNAL;
     temp_header.response  = MSG_NRESP;
     temp_header.type      = TYPE_UINT8;
@@ -457,23 +456,23 @@ announce_dev_msg_writable(void)
 }
 
 void
-announce_dev_vars_readonly(void)
+announce_dev_vars_readonly( void )
 {
-    send_tracked_variables(READ_ONLY_FLAG);
+    send_tracked_variables( READ_ONLY_FLAG );
 }
 
 void
-announce_dev_vars_writable(void)
+announce_dev_vars_writable( void )
 {
-    send_tracked_variables(WRITABLE_FLAG);
+    send_tracked_variables( WRITABLE_FLAG );
 }
 
 eui_variable_count_t
-send_tracked_message_id_list(uint8_t read_only)
+send_tracked_message_id_list( uint8_t read_only )
 {
     eui_variable_count_t variables_sent = 0;
 
-    eui_pkt_settings_t  temp_header;
+    eui_pkt_settings_t      temp_header;
     temp_header.internal  = MSG_INTERNAL;
     temp_header.response  = MSG_NRESP;
     temp_header.type      = TYPE_CUSTOM;
@@ -483,10 +482,10 @@ send_tracked_message_id_list(uint8_t read_only)
     uint8_t msgIDlen      = 0;  //length of a single msgID string
     uint8_t msgIDPacked   = 0;  //count messages packed into buffer
 
-    for(eui_variable_count_t i = 0; i < numDevObjects; i++)
+    for( eui_variable_count_t i = 0; i < numDevObjects; i++ )
     {
         // filter based on writable flag
-        if( devObjectArray[i].type >> 7 == read_only )
+        if( read_only == devObjectArray[i].type >> 7 )
         {
             //copy messageID into the buffer, account for null termination characters as delimiter
             msgIDlen = strlen(devObjectArray[i].msgID) + 1;
@@ -498,7 +497,7 @@ send_tracked_message_id_list(uint8_t read_only)
         }
     
         //send messages and clear buffer
-        if( (msgBufferPos >= (sizeof(msgBuffer) - 16/2)) || (i >= numDevObjects - 1) )
+        if( ((sizeof(msgBuffer) - 16/2) <= msgBufferPos) || (numDevObjects - 1 <= i ) )
         {
             const char * headerID = (read_only) ? EUI_INTERNAL_AM_RO_LIST : EUI_INTERNAL_AM_RW_LIST;
             eui_encode_simple(  auto_output(),
@@ -520,17 +519,18 @@ send_tracked_message_id_list(uint8_t read_only)
 eui_variable_count_t
 send_tracked_variables( uint8_t read_or_writable )
 {
-    eui_variable_count_t sent_variables = 0;
-    eui_pkt_settings_t  temp_header;
+    eui_variable_count_t    sent_variables = 0;
+    eui_pkt_settings_t      temp_header;
+
     temp_header.internal  = MSG_DEV;
     temp_header.response  = MSG_NRESP;
 
     for(eui_variable_count_t i = 0; i < numDevObjects; i++)
     {
         //only send messages which have the specified read-only bit state
-        if( devObjectArray[i].type >> 7 == read_or_writable )
+        if( read_or_writable == devObjectArray[i].type >> 7 )
         {
-            send_tracked( auto_output(), devObjectArray + i, &temp_header);
+            send_tracked( auto_output(), devObjectArray + i, &temp_header );
             sent_variables++;
         }
     }

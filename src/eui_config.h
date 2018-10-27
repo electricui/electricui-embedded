@@ -23,9 +23,8 @@
 // #define EUI_CONF_COOPERATIVE_DISABLE
 
 
-
 #ifndef EUI_OVERRIDE_DEFAULT_PROTOCOL
-	#include "transports/eui_serial_transport.h"
+    #include "transports/eui_serial_transport.h"
     #define eui_crc(DATA, CRC)  crc16(DATA, CRC)
     #define eui_encode_simple(OUTFN, SETTINGS, MSGID, LENGTH, PAYLOAD)  encode_packet_simple(OUTFN, SETTINGS, MSGID, LENGTH, PAYLOAD)
     #define eui_encode(OUTFN, HEADER, MSGID, OFFSET, PAYLOAD)  encode_packet(OUTFN, HEADER, MSGID, OFFSET, PAYLOAD)
@@ -45,22 +44,22 @@
 #define MSG_STANDARD_PACKET 0
 
 // Configure internal message ID strings
-#define EUI_INTERNAL_LIB_VER	"o"
-#define EUI_INTERNAL_BOARD_ID	"i"
-#define EUI_INTERNAL_SESSION_ID	"j"
-#define EUI_INTERNAL_HEARTBEAT	"h"
-#define EUI_DEFAULT_INTERFACE	"k"
+#define EUI_INTERNAL_LIB_VER    "o"
+#define EUI_INTERNAL_BOARD_ID   "i"
+#define EUI_INTERNAL_SESSION_ID "j"
+#define EUI_INTERNAL_HEARTBEAT  "h"
+#define EUI_DEFAULT_INTERFACE   "k"
 
-#define EUI_INTERNAL_SEARCH		"x"	//preliminary handshake 
+#define EUI_INTERNAL_SEARCH     "x" //preliminary handshake 
 
 // Used for variable sync during first connection
-#define EUI_INTERNAL_AM_RO		"p"	//announce readonly ID's 
-#define EUI_INTERNAL_AV_RO		"r" //send readonly variables
-#define EUI_INTERNAL_AM_RO_LIST	"q"	//delimit readonly ID
-#define EUI_INTERNAL_AM_RO_END	"s"	//end of readonly ID's
-#define EUI_INTERNAL_AM_RW		"t"	//announce writable ID's 
-#define EUI_INTERNAL_AM_RW_LIST	"u" //delimit writable ID
-#define EUI_INTERNAL_AM_RW_END	"v" //end of writable ID's
-#define EUI_INTERNAL_AV_RW		"w"	//send writable variables
+#define EUI_INTERNAL_AM_RO      "p" //announce readonly ID's 
+#define EUI_INTERNAL_AV_RO      "r" //send readonly variables
+#define EUI_INTERNAL_AM_RO_LIST "q" //delimit readonly ID
+#define EUI_INTERNAL_AM_RO_END  "s" //end of readonly ID's
+#define EUI_INTERNAL_AM_RW      "t" //announce writable ID's 
+#define EUI_INTERNAL_AM_RW_LIST "u" //delimit writable ID
+#define EUI_INTERNAL_AM_RW_END  "v" //end of writable ID's
+#define EUI_INTERNAL_AV_RW      "w" //send writable variables
 
 #endif //end EUI_CONF

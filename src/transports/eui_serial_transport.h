@@ -25,10 +25,18 @@ uint8_t
 encode_framing( uint8_t *buffer, uint16_t size );
 
 uint8_t
-encode_packet_simple(callback_uint8_t output_function, eui_pkt_settings_t *settings, const char * msg_id, uint16_t payload_len, void* payload);
+encode_packet_simple(   callback_uint8_t    output_function,
+                        eui_pkt_settings_t  *settings,
+                        const char          *msg_id,
+                        uint16_t            payload_len,
+                        void*               payload);
 
 uint8_t
-encode_packet(callback_uint8_t out_char, eui_header_t * header, const char * msg_id, uint16_t offset, void* payload);
+encode_packet(  callback_uint8_t    out_char,
+                eui_header_t        *header,
+                const char          *msg_id,
+                uint16_t            offset,
+                void*               payload );
 
 uint8_t
 decode_packet(uint8_t inbound_byte, eui_packet_t *p_link_in);

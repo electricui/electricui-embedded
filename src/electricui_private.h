@@ -8,14 +8,14 @@ callback_uint8_t
 auto_output( void );
 
 uint8_t
-handle_packet_action( 	eui_interface_t *valid_packet,
-                        eui_header_t *header,
-                    	eui_message_t *msgObjPtr );
+handle_packet_action(   eui_interface_t *valid_packet,
+                        eui_header_t    *header,
+                        eui_message_t   *msgObjPtr );
 
 void
 handle_packet_response( eui_interface_t *valid_packet,
-                        eui_header_t *header,
-                        eui_message_t *msgObjPtr );
+                        eui_header_t    *header,
+                        eui_message_t   *msgObjPtr );
 
 #ifdef EUI_CONF_VARIABLE_CALLBACKS
     void
@@ -49,8 +49,8 @@ eui_interface_t     *interfaceArray;
 uint8_t             numInterfaces;
 
 //dev interface
-eui_message_t       *devObjectArray;
-eui_variable_count_t  numDevObjects;
+eui_message_t           *devObjectArray;
+eui_variable_count_t    numDevObjects;
 
 // eUI variables accessible to developer
 uint8_t     heartbeat;

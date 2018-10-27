@@ -9,7 +9,7 @@
                             + sizeof(uint16_t) )
 
 #ifndef PAYLOAD_SIZE_MAX
-    #define PAYLOAD_SIZE_MAX  120 //default inbound buffer size
+    #define PAYLOAD_SIZE_MAX  120   //default inbound buffer size
 #endif
 
 #define MSGID_SIZE 16
@@ -32,9 +32,11 @@ typedef struct {
     eui_parser_state_t parser;
     eui_header_t header;
     uint8_t     msgid_in[15];
+
 #ifndef EUI_CONF_OFFSETS_DISABLED
     uint16_t    offset_in;
 #endif
+    
     uint8_t     data_in[PAYLOAD_SIZE_MAX];
     uint16_t    crc_in;
 } eui_packet_t;
