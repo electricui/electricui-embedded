@@ -4,6 +4,7 @@ test/builld/logs
 test/build/temp
 test/build/test
 test/vendor/
+test/fuzz/fuzz-outputs
 
 # Prerequisites
 *.d

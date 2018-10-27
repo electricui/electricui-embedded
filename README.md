@@ -72,8 +72,14 @@ Assumes a \*nix shell and the Arduino IDE is installed (arduino-builder is used)
 
 ## Fuzzing
 
-TODO: Provide fuzzing script/lib files for [american fuzzy lop (afl-fuzz)](http://lcamtuf.coredump.cx/afl/).
+Fuzzing is performed using [american fuzzy lop (afl-fuzz)](http://lcamtuf.coredump.cx/afl/).
 
+A minimal program accepts bytes from stdin, and a makefile based fuzzing harness provided in `test/fuzz` which provides helpers to build and start fuzzing.
+
+Uses `afl-gcc` and `afl-fuzz`, and looks in the makefile's `AFL_ROOT` location. You will need to download and make afl, then adjust that path.
+Some binary formatted test files are included.
+
+From `/test/fuzz`, run `make all` and it will build an instrumented test program, and start fuzzing.
 
 # Overheads and Benchmarks
 
