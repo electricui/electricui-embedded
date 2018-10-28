@@ -4,6 +4,9 @@
 #include "eui_types.h"
 
 // Private functions
+eui_message_t *
+find_message_object( const char * msg_id, uint8_t is_internal );
+
 callback_uint8_t
 auto_output( void );
 

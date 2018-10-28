@@ -8,6 +8,11 @@ setup_dev_msg	KEYWORD2
 parse_packet	KEYWORD2
 setup_identifier	KEYWORD2
 
+send_tracked	KEYWORD2
+send_tracked_on	KEYWORD2
+send_untracked	KEYWORD2
+send_untracked_on	KEYWORD2
+
 # Constants (LITERAL1)
 EUI_INT8	LITERAL1
 EUI_INT16	LITERAL1

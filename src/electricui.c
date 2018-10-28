@@ -23,7 +23,14 @@ eui_message_t internal_msg_store[] =
     EUI_FUNC(   EUI_INTERNAL_SEARCH, announce_board ),
 };
 
+// Developer facing search
+eui_message_t *
+find_tracked_object( const char * msg_id )
+{
+    return find_message_object( msg_id, MSG_DEV );
+}
 
+// Internal search in either variable array
 eui_message_t * 
 find_message_object( const char * msg_id, uint8_t is_internal )
 {
@@ -202,7 +209,7 @@ handle_packet_response( eui_interface_t *valid_packet,
         // inverted logic used to keep ifdef disable clean
         if( TYPE_OFFSET_METADATA != header->type )
         {
-            send_tracked(valid_packet->output_func, msgObjPtr, &res_header);
+            send_packet(valid_packet->output_func, msgObjPtr, &res_header);
         }
 #ifndef EUI_CONF_OFFSETS_DISABLED
         else
@@ -216,7 +223,7 @@ handle_packet_response( eui_interface_t *valid_packet,
             end_address = (uint16_t)valid_packet->packet.data_in[3] << 8;
             end_address |= valid_packet->packet.data_in[2];
 
-            send_tracked_range( valid_packet->output_func,
+            send_packet_range( valid_packet->output_func,
                                 msgObjPtr,
                                 &res_header,
                                 base_address,
@@ -227,7 +234,7 @@ handle_packet_response( eui_interface_t *valid_packet,
 }
 
 void
-send_tracked(   callback_uint8_t    output_function,
+send_packet(    callback_uint8_t    output_function,
                 eui_message_t       *msgObjPtr,
                 eui_pkt_settings_t  *settings )
 {
@@ -247,7 +254,7 @@ send_tracked(   callback_uint8_t    output_function,
 #ifndef EUI_CONF_OFFSETS_DISABLED
         else
         {
-            send_tracked_range( output_function,
+            send_packet_range( output_function,
                                 msgObjPtr,
                                 settings,
                                 0,
@@ -259,7 +266,7 @@ send_tracked(   callback_uint8_t    output_function,
 }
 
 void
-send_tracked_range( callback_uint8_t    output_function, 
+send_packet_range(  callback_uint8_t    output_function, 
                     eui_message_t       *msgObjPtr, 
                     eui_pkt_settings_t  *settings, 
                     uint16_t            base_addr, 
@@ -320,7 +327,7 @@ send_tracked_range( callback_uint8_t    output_function,
 }
 
 void
-send_message( const char * msg_id )
+send_tracked( const char * msg_id )
 {
     if( msg_id )
     {
@@ -328,7 +335,7 @@ send_message( const char * msg_id )
         temp_header.internal  = MSG_DEV;
         temp_header.response  = MSG_NRESP;
 
-        send_tracked(   auto_output(),
+        send_packet(    auto_output(),
                         find_message_object( msg_id, MSG_DEV ),
                         &temp_header);
         
@@ -336,17 +343,49 @@ send_message( const char * msg_id )
 }
 
 void
-send_message_on(const char * msg_id, eui_interface_t *active_interface)
+send_tracked_on(const char * msg_id, eui_interface_t *interface)
 {
-    if( msg_id && active_interface )
+    if( msg_id && interface )
     {
         eui_pkt_settings_t      temp_header;
         temp_header.internal  = MSG_DEV;
         temp_header.response  = MSG_NRESP;
 
-        send_tracked(   active_interface->output_func,
+        send_packet(    interface->output_func,
                         find_message_object( msg_id, MSG_DEV ),
                         &temp_header);
+    }
+}
+
+void
+send_untracked( eui_message_t *msg_obj_ptr )
+{
+    if( msg_obj_ptr )
+    {
+        eui_pkt_settings_t      temp_header;
+        temp_header.internal  = MSG_DEV;
+        temp_header.response  = MSG_NRESP;
+
+        send_packet(    auto_output(),
+                        msg_obj_ptr,
+                        &temp_header);
+        
+    }
+}
+
+void
+send_untracked_on( eui_message_t *msg_obj_ptr, eui_interface_t *interface )
+{
+    if( msg_obj_ptr && interface )
+    {
+        eui_pkt_settings_t      temp_header;
+        temp_header.internal  = MSG_DEV;
+        temp_header.response  = MSG_NRESP;
+
+        send_packet(    interface->output_func,
+                        msg_obj_ptr,
+                        &temp_header);
+        
     }
 }
 
@@ -408,15 +447,15 @@ announce_board( void )
     temp_header.internal  = MSG_INTERNAL;
     temp_header.response  = MSG_NRESP;
 
-    send_tracked(   auto_output(), 
+    send_packet(    auto_output(), 
                     find_message_object(EUI_INTERNAL_LIB_VER, MSG_INTERNAL), 
                     &temp_header);
 
-    send_tracked(   auto_output(),
+    send_packet(    auto_output(),
                     find_message_object(EUI_INTERNAL_BOARD_ID, MSG_INTERNAL),
                     &temp_header);
 
-    send_tracked(   auto_output(),
+    send_packet(    auto_output(),
                     find_message_object(EUI_INTERNAL_SESSION_ID, MSG_INTERNAL),
                     &temp_header);
 }
@@ -530,7 +569,7 @@ send_tracked_variables( uint8_t read_or_writable )
         //only send messages which have the specified read-only bit state
         if( read_or_writable == devObjectArray[i].type >> 7 )
         {
-            send_tracked( auto_output(), devObjectArray + i, &temp_header );
+            send_packet( auto_output(), devObjectArray + i, &temp_header );
             sent_variables++;
         }
     }

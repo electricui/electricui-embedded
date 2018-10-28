@@ -30,19 +30,19 @@ typedef struct {
 } eui_interface_t;
 
 eui_message_t *
-find_message_object( const char * msg_id, uint8_t is_internal );
+find_tracked_object( const char * msg_id );
 
 uint8_t
 parse_packet( uint8_t inbound_byte, eui_interface_t *p_link );
 
 void
-send_tracked(   callback_uint8_t    output_function,
+send_packet(    callback_uint8_t    output_function,
                 eui_message_t       *msgObjPtr,
                 eui_pkt_settings_t  *settings );
 
 #ifndef EUI_CONF_OFFSETS_DISABLED
     void
-    send_tracked_range( callback_uint8_t    output_function,
+    send_packet_range( callback_uint8_t    output_function,
                         eui_message_t       *msgObjPtr,
                         eui_pkt_settings_t  *settings,
                         uint16_t            base_addr,
@@ -59,10 +59,16 @@ void
 setup_identifier( char * uuid, uint8_t bytes );
 
 void
-send_message( const char * msg_id );
+send_tracked( const char * msg_id );
 
 void
-send_message_on( const char * msg_id, eui_interface_t *active_interface );
+send_tracked_on( const char * msg_id, eui_interface_t *interface );
+
+void
+send_untracked( eui_message_t *msg_obj_ptr );
+
+void
+send_untracked_on( eui_message_t *msg_obj_ptr, eui_interface_t *interface );
 
 #ifdef __cplusplus
 }
