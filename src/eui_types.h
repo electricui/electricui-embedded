@@ -24,6 +24,8 @@ enum eui_callback_codes {
     cb_generic = 0,
     cb_tracked,
     cb_untracked,
+    cb_handshake,
+    cb_parse_failure,
     cb_todo,
 };
 

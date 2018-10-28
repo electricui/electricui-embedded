@@ -64,15 +64,27 @@ find_message_object( const char * msg_id, uint8_t is_internal )
     return foundMsgPtr;
 }
 
-callback_uint8_t
-auto_output( void )
+eui_interface_t *
+auto_interface( void )
 {
-    //work out which interface to output data on, and pass callback to the relevant function
-    //todo intelligently select an interface
+    //todo work out how this functions
 
     if( numInterfaces )
     {
-        return interfaceArray[active_interface].output_func;
+        return &interfaceArray[active_interface];
+    }
+
+    return 0;
+}
+
+callback_uint8_t
+auto_output( void )
+{
+    eui_interface_t *selected_interface = auto_interface();
+
+    if( selected_interface )
+    {
+        return selected_interface->output_func;
     }
 
     return 0;
@@ -122,8 +134,12 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
     }
     else if( parser_error <= parse_status )
     {
-        memset( &p_link->packet, 0, sizeof(eui_packet_t) );
+        if( p_link->interface_cb )
+        {
+            p_link->interface_cb( cb_parse_failure );
+        }
 
+        memset( &p_link->packet, 0, sizeof(eui_packet_t) );
         parse_status = status_parser_generic;
     }
 
@@ -458,6 +474,14 @@ announce_board( void )
     send_packet(    auto_output(),
                     find_message_object(EUI_INTERNAL_SESSION_ID, MSG_INTERNAL),
                     &temp_header);
+
+    // Developer callback allows them to publish connection hints etc
+    eui_interface_t *selected_interface = auto_interface();
+
+    if( selected_interface->interface_cb )
+    {
+        selected_interface->interface_cb( cb_handshake );
+    }
 }
 
 void

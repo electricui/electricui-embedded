@@ -34,7 +34,6 @@ eui_message_t test_dev_msg[] = {
     { .msgID = "dataro", .type = TYPE_UINT8|READ_ONLY_MASK, .size = sizeof(test_uint),  .payload = &test_uint },
 };
 
-
 eui_interface_t test_interface = { 0 };
 eui_packet_t * test_pk_ptr;             //convenient pointer to parser data inside the interface
 
