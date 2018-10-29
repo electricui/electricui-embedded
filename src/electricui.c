@@ -67,14 +67,14 @@ find_message_object( const char * msg_id, uint8_t is_internal )
 eui_interface_t *
 auto_interface( void )
 {
-    //todo work out how this functions
+    eui_interface_t *interface_ptr = 0;
 
-    if( numInterfaces )
+    if( numInterfaces && interfaceArray )
     {
-        return &interfaceArray[active_interface];
+        interface_ptr = &interfaceArray[active_interface];
     }
 
-    return 0;
+    return interface_ptr;
 }
 
 callback_uint8_t
@@ -478,7 +478,7 @@ announce_board( void )
     // Developer callback allows them to publish connection hints etc
     eui_interface_t *selected_interface = auto_interface();
 
-    if( selected_interface->interface_cb )
+    if( selected_interface && selected_interface->interface_cb )
     {
         selected_interface->interface_cb( cb_handshake );
     }
