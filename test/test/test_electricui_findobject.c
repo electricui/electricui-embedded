@@ -45,6 +45,17 @@ void tearDown(void)
 }
 
 // TESTS
+void test_find_tracked_object( void )
+{
+    eui_message_t *expecting     = &test_findobject_store[1]; //int8 object
+    eui_message_t *result_ptr;   //result should be a pointer to our expected element
+    const char * test_message   = "si8";
+    uint8_t is_internal         = 0;
+
+    result_ptr = find_tracked_object(test_message);
+
+    TEST_ASSERT_TRUE_MESSAGE( result_ptr == expecting, "Didn't return correct pointer")
+}
 
 void test_find_message_object_developer( void )
 {
