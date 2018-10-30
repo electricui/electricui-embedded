@@ -110,7 +110,6 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
                 handle_packet_response( p_link, &header, p_msglocal );
             }
 
-            // tell the develop we've processed a tracked message
             if( p_link->interface_cb )
             {
                 p_link->interface_cb( cb_tracked );
@@ -120,8 +119,6 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
         }
         else
         {
-            // Search didn't return a pointer to the object,
-            // fire developer callback so they can process it
             if( p_link->interface_cb )
             {
                 p_link->interface_cb( cb_untracked );
@@ -160,7 +157,7 @@ handle_packet_action(   eui_interface_t *valid_packet,
     {
         if( (header->response && header->acknum) || (!header->response && !header->acknum) )
         {
-            //create a function to call from the internal stored pointer
+            // Create a function to call from the internal stored pointer
             eui_cb_t cb_packet_h = msgObjPtr->payload;
 
             if( cb_packet_h )
@@ -177,7 +174,7 @@ handle_packet_action(   eui_interface_t *valid_packet,
              && is_writable
              && valid_packet->packet.parser.data_bytes_in )
     {
-        //Ensure data won't exceed bounds with invalid offsets
+        // Ensure data won't exceed bounds with invalid offsets
         if( valid_packet->packet.offset_in + header->data_len <= msgObjPtr->size )
         {
             memcpy( (uint8_t *)msgObjPtr->payload + valid_packet->packet.offset_in,
@@ -297,22 +294,16 @@ send_packet_range(  callback_uint8_t    output_function,
                             &data_range[0],
                             &data_range[1]);
 
-    eui_header_t tmp_header;
+    eui_header_t tmp_header = { 0 };
     tmp_header.internal   = settings->internal;
     tmp_header.response   = settings->response;
     tmp_header.id_len     = strlen(msgObjPtr->msgID);
-    tmp_header.acknum     = 0;
-    tmp_header.offset     = 0;
 
     //generate metadata message with address range
     tmp_header.data_len     = sizeof(base_addr) * 2; //base and end are sent
     tmp_header.type         = TYPE_OFFSET_METADATA;
 
-    eui_encode( output_function,
-                &tmp_header,
-                msgObjPtr->msgID,
-                0x00,
-                &data_range);
+    eui_encode( output_function, &tmp_header, msgObjPtr->msgID, 0x00, &data_range);
 
     //send the offset packets
     tmp_header.offset = 1;
@@ -347,7 +338,7 @@ send_tracked( const char * msg_id )
 {
     if( msg_id )
     {
-        eui_pkt_settings_t      temp_header;
+        eui_pkt_settings_t      temp_header = { 0 };
         temp_header.internal  = MSG_DEV;
         temp_header.response  = MSG_NRESP;
 
@@ -363,7 +354,7 @@ send_tracked_on(const char * msg_id, eui_interface_t *interface)
 {
     if( msg_id && interface )
     {
-        eui_pkt_settings_t      temp_header;
+        eui_pkt_settings_t      temp_header = { 0 };
         temp_header.internal  = MSG_DEV;
         temp_header.response  = MSG_NRESP;
 
@@ -378,7 +369,7 @@ send_untracked( eui_message_t *msg_obj_ptr )
 {
     if( msg_obj_ptr )
     {
-        eui_pkt_settings_t      temp_header;
+        eui_pkt_settings_t      temp_header = { 0 };
         temp_header.internal  = MSG_DEV;
         temp_header.response  = MSG_NRESP;
 
@@ -394,7 +385,7 @@ send_untracked_on( eui_message_t *msg_obj_ptr, eui_interface_t *interface )
 {
     if( msg_obj_ptr && interface )
     {
-        eui_pkt_settings_t      temp_header;
+        eui_pkt_settings_t      temp_header = { 0 };
         temp_header.internal  = MSG_DEV;
         temp_header.response  = MSG_NRESP;
 
@@ -490,7 +481,7 @@ announce_dev_msg_readonly( void )
     eui_variable_count_t num_read_only  = 0;
     num_read_only = send_tracked_message_id_list( READ_ONLY_FLAG );
 
-    eui_pkt_settings_t      temp_header;
+    eui_pkt_settings_t      temp_header = { 0 };
     temp_header.internal  = MSG_INTERNAL;
     temp_header.response  = MSG_NRESP;
     temp_header.type      = TYPE_UINT8;
@@ -507,7 +498,7 @@ announce_dev_msg_writable( void )
     eui_variable_count_t num_writable  = 0;
     num_writable = send_tracked_message_id_list( WRITABLE_FLAG );
 
-    eui_pkt_settings_t      temp_header;
+    eui_pkt_settings_t      temp_header = { 0 };
     temp_header.internal  = MSG_INTERNAL;
     temp_header.response  = MSG_NRESP;
     temp_header.type      = TYPE_UINT8;
@@ -535,7 +526,7 @@ send_tracked_message_id_list( uint8_t read_only )
 {
     eui_variable_count_t variables_sent = 0;
 
-    eui_pkt_settings_t      temp_header;
+    eui_pkt_settings_t      temp_header = { 0 };
     temp_header.internal  = MSG_INTERNAL;
     temp_header.response  = MSG_NRESP;
     temp_header.type      = TYPE_CUSTOM;
@@ -583,7 +574,7 @@ eui_variable_count_t
 send_tracked_variables( uint8_t read_or_writable )
 {
     eui_variable_count_t    sent_variables = 0;
-    eui_pkt_settings_t      temp_header;
+    eui_pkt_settings_t      temp_header = { 0 };
 
     temp_header.internal  = MSG_DEV;
     temp_header.response  = MSG_NRESP;
