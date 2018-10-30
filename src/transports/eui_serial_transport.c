@@ -86,6 +86,8 @@ encode_packet(  callback_uint8_t    out_char,
                 uint16_t            offset,
                 void*               payload )
 {
+    uint8_t status = 1;
+
     if( out_char && header && msg_id && payload )
     {  
         uint8_t pk_tmp[1 + PACKET_BASE_SIZE + MSGID_SIZE + PAYLOAD_SIZE_MAX ] = { 0 };
@@ -98,7 +100,6 @@ encode_packet(  callback_uint8_t    out_char,
         memcpy( &pk_tmp[pk_i], msg_id, header->id_len );
         pk_i += header->id_len;
 
-        //offset address
 #ifndef EUI_CONF_OFFSETS_DISABLED
         if( header->offset )
         {
@@ -107,37 +108,32 @@ encode_packet(  callback_uint8_t    out_char,
         }
 #endif
 
-        //payload data
+        //payload data copy
         memcpy( &pk_tmp[pk_i], (uint8_t *)payload + offset, header->data_len );
         pk_i += header->data_len;
 
-        //calculate CRC
+        //calculate and write CRC
         uint16_t outbound_crc = 0xFFFF;
-
         for( uint16_t i = 2; i < pk_i; i++ )
         {
             crc16( pk_tmp[i], &outbound_crc );
         }
 
-        //write result of CRC into buffer
         memcpy( &pk_tmp[pk_i], &outbound_crc, sizeof(outbound_crc) );
         pk_i += sizeof(outbound_crc);
         
         //Apply Consistent Overhead Byte Stuffing (COBS) for framing/sync
         encode_framing( pk_tmp, pk_i+1);    //+1 to account for null byte at end
 
-        //write data
         for( uint16_t i = 0; i <= pk_i; i++ )
         {
             out_char( pk_tmp[i] );
         }
-    }
-    else
-    {
-        return 1; //error code
+    
+        status = 0; // success
     }
 
-    return 0;
+    return status;
 }
 
 
@@ -177,7 +173,8 @@ decode_packet(uint8_t byte_in, eui_packet_t *p_link_in)
 
         //CRC data up to the packet's CRC
         // todo work out a way to remove this check
-        if( (exp_crc_b1 > p_link_in->parser.state) && (exp_frame_offset < p_link_in->parser.state) )   
+        if( (exp_crc_b1 > p_link_in->parser.state) 
+            && (exp_frame_offset < p_link_in->parser.state) )   
         {
             crc16( byte_in, &(p_link_in->crc_in)) ; 
         }
@@ -208,20 +205,18 @@ parse_decoded_packet( uint8_t byte_in, eui_packet_t *p_link_in )
         break;
 
         case exp_header_b2:
-            //the 'last' two length bits = first 2b of this byte
+            //'last' two length bits at start of this byte
             p_link_in->header.data_len |= ((uint16_t)byte_in << 8) & 0x0300;
-            //shift 2 and mask 4 for type
             p_link_in->header.type      = (byte_in >> 2) & 0x0F;
-            p_link_in->header.internal  = (byte_in >> 6) & 1;
-            p_link_in->header.offset    = (byte_in >> 7) & 1;
+            p_link_in->header.internal  = (byte_in >> 6) & 0x01;
+            p_link_in->header.offset    = (byte_in >> 7) & 0x01;
             
             p_link_in->parser.state     = exp_header_b3;
         break;
 
         case exp_header_b3:
-            //mask lowest 4
             p_link_in->header.id_len    = (byte_in     ) & 0x0F;
-            p_link_in->header.response  = (byte_in >> 4) & 1;
+            p_link_in->header.response  = (byte_in >> 4) & 0x01;
             p_link_in->header.acknum    = (byte_in >> 5);
             
             p_link_in->parser.state     = exp_message_id;
@@ -232,7 +227,6 @@ parse_decoded_packet( uint8_t byte_in, eui_packet_t *p_link_in )
             p_link_in->msgid_in[p_link_in->parser.id_bytes_in] = byte_in;
             p_link_in->parser.id_bytes_in++;
 
-            //we've read the number of message ID bytes specified by the header
             if( p_link_in->parser.id_bytes_in >= p_link_in->header.id_len )
             {
                 //terminate msgID string if shorter than max size
@@ -267,13 +261,11 @@ parse_decoded_packet( uint8_t byte_in, eui_packet_t *p_link_in )
 
 #ifndef EUI_CONF_OFFSETS_DISABLED
         case exp_offset_b1:
-            //ingest first byte
             p_link_in->offset_in    = byte_in;
             p_link_in->parser.state = exp_offset_b2;
         break;
 
         case exp_offset_b2:
-            //ingest second offset byte
             p_link_in->offset_in     |= ((uint16_t)byte_in << 8);
             p_link_in->parser.state  = exp_data;
         break;
@@ -284,7 +276,6 @@ parse_decoded_packet( uint8_t byte_in, eui_packet_t *p_link_in )
             p_link_in->data_in[p_link_in->parser.data_bytes_in] = byte_in;
             p_link_in->parser.data_bytes_in++;
 
-            //prepare for the crc data, we've seen all the data we were expecting (or can hold)
             if( (p_link_in->parser.data_bytes_in >= p_link_in->header.data_len) 
                 || (p_link_in->parser.data_bytes_in >= PAYLOAD_SIZE_MAX) )
             {
@@ -294,8 +285,8 @@ parse_decoded_packet( uint8_t byte_in, eui_packet_t *p_link_in )
         
         case exp_crc_b1:
         {
-            //check the inbound byte against the corresponding CRC byte
             uint8_t crc_low_byte = (p_link_in->crc_in & 0xFF);
+            
             if( byte_in == crc_low_byte )
             {
                 p_link_in->parser.state = exp_crc_b2;

@@ -5,6 +5,7 @@ test/build/temp
 test/build/test
 test/vendor/
 test/fuzz/fuzz-outputs
+test/*.plist
 
 # Prerequisites
 *.d

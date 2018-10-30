@@ -34,39 +34,34 @@ find_tracked_object( const char * msg_id )
 eui_message_t * 
 find_message_object( const char * msg_id, uint8_t is_internal )
 {
-    eui_message_t *foundMsgPtr = 0;
-
-    if( !msg_id )
-    {
-        return 0;
-    }
-
-    if( MSG_INTERNAL == is_internal )
-    {
-        //search the internal array for matching messageID
-        for(eui_variable_count_t i = 0; i < ARR_ELEM( internal_msg_store ); i++)
-        {
-            if( strcmp( msg_id, internal_msg_store[i].msgID ) == 0 )
-            {
-                foundMsgPtr = &internal_msg_store[i];
-                i = ARR_ELEM( internal_msg_store );
-            }
-        }
-    }
-    else if ( MSG_DEV == is_internal )
+    eui_message_t *found_obj_ptr = 0;
+    
+    if ( MSG_DEV == is_internal && msg_id)
     {
         //search developer space array for matching messageID
         for(eui_variable_count_t i = 0; i < numDevObjects; i++)
         {
             if( strcmp( msg_id, devObjectArray[i].msgID ) == 0 )
             {
-                foundMsgPtr = &devObjectArray[i];
+                found_obj_ptr = &devObjectArray[i];
                 i = numDevObjects;
             }
         }
     }
+    else if( MSG_INTERNAL == is_internal && msg_id)
+    {
+        //search the internal array for matching messageID
+        for(eui_variable_count_t i = 0; i < ARR_ELEM( internal_msg_store ); i++)
+        {
+            if( strcmp( msg_id, internal_msg_store[i].msgID ) == 0 )
+            {
+                found_obj_ptr = &internal_msg_store[i];
+                i = ARR_ELEM( internal_msg_store );
+            }
+        }
+    }
 
-    return foundMsgPtr;
+    return found_obj_ptr;
 }
 
 eui_interface_t *
