@@ -36,6 +36,11 @@ find_message_object( const char * msg_id, uint8_t is_internal )
 {
     eui_message_t *foundMsgPtr = 0;
 
+    if( !msg_id )
+    {
+        return 0;
+    }
+
     if( MSG_INTERNAL == is_internal )
     {
         //search the internal array for matching messageID

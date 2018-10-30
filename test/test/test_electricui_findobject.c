@@ -1,5 +1,6 @@
 #include "unity.h"
- 
+#include <string.h>
+
 // MODULE UNDER TEST
 #include "electricui.h"
 #include "electricui_private.h"
@@ -15,6 +16,9 @@
 char      testfind_char    = 'a';
 int8_t    testfind_int8    = -21;
 uint8_t   testfind_uint8   = 21;
+
+eui_message_t *expecting = 0;
+uint8_t is_internal = 0;
 
 //developer-space messages
 eui_message_t test_findobject_store[] = {
@@ -37,6 +41,8 @@ void setUp(void)
 {
     //run before each test
     setup_dev_msg(test_findobject_store, ARR_ELEM(test_findobject_store));
+    expecting = 0;
+    is_internal = 0;
 }
  
 void tearDown(void)
@@ -47,158 +53,107 @@ void tearDown(void)
 // TESTS
 void test_find_tracked_object( void )
 {
-    eui_message_t *expecting     = &test_findobject_store[1]; //int8 object
-    eui_message_t *result_ptr;   //result should be a pointer to our expected element
-    const char * test_message   = "si8";
-    uint8_t is_internal         = 0;
+    expecting = &test_findobject_store[1];
+    const char * test_message = "si8";
 
-    result_ptr = find_tracked_object(test_message);
-
-    TEST_ASSERT_TRUE_MESSAGE( result_ptr == expecting, "Didn't return correct pointer")
+    TEST_ASSERT_EQUAL_PTR(expecting, find_tracked_object(test_message));
 }
 
 void test_find_message_object_developer( void )
 {
-    eui_message_t *expecting     = &test_findobject_store[1]; //int8 object
-    eui_message_t *result_ptr;   //result should be a pointer to our expected element
-    const char * test_message   = "si8";
-    uint8_t is_internal         = 0;
+    expecting = &test_findobject_store[1];
+    const char * test_message = "si8";
 
-    result_ptr = find_message_object(test_message, is_internal);
-
-    TEST_ASSERT_TRUE_MESSAGE( result_ptr == expecting, "Didn't return correct pointer")
+    TEST_ASSERT_EQUAL_PTR(expecting, find_message_object(test_message, is_internal));
 }
 
 void test_find_message_object_internal( void )
 {
-    //this one is hard, we can't easily reach into the static variables to grab the pointer
-    eui_message_t *result_ptr;
-    const char * test_message   = "o";
-    uint8_t is_internal         = 1;
+    const char * test_message = EUI_INTERNAL_LIB_VER;
+    is_internal = 1;
 
-    result_ptr = find_message_object(test_message, is_internal);
-
-    // We know that the variable will exist with that ID, so just see if we get a pointer back
-    //just assume that a non-zero pointer => works? This could use work
-    TEST_ASSERT_NOT_NULL_MESSAGE( result_ptr, "Didn't return correct pointer")
+    TEST_ASSERT_NOT_NULL_MESSAGE( find_message_object(test_message, is_internal), "Didn't return correct pointer")
 }
 
 void test_find_message_object_wrong_internal_flag( void )
 {
-    eui_message_t *result_ptr;
-    const char * test_message   = "si8";
-    uint8_t is_internal         = 1;
+    const char * test_message = "si8";
+    is_internal = 1;
 
-    result_ptr = find_message_object(test_message, is_internal);
-
-    TEST_ASSERT_NULL_MESSAGE( result_ptr, "Swapped flag shouldn't return a pointer?")    //it shouldn't find anything
+    TEST_ASSERT_EQUAL_PTR(expecting, find_message_object(test_message, is_internal));
 }
 
 void test_find_message_object_invalid_internal_flag( void )
 {
-    eui_message_t *result_ptr;
-    const char * test_message   = "si8";
-    uint8_t is_internal         = 3;
+    const char * test_message = "si8";
+    is_internal = 3;
 
-    result_ptr = find_message_object(test_message, is_internal);
-
-    TEST_ASSERT_NULL_MESSAGE(result_ptr, "Invalid internal flag shouldn't return a pointer")    //it shouldn't find anything
+    TEST_ASSERT_EQUAL_PTR(expecting, find_message_object(test_message, is_internal));
 }
 
 void test_find_message_object_invalid_id( void )
 {
-    eui_message_t *result_ptr;
-    const char * test_message   = "666";
-    uint8_t is_internal         = 0;
-
-    result_ptr = find_message_object(test_message, is_internal);
+    const char * test_message = "666";
 
     //we expect a null result, there is no "666" message object in either array
-    TEST_ASSERT_NULL_MESSAGE(result_ptr, "Found non-existant euiObject")
+    TEST_ASSERT_NULL_MESSAGE(find_message_object(test_message, is_internal), "Found non-existant euiObject")
     
     //try the internal array branch
     is_internal = 1;
-    result_ptr  = find_message_object(test_message, is_internal);
-    TEST_ASSERT_NULL_MESSAGE(result_ptr, "Found non-existant euiObject")
+    TEST_ASSERT_NULL_MESSAGE(find_message_object(test_message, is_internal), "Found non-existant euiObject")
 }
 
 void test_find_message_object_nullptr( void )
 {
-    TEST_IGNORE_MESSAGE("Its not fair to require invalid pointer safety? (see note)");
+    // The search is using strcmp, which will cause segfaults or undefined behaviour when passed invalid pointers.
+    const char * test_message = 0;
 
-    // Its a little tricky for this case. The search is using strcmp, which will cause segfaults or undefined behaviour
-    // when passed invalid pointers. We could protect against null-prt in the library, but would take the hit on every use
-    // there might be a more elegant solution, but for now this is probably out of scope.
-
-    eui_message_t *result_ptr;
-    const char * test_message   = 0;    //void ptr
-    uint8_t is_internal         = 0;
-
-    //will likely segfault on x86 (or whatever arch is unit testing)
-    result_ptr = find_message_object(test_message, is_internal);
-
-    TEST_ASSERT_NULL_MESSAGE(result_ptr, "Found euiObject matching nullptr!")
+    //will likely segfault if no null check on msgID
+    is_internal = 0;
+    TEST_ASSERT_EQUAL_PTR(expecting, find_message_object(test_message, is_internal));
 
     //test the internal branch
     is_internal = 1;
-    result_ptr = find_message_object(test_message, is_internal);
-    TEST_ASSERT_NULL_MESSAGE(result_ptr, "Found euiObject matching nullptr")
+    TEST_ASSERT_EQUAL_PTR(expecting, find_message_object(test_message, is_internal));
 }
 
 void test_find_message_object_single_letter( void )
 {
-    eui_message_t *expecting     = &test_findobject_store[0]; //int8 object
-    eui_message_t *result_ptr;   //result should be a pointer to our expected element
-    const char * test_message   = "a";
-    uint8_t is_internal         = 0;
+    expecting = &test_findobject_store[0];
+    const char * test_message = "a";
 
-    result_ptr = find_message_object(test_message, is_internal);
-
-    TEST_ASSERT_TRUE_MESSAGE( result_ptr == expecting, "Didn't return correct pointer")
+    TEST_ASSERT_EQUAL_PTR(expecting, find_message_object(test_message, is_internal));
 }
 
 void test_find_message_object_max_letters( void )
 {
-    eui_message_t *expecting     = &test_findobject_store[2];
-    eui_message_t *result_ptr;   //result should be a pointer to our expected element
-    const char * test_message   = "abcdefghijklmno";
-    uint8_t is_internal         = 0;
+    expecting = &test_findobject_store[2];
+    const char * test_message = "abcdefghijklmno";
 
-    result_ptr = find_message_object(test_message, is_internal);
-
-    TEST_ASSERT_TRUE_MESSAGE( result_ptr == expecting, "Didn't return correct pointer")
+    TEST_ASSERT_EQUAL_PTR(expecting, find_message_object(test_message, is_internal));
 }
 
 void test_find_message_object_no_id( void )
 {
-    eui_message_t *expecting     = &test_findobject_store[4]; //int8 object
-    eui_message_t *result_ptr;   //result should be a pointer to our expected element
-    const char * test_message   = "";
-    uint8_t is_internal         = 0;
+    expecting = &test_findobject_store[4];
+    const char * test_message = "";
 
-    result_ptr = find_message_object(test_message, is_internal);
-
-    TEST_ASSERT_TRUE_MESSAGE( result_ptr == expecting, "Didn't return correct pointer")
+    TEST_ASSERT_EQUAL_PTR(expecting, find_message_object(test_message, is_internal));
 }
 
 void test_find_message_object_non_printable( void )
 {
-    eui_message_t *expecting     = &test_findobject_store[3]; //int8 object
-    eui_message_t *result_ptr;   //result should be a pointer to our expected element
+    expecting = &test_findobject_store[3];
+    char buffer[] = { 0x01, 0x00 }; 
 
-    char buffer[] = { 0x01, 0x00 };
-    uint8_t is_internal = 0;
-    result_ptr = find_message_object(buffer, is_internal);
-
-    TEST_ASSERT_TRUE_MESSAGE( result_ptr == expecting, "Didn't return correct pointer")
+    TEST_ASSERT_EQUAL_PTR(expecting, find_message_object(buffer, is_internal));
 }
 
 void test_find_message_devArrayNULL( void )
 {
-    TEST_IGNORE_MESSAGE("TODO: Test missing developer object array");
-}
+    setup_dev_msg( 0, 0);
 
-void test_find_message_internalArrayNULL( void )
-{
-    TEST_IGNORE_MESSAGE("TODO: Test missing internal object array");
+    const char * test_message = "si8";
+
+    TEST_ASSERT_EQUAL_PTR(expecting, find_tracked_object(test_message));
 }
