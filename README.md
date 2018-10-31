@@ -87,3 +87,7 @@ The library has a reasonably small footprint, around 280 bytes of RAM and around
 Using the tracked variable functionality uses 3 bytes and 2 pointers per tracked variable (so 8 bytes on your Arduino Uno).
 
 These numbers will vary based on your target architecture, word alignment and compiler settings.
+
+# Licence
+
+`electricui-embedded` is [MIT licensed](LICENSE.md).
