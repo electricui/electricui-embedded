@@ -66,6 +66,16 @@ void test_offset_validation_int16( void )
     TEST_ASSERT_EQUAL( 0, output_start );
     TEST_ASSERT_EQUAL( 6, output_end );
 
+    validate_offset_range(  0,
+                            6,
+                            TYPE_UINT16,
+                            40,
+                            &output_start,
+                            &output_end );
+
+    TEST_ASSERT_EQUAL( 0, output_start );
+    TEST_ASSERT_EQUAL( 6, output_end );
+
     validate_offset_range(  6,
                             14,
                             TYPE_INT16,
@@ -75,6 +85,42 @@ void test_offset_validation_int16( void )
 
     TEST_ASSERT_EQUAL( 6, output_start );
     TEST_ASSERT_EQUAL( 14, output_end );
+}
+
+void test_offset_validation_int32( void )
+{
+    uint16_t output_start  = 0;
+    uint16_t output_end    = 0;
+
+    validate_offset_range(  0,
+                            12,
+                            TYPE_INT32,
+                            40,
+                            &output_start,
+                            &output_end );
+
+    TEST_ASSERT_EQUAL( 0, output_start );
+    TEST_ASSERT_EQUAL( 12, output_end );
+
+    validate_offset_range(  0,
+                            12,
+                            TYPE_UINT32,
+                            40,
+                            &output_start,
+                            &output_end );
+
+    TEST_ASSERT_EQUAL( 0, output_start );
+    TEST_ASSERT_EQUAL( 12, output_end );
+
+    validate_offset_range(  6,
+                            14,
+                            TYPE_INT32,
+                            40,
+                            &output_start,
+                            &output_end );
+
+    TEST_ASSERT_EQUAL( 8, output_start );
+    TEST_ASSERT_EQUAL( 16, output_end );
 }
 
 void test_offset_validation_float( void )
