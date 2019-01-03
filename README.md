@@ -60,6 +60,8 @@ There are also a series of small scripts for other various analysis checks.
 Run `ceedling gcov:all` to generate the coverage reports.  
 Use `ceedling utils:gcov` to generate a pretty HTML report. It will be located in the `/test/build/artifacts/gcov` folder.
 
+When attempting to run coverage analysis on OSX, the output results are slightly different due to subtle differences with the `clang` based toolchain. We test with a `gcc`+`gcov` environment running on `$LINUX_DISTRO`.
+
 ## Lint Checks
 
 `lint_checks.sh` provides a minimalist launch process for the [oclint](http://oclint.org/) static analysis tool.  
@@ -76,7 +78,7 @@ Fuzzing is performed using [american fuzzy lop (afl-fuzz)](http://lcamtuf.coredu
 
 A minimal program accepts bytes from stdin, and a makefile based fuzzing harness provided in `test/fuzz` which provides helpers to build and start fuzzing.
 
-Uses `afl-gcc` and `afl-fuzz`, and looks in the makefile's `AFL_ROOT` location. You will need to download and make afl, then adjust that path.
+Uses `afl-gcc` and `afl-fuzz`, and looks in the makefile's `AFL_ROOT` location. You will need to download and make `afl`, then adjust that path.
 Some binary formatted test files are included.
 
 From `/test/fuzz`, run `make all` and it will build an instrumented test program, and start fuzzing.
