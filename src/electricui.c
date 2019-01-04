@@ -398,7 +398,13 @@ send_untracked_on( eui_message_t *msg_obj_ptr, eui_interface_t *interface )
 
 //application layer developer setup helpers
 void
-setup_interface( eui_interface_t *link_array, uint8_t link_count )
+setup_interface( eui_interface_t *link, )
+{
+    setup_interfaces( link, 1 );
+}
+
+void
+setup_interfaces( eui_interface_t *link_array, uint8_t link_count )
 {
     if( link_array && link_count )
     {

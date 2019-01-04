@@ -42,7 +42,7 @@ send_packet(    callback_uint8_t    output_function,
 
 #ifndef EUI_CONF_OFFSETS_DISABLED
     void
-    send_packet_range( callback_uint8_t    output_function,
+    send_packet_range(  callback_uint8_t    output_function,
                         eui_message_t       *msgObjPtr,
                         eui_pkt_settings_t  *settings,
                         uint16_t            base_addr,
@@ -50,7 +50,10 @@ send_packet(    callback_uint8_t    output_function,
 #endif
 
 void
-setup_interface( eui_interface_t *link_array, uint8_t link_count );
+setup_interface( eui_interface_t *link );
+
+void
+setup_interfaces( eui_interface_t *link_array, uint8_t link_count );
 
 void
 setup_dev_msg( eui_message_t *msgArray, eui_variable_count_t numObjects );
