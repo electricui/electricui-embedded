@@ -236,7 +236,7 @@ handle_packet_response( eui_interface_t *valid_packet,
             end_address = (uint16_t)valid_packet->packet.data_in[3] << 8;
             end_address |= valid_packet->packet.data_in[2];
 
-            send_packet_range( valid_packet->output_func,
+            send_packet_range(  valid_packet->output_func,
                                 msgObjPtr,
                                 &res_header,
                                 base_address,
@@ -267,7 +267,7 @@ send_packet(    callback_uint8_t    output_function,
 #ifndef EUI_CONF_OFFSETS_DISABLED
         else
         {
-            send_packet_range( output_function,
+            send_packet_range(  output_function,
                                 msgObjPtr,
                                 settings,
                                 0,
@@ -449,6 +449,21 @@ setup_identifier( char * uuid, uint8_t bytes )
         //a null identifier demonstrates an issue
         board_identifier = 0;
     }
+}
+
+void
+set_default_interface( uint8_t interface_index )
+{
+    if( interface_index <= link_count )
+    {
+        active_interface = interface_index;
+    }
+}
+
+void
+get_default_interface( void )
+{
+    return active_interface;
 }
 
 //application layer callbacks
