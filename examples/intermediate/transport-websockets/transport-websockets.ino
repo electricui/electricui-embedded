@@ -122,7 +122,7 @@ void setup()
     Serial.begin(115200);
 
     //eUI setup
-    setup_interface(comm_links, 2);
+    setup_interfaces(comm_links, 2);
     EUI_TRACK(dev_msg_store);
     setup_identifier("esp32", 5);
 

@@ -40,7 +40,7 @@ void setup()
 
     //eUI setup
     serial_comms.output_func = &tx_putc;
-    setup_interface(&serial_comms, 1);
+    setup_interface(&serial_comms);
 
     EUI_TRACK(dev_msg_store);
     setup_identifier("stdtypes", 8);

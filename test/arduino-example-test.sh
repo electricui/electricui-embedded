@@ -2,7 +2,7 @@
 # Compiles each of the Arduino example sketches in electricui-embedded/examples
 
 # Setup the various paths to the installed location, user's sketchbook and the library/board manager cache
-bin_path=/opt/arduino/arduino-1.8.4
+bin_path=/opt/arduino
 user_sketchbook=~/Arduino
 user_hidden_path=~/.arduino15
 

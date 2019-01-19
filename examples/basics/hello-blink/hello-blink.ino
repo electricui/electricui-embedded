@@ -31,7 +31,7 @@ void setup()
 
   // Setup the output interface
   serial_comms.output_func = &tx_putc;
-  setup_interface(&serial_comms, 1);
+  setup_interface(&serial_comms);
 
   // Provide the tracked variables to the library
   EUI_TRACK(dev_msg_store);
