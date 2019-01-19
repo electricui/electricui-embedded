@@ -398,7 +398,7 @@ send_untracked_on( eui_message_t *msg_obj_ptr, eui_interface_t *interface )
 
 //application layer developer setup helpers
 void
-setup_interface( eui_interface_t *link, )
+setup_interface( eui_interface_t *link )
 {
     setup_interfaces( link, 1 );
 }
@@ -454,13 +454,13 @@ setup_identifier( char * uuid, uint8_t bytes )
 void
 set_default_interface( uint8_t interface_index )
 {
-    if( interface_index <= link_count )
+    if( interface_index <= numInterfaces )
     {
         active_interface = interface_index;
     }
 }
 
-void
+uint8_t
 get_default_interface( void )
 {
     return active_interface;
