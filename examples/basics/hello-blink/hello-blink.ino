@@ -5,7 +5,7 @@
 
 // Simple variables to modify the LED behaviour
 uint8_t   blink_enable = 0; //if the blinker should be running
-uint8_t   led_state  = 0;   //track if the LED is illuminated
+uint8_t   led_state  = LOW; //track if the LED is illuminated
 uint16_t  glow_time  = 200; //in milliseconds
 uint16_t  dark_time  = 200; //in milliseconds
 
@@ -52,7 +52,7 @@ void loop()
   {
       if( millis() - time_off > dark_time )
       {
-          led_state = 1;
+          led_state = HIGH;
           time_on = millis();
       }
   }
@@ -60,7 +60,7 @@ void loop()
   {
       if( millis() - time_on > glow_time )
       {
-          led_state = 0;
+          led_state = LOW;
           time_off = millis();
       }
   }
