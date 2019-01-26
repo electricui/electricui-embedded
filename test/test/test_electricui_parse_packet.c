@@ -70,7 +70,7 @@ void setUp(void)
     test_pk_ptr = &test_interface.packet;
     setup_dev_msg(test_dev_msg, ARR_ELEM(test_dev_msg));
 
-    setup_interface( &test_interface, 1);
+    setup_interface( &test_interface );
 
 
     test_uint = 20;
@@ -672,7 +672,7 @@ void test_ingest_interface_callback_handshake_no_interface( void )
     // this test is included because previously had segfaults when the interface wasn't
     // setup prior to testing a null user callbacks
     
-    setup_interface( 0, 0); //nulls out the setup in the TEST_SETUP()
+    setup_interfaces( 0, 0); //nulls out the setup in the TEST_SETUP()
     test_interface.interface_cb = 0;
 
     test_pk_ptr->parser.state           = exp_crc_b2;

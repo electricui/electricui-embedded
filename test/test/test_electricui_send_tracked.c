@@ -32,7 +32,7 @@ void setUp(void)
 {
     //run before each test
     mock_interface.output_func = &stub_output_func;
-    setup_interface(&mock_interface, 1);
+    setup_interfaces(&mock_interface, 1);
     setup_dev_msg(&test_message, 1);
 }
  
@@ -62,7 +62,7 @@ void test_send_tracked_on_invalid_setup( void )
 
     // this test is a bit off, we break the interfaces that eUI holds, 
     // but as the function is passed a valid one, things are still ok.
-    setup_interface(0, 0);
+    setup_interface(0);
     setup_dev_msg(0, 0);
     send_tracked_on("test", &mock_interface);
 }
@@ -79,15 +79,15 @@ void test_send_tracked_auto( void )
 void test_send_tracked_auto_invalid_setup( void )
 {  
     //destroy any internal reference to the variable we are looking for and the interface we use
-    setup_interface(&mock_interface, 1);
+    setup_interface(&mock_interface);
     setup_dev_msg(0,0);
     send_tracked("test");
 
-    setup_interface(0, 0);
+    setup_interfaces(0, 0);
     setup_dev_msg(&test_message, 1);
     send_tracked("test");
 
-    setup_interface(0, 0);
+    setup_interface(0);
     setup_dev_msg(0, 0);
     send_tracked("test");
 }

@@ -56,7 +56,7 @@ void setUp(void)
     test_uint = 21;
 
     setup_dev_msg(internal_callback_test_store, ARR_ELEM(internal_callback_test_store));
-    setup_interface( multi_interfaces, ARR_ELEM(multi_interfaces));
+    setup_interfaces( multi_interfaces, ARR_ELEM(multi_interfaces));
 
     interface_expecting = 0;
     interface_expecting = 0;
@@ -72,7 +72,7 @@ void tearDown(void)
 //gives us a pointer to an interface object
 void test_auto_interface_single( void )
 {
-    setup_interface( &multi_interfaces[1], 1);
+    setup_interface( &multi_interfaces[1]);
 
     //ask the auto-interface for an interface pointer
     interface_expecting = &multi_interfaces[1];
@@ -97,7 +97,7 @@ void test_auto_interface_many( void )
 void test_auto_interface_invalid( void )
 {
     //test a 'not setup yet' interface
-    setup_interface( 0, 0);
+    setup_interfaces( 0, 0);
     for(uint8_t i = 0; i < ARR_ELEM(multi_interfaces); i++)
     {
         active_interface = i;

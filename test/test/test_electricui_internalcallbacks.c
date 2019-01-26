@@ -48,7 +48,7 @@ void setUp(void)
     
     setup_dev_msg(internal_callback_test_store, ARR_ELEM(internal_callback_test_store));
     mock_interface.output_func = &callback_mocked_output;
-    setup_interface( &mock_interface, 1);
+    setup_interface( &mock_interface );
 }
  
 void tearDown(void)
