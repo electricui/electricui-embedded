@@ -52,6 +52,8 @@ typedef void (*eui_cb_t)(void);
 // Callback with byte
 typedef void (*callback_uint8_t)(uint8_t);
 
+typedef void (*callback_data_out_t)(uint8_t*, uint16_t);
+
 // 24-bit header
 typedef struct {
     unsigned data_len   : 10;

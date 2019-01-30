@@ -9,7 +9,7 @@
 #include "eui_offset_validation.h"
 
 // DEFINITIONS 
-void stub_output_func( uint8_t byte );
+void stub_output_func( uint8_t *data, uint16_t len );
 
 // PRIVATE TYPES
  
@@ -43,7 +43,7 @@ eui_packet_t * test_pk_ptr;             //convenient pointer to parser data insi
 
 // PRIVATE FUNCTIONS
 
-void stub_output_func( uint8_t byte )
+void stub_output_func( uint8_t *data, uint16_t len )
 {
     //do nothing with it...
 }

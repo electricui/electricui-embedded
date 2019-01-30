@@ -31,7 +31,7 @@ const uint16_t number_rw_expected = 2;
 eui_interface_t mock_interface = { 0 };
 
 // PRIVATE FUNCTIONS
-void callback_mocked_output(uint8_t outbound)
+void callback_mocked_output(uint8_t *data, uint16_t len)
 {
 
 }

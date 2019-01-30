@@ -10,7 +10,7 @@ find_message_object( const char * msg_id, uint8_t is_internal );
 eui_interface_t *
 auto_interface( void );
 
-callback_uint8_t
+callback_data_out_t
 auto_output( void );
 
 uint8_t

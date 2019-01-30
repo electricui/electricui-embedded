@@ -122,8 +122,10 @@ void uart_rx_handler()
   }
 }
 
-//helps us pretend what most other microcontrollers use as an output function
-void serial_tx_putc(uint8_t data)
+void serial_tx_putc( uint8_t *data, uint16_t len )
 {
-  Serial.write(data);  //output on usb cdc virtual com
+  for( uint16_t i = 0; i <= len; i++ )
+  {
+      Serial.write( data[i] );
+  }
 }

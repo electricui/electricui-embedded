@@ -77,7 +77,7 @@ auto_interface( void )
     return interface_ptr;
 }
 
-callback_uint8_t
+callback_data_out_t
 auto_output( void )
 {
     eui_interface_t *selected_interface = auto_interface();
@@ -247,7 +247,7 @@ handle_packet_response( eui_interface_t *valid_packet,
 }
 
 void
-send_packet(    callback_uint8_t    output_function,
+send_packet(    callback_data_out_t output_function,
                 eui_message_t       *msgObjPtr,
                 eui_pkt_settings_t  *settings )
 {
@@ -279,7 +279,7 @@ send_packet(    callback_uint8_t    output_function,
 }
 
 void
-send_packet_range(  callback_uint8_t    output_function, 
+send_packet_range(  callback_data_out_t output_function, 
                     eui_message_t       *msgObjPtr, 
                     eui_pkt_settings_t  *settings, 
                     uint16_t            base_addr, 

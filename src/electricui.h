@@ -25,7 +25,7 @@ extern "C" {
 
 typedef struct {
     eui_packet_t        packet;
-    callback_uint8_t    output_func;
+    callback_data_out_t output_func;
     callback_uint8_t    interface_cb;
 } eui_interface_t;
 
@@ -36,13 +36,13 @@ uint8_t
 parse_packet( uint8_t inbound_byte, eui_interface_t *p_link );
 
 void
-send_packet(    callback_uint8_t    output_function,
+send_packet(    callback_data_out_t output_function,
                 eui_message_t       *msgObjPtr,
                 eui_pkt_settings_t  *settings );
 
 #ifndef EUI_CONF_OFFSETS_DISABLED
     void
-    send_packet_range(  callback_uint8_t    output_function,
+    send_packet_range(  callback_data_out_t output_function,
                         eui_message_t       *msgObjPtr,
                         eui_pkt_settings_t  *settings,
                         uint16_t            base_addr,

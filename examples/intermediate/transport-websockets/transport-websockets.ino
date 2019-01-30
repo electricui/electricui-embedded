@@ -41,8 +41,8 @@ eui_message_t dev_msg_store[] = {
 WiFiMulti WiFiMulti;
 WebSocketsServer webSocket = WebSocketsServer(ws_port);
 
-void tx_putc(uint8_t data);
-void ws_tx_putc(uint8_t data);
+void tx_putc(uint8_t *data, uint16_t len);
+void ws_tx_putc(uint8_t *data, uint16_t len);
 
 eui_interface_t comm_links[] = {
     EUI_INTERFACE(&tx_putc),
@@ -139,12 +139,15 @@ void loop()
     }
 }
 
-void tx_putc(uint8_t data)
+void tx_putc( uint8_t *data, uint16_t len )
 {
-  Serial.write(data);
+  for( uint16_t i = 0; i <= len; i++ )
+  {
+      Serial.write( data[i] );
+  }
 }
 
-void ws_tx_putc(uint8_t data)
+void ws_tx_putc( uint8_t *data, uint16_t len )
 {
-  webSocket.broadcastBIN(&data, 1);
+  webSocket.broadcastBIN( data, len);
 }

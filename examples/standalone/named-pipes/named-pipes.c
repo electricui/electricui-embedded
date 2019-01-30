@@ -72,11 +72,10 @@ uint8_t read_from_pipe( void )
     return (uint8_t)byte_in;
 }
 
-void write_to_pipe( uint8_t byte )
+void write_to_pipe( uint8_t *data, uint16_t len )
 {
-    write( tx_fd, &byte, 1 );
+    write( tx_fd, &data, len );
 }
-
 
 void print_gui( void )
 {

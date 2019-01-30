@@ -179,13 +179,20 @@ void uart_rx_handler()
   }
 }
 
-//helps us pretend what most other microcontrollers use as an output function
-void serial0_tx(uint8_t data)
+void serial0_tx( uint8_t *data, uint16_t len )
 {
-  Serial.write(data);  //output over usb connector
+  //output over usb connector
+  for( uint16_t i = 0; i <= len; i++ )
+  {
+      Serial.write( data[i] );
+  }
 }
 
-void serial1_tx(uint8_t data)
+void serial1_tx( uint8_t *data, uint16_t len )
 {
-  Serial1.write(data); //write to second serial port (or software serial on 10/11 if none exists)
+  //write to second serial port (or software serial on 10/11 if none exists)
+  for( uint16_t i = 0; i <= len; i++ )
+  {
+      Serial1.write( data[i] );
+  }
 }

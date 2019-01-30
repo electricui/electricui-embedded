@@ -20,17 +20,17 @@ eui_interface_t *interface_result = 0;
 eui_interface_t *interface_expecting = 0;
 
 // PRIVATE FUNCTIONS
-void callback_mocked_output_1(uint8_t outbound)
+void callback_mocked_output_1( uint8_t *data, uint16_t len )
 {
 
 }
 
-void callback_mocked_output_2(uint8_t outbound)
+void callback_mocked_output_2( uint8_t *data, uint16_t len )
 {
 
 }
 
-void callback_mocked_output_3(uint8_t outbound)
+void callback_mocked_output_3( uint8_t *data, uint16_t len )
 {
 
 }
@@ -134,8 +134,8 @@ void test_auto_interface_invalid( void )
 void test_auto_output( void )
 {
     //ask the auto-interface for an interface pointer
-    callback_uint8_t cb_result = 0;
-    callback_uint8_t cb_expecting = &callback_mocked_output_2;
+    callback_data_out_t cb_result = 0;
+    callback_data_out_t cb_expecting = &callback_mocked_output_2;
     active_interface = 1;
 
     cb_result = auto_output();

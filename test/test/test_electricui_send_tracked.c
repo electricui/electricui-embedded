@@ -7,7 +7,7 @@
 #include "mock_eui_offset_validation.h"
 
 // DEFINITIONS 
-void stub_output_func( uint8_t byte );
+void stub_output_func( uint8_t *data, uint16_t len );
  
 // PRIVATE TYPES
  
@@ -20,7 +20,7 @@ eui_interface_t mock_interface = { 0 };
 
 // PRIVATE FUNCTIONS
 
-void stub_output_func( uint8_t byte )
+void stub_output_func( uint8_t *data, uint16_t len )
 {
 	//do nothing with it...
 

@@ -15,16 +15,19 @@ uint8_t loopback_buffer[1024]   = { 0xFF };
 uint16_t lb_buf_pos             = 0;
 
 // PRIVATE FUNCTIONS
-void loopback_interface(uint8_t outbound)
+void loopback_interface( uint8_t *data, uint16_t len )
 {
-    if( lb_buf_pos < 1024 )
+    for( uint16_t i = 0; i <= len; i++ )
     {
-        loopback_buffer[ lb_buf_pos ] = outbound;
-        lb_buf_pos++;
-    }
-    else
-    {
-        TEST_ASSERT_MESSAGE( 1, "Mocked serial interface reports an issue");
+        if( lb_buf_pos < 1024 )
+        {
+            loopback_buffer[ lb_buf_pos ] = data[i];
+            lb_buf_pos++;
+        }
+        else
+        {
+            TEST_ASSERT_MESSAGE( 1, "Mocked serial interface reports an issue");
+        }
     }
 }
  

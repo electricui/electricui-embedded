@@ -16,16 +16,19 @@ uint16_t serial_position    = 0;
 uint8_t encode_result       = 0;
 
 // PRIVATE FUNCTIONS
-void byte_into_buffer(uint8_t outbound)
+void byte_into_buffer( uint8_t *data, uint16_t len )
 {
-    if( serial_position < 1024 )
+    for( uint16_t i = 0; i <= len; i++ )
     {
-        serial_buffer[ serial_position ] = outbound;
-        serial_position++;
-    }
-    else
-    {
-        TEST_ASSERT_MESSAGE( 1, "Mocked serial interface reports an issue");
+        if( serial_position < 1024 )
+        {
+            serial_buffer[ serial_position ] = data[i];
+            serial_position++;
+        }
+        else
+        {
+            TEST_ASSERT_MESSAGE( 1, "Mocked serial interface reports an issue");
+        }
     }
 }
  

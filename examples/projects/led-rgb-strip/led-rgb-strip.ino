@@ -23,9 +23,12 @@ eui_message_t dev_msg_store[] =
     EUI_CUSTOM("rgb", led_colour ),
 };
 
-void tx_putc(uint8_t data)
+void tx_putc( uint8_t *data, uint16_t len )
 {
-    Serial.write(data);
+  for( uint16_t i = 0; i <= len; i++ )
+  {
+      Serial.write( data[i] );
+  }
 }
 
 void setup() 

@@ -28,7 +28,7 @@ eui_pkt_settings_t default_settings =
 
 // PRIVATE FUNCTIONS
 
-void stub_output_func( uint8_t byte)
+void stub_output_func( uint8_t *data, uint16_t len )
 {
 	//do nothing with it...
 
