@@ -416,6 +416,9 @@ setup_interfaces( eui_interface_t *link_array, uint8_t link_count )
         interfaceArray  = 0;
         numInterfaces   = 0;
     }
+
+    //the default interface should be the 'highest' priority one
+    active_interface = 0;
 }
 
 void
@@ -454,7 +457,7 @@ setup_identifier( char * uuid, uint8_t bytes )
 void
 set_default_interface( uint8_t interface_index )
 {
-    if( interface_index <= numInterfaces )
+    if( interface_index <= (numInterfaces - 1) )
     {
         active_interface = interface_index;
     }

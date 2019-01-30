@@ -58,7 +58,7 @@ void setUp(void)
     setup_dev_msg(internal_callback_test_store, ARR_ELEM(internal_callback_test_store));
     setup_interfaces( multi_interfaces, ARR_ELEM(multi_interfaces));
 
-    interface_expecting = 0;
+    interface_result = 0;
     interface_expecting = 0;
 }
  
