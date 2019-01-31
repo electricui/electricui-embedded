@@ -29,7 +29,7 @@ char 	  demo_string[] = "ESP32 Test Board";
 
 eui_message_t dev_msg_store[] = {
     EUI_UINT8( "wsc", ws_connected),
-    EUI_CHAR( "ws", ws_path ),
+    EUI_CHAR_ARRAY( "ws", ws_path ),
 
     EUI_UINT8(  "ui8", example_uint8 ),
     EUI_UINT16( "i16", example_uint16 ),
