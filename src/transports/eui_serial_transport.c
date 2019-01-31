@@ -123,7 +123,8 @@ encode_packet(  callback_data_out_t out_char,
         pk_i += sizeof(outbound_crc);
         
         //Apply Consistent Overhead Byte Stuffing (COBS) for framing/sync
-        encode_framing( pk_tmp, pk_i+1);    //+1 to account for null byte at end
+        pk_i += 1;  //+1 to account for null byte at end
+        encode_framing( pk_tmp, pk_i);    
 
         out_char( pk_tmp, pk_i );
     

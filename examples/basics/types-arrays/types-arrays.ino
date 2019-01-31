@@ -80,7 +80,7 @@ void uart_rx_handler()
 
 void tx_putc( uint8_t *data, uint16_t len )
 {
-  for( uint16_t i = 0; i <= len; i++ )
+  for( uint16_t i = 0; i < len; i++ )
   {
       Serial.write( data[i] );
   }

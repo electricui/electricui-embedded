@@ -182,7 +182,7 @@ void uart_rx_handler()
 void serial0_tx( uint8_t *data, uint16_t len )
 {
   //output over usb connector
-  for( uint16_t i = 0; i <= len; i++ )
+  for( uint16_t i = 0; i < len; i++ )
   {
       Serial.write( data[i] );
   }
@@ -191,7 +191,7 @@ void serial0_tx( uint8_t *data, uint16_t len )
 void serial1_tx( uint8_t *data, uint16_t len )
 {
   //write to second serial port (or software serial on 10/11 if none exists)
-  for( uint16_t i = 0; i <= len; i++ )
+  for( uint16_t i = 0; i < len; i++ )
   {
       Serial1.write( data[i] );
   }
