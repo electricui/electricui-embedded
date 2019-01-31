@@ -34,19 +34,19 @@ char demo_string[] = "HelloElectric";
 // Arrays are tracked the same way as a normal variable
 eui_message_t dev_msg_store[] = 
 {
-    EUI_INT8(   "si8a", example_int8_arr  ),
-    EUI_UINT8(  "ui8a", example_uint8_arr ),
+    EUI_INT8_ARRAY(   "si8a", example_int8_arr  ),
+    EUI_UINT8_ARRAY(  "ui8a", example_uint8_arr ),
 
-    EUI_INT16(  "si16a", example_int16_arr  ),
-    EUI_UINT16( "ui16a", example_uint16_arr ),
+    EUI_INT16_ARRAY(  "si16a", example_int16_arr  ),
+    EUI_UINT16_ARRAY( "ui16a", example_uint16_arr ),
     
-    EUI_INT32(  "si32a", example_int32_arr  ),
-    EUI_UINT32( "ui32a", example_uint32_arr ),
+    EUI_INT32_ARRAY(  "si32a", example_int32_arr  ),
+    EUI_UINT32_ARRAY( "ui32a", example_uint32_arr ),
 
-    EUI_FLOAT(  "fspa", example_float_arr  ),
-    EUI_DOUBLE( "fdpa", example_double_arr ),
+    EUI_FLOAT_ARRAY(  "fspa", example_float_arr  ),
+    EUI_DOUBLE_ARRAY( "fdpa", example_double_arr ),
 
-    EUI_CHAR( "hi", demo_string),
+    EUI_CHAR_ARRAY( "hi", demo_string),
 };
 
 eui_interface_t serial_comms;

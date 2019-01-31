@@ -70,13 +70,13 @@ eui_message_t dev_msg_store[] =
     EUI_UINT16( "i16", example_uint16 ),
     EUI_UINT32( "i32", example_uint32 ),
     EUI_FLOAT(  "fPI", example_float ),
-    EUI_UINT8(  "ua8", example_uint8_arr ),
-    EUI_UINT16( "ia6", example_uint16_arr ),
-    EUI_UINT32( "ia2", example_uint32_arr ),
-    EUI_FLOAT(  "fpA", example_float_arr),
-    EUI_CHAR(   "dst", demo_string ),
+    EUI_UINT8_ARRAY(  "ua8", example_uint8_arr ),
+    EUI_UINT16_ARRAY( "ia6", example_uint16_arr ),
+    EUI_UINT32_ARRAY( "ia2", example_uint32_arr ),
+    EUI_FLOAT_ARRAY(  "fpA", example_float_arr),
+    EUI_CHAR_ARRAY(   "dst", demo_string ),
 
-    EUI_UINT32( "lat", large_int_array ),
+    EUI_UINT32_ARRAY( "lat", large_int_array ),
 
     //custom type examples
     EUI_CUSTOM( "rgb", example_rgb ),

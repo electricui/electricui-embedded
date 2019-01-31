@@ -20,7 +20,7 @@ rgb_t   led_colour[STRIP_LENGTH] = { 0, 0, 0 };
 eui_message_t dev_msg_store[] = 
 {
     EUI_UINT8( "bright", rgb_brightness ),
-    EUI_CUSTOM("rgb", led_colour ),
+    EUI_CUSTOM_ARRAY("rgb", led_colour ),
 };
 
 void tx_putc( uint8_t *data, uint16_t len )
