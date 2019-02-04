@@ -1,5 +1,5 @@
 #include "unity.h"
-#include "string.h"
+#include <string.h>
 
 // MODULE UNDER TEST
 #include "eui_serial_transport.h"

@@ -17,7 +17,7 @@ uint16_t lb_buf_pos             = 0;
 // PRIVATE FUNCTIONS
 void loopback_interface( uint8_t *data, uint16_t len )
 {
-    for( uint16_t i = 0; i <= len; i++ )
+    for( uint16_t i = 0; i < len; i++ )
     {
         if( lb_buf_pos < 1024 )
         {
