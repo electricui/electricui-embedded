@@ -18,15 +18,10 @@ handle_packet_action(   eui_interface_t *valid_packet,
                         eui_header_t    *header,
                         eui_message_t   *msgObjPtr );
 
-void
+uint8_t
 handle_packet_response( eui_interface_t *valid_packet,
                         eui_header_t    *header,
                         eui_message_t   *msgObjPtr );
-
-#ifdef EUI_CONF_VARIABLE_CALLBACKS
-    void
-    handle_packet_callback( eui_message_t *msgObjPtr );
-#endif
 
 //application layer functionality
 void

@@ -21,23 +21,27 @@ enum eui_type {
 };
 
 enum eui_callback_codes {
-    cb_generic = 0,
-    cb_tracked,
-    cb_untracked,
-    cb_handshake,
-    cb_parse_failure,
-    cb_todo,
+    CB_GENERIC = 0,
+    CB_TRACKED,
+    CB_UNTRACKED,
+    CB_ANNOUNCE,
+    CB_PARSE_FAIL,
+    CB_LAST_ENUM,
 };
 
 enum eui_status_codes {
-    status_ok = 0,
-    status_crc_err,
-    status_parser_generic,
-    status_unknown_id,
-    status_known_id,
-    status_missing_callback,
-    status_offset_er,
-    status_todo,
+    EUI_ERROR = 0,
+    EUI_ERROR_CALLBACK,
+    EUI_ERROR_OFFSET,
+    EUI_ERROR_PARSER,
+    EUI_ERROR_OUTPUT,
+    EUI_ERROR_SEND,
+    EUI_ERROR_SEND_OFFSET,
+
+    EUI_PARSER_IDLE,
+    EUI_OK,
+
+    EUI_STATUS_LAST_ENUM,
 };
 
 #ifdef EUI_CONF_MANY_VARIABLES

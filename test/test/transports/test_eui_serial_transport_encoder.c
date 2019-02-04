@@ -77,7 +77,7 @@ void test_encode_packet_simple( void )
 
     TEST_ASSERT_EQUAL_MESSAGE( sizeof(expected), serial_position, "Unexpected number of output bytes" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected, serial_buffer, sizeof(expected) );
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder didn't return expected status code" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_OK, encode_result, "Encoder didn't return expected status code" );
 }
 
 
@@ -116,7 +116,7 @@ void test_encode_packet( void )
 
     TEST_ASSERT_EQUAL_MESSAGE( sizeof(expected), serial_position, "Unexpected number of output bytes" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected, serial_buffer, sizeof(expected) );
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder didn't return expected status code" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_OK, encode_result, "Encoder didn't return expected status code" );
 }
 
 void test_encode_packet_short_id( void )
@@ -153,7 +153,7 @@ void test_encode_packet_short_id( void )
 
     TEST_ASSERT_EQUAL_MESSAGE( sizeof(expected), serial_position, "Unexpected number of output bytes" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected, serial_buffer, sizeof(expected) );
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder didn't return expected status code" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_OK, encode_result, "Encoder didn't return expected status code" );
 }
 
 void test_encode_packet_long_id( void )
@@ -190,7 +190,7 @@ void test_encode_packet_long_id( void )
 
     TEST_ASSERT_EQUAL_MESSAGE( sizeof(expected), serial_position, "Unexpected number of output bytes" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected, serial_buffer, sizeof(expected) );
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder didn't return expected status code" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_OK, encode_result, "Encoder didn't return expected status code" );
 }
 
 void test_encode_packet_internal( void )
@@ -227,7 +227,7 @@ void test_encode_packet_internal( void )
 
     TEST_ASSERT_EQUAL_MESSAGE( sizeof(expected), serial_position, "Unexpected number of output bytes" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected, serial_buffer, sizeof(expected) );
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder didn't return expected status code" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_OK, encode_result, "Encoder didn't return expected status code" );
 }
 
 void test_encode_packet_response( void )
@@ -264,7 +264,7 @@ void test_encode_packet_response( void )
 
     TEST_ASSERT_EQUAL_MESSAGE( sizeof(expected), serial_position, "Unexpected number of output bytes" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected, serial_buffer, sizeof(expected) );
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder didn't return expected status code" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_OK, encode_result, "Encoder didn't return expected status code" );
 }
 
 void test_encode_packet_acknum( void ){
@@ -300,7 +300,7 @@ void test_encode_packet_acknum( void ){
 
     TEST_ASSERT_EQUAL_MESSAGE( sizeof(expected), serial_position, "Unexpected number of output bytes" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected, serial_buffer, sizeof(expected) );
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder didn't return expected status code" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_OK, encode_result, "Encoder didn't return expected status code" );
 }
 
 void test_encode_packet_float( void )
@@ -337,7 +337,7 @@ void test_encode_packet_float( void )
 
     TEST_ASSERT_EQUAL_MESSAGE( sizeof(expected), serial_position, "Unexpected number of output bytes" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected, serial_buffer, sizeof(expected) );
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder didn't return expected status code" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_OK, encode_result, "Encoder didn't return expected status code" );
 }
 
 void test_encode_packet_offset_last( void )
@@ -375,7 +375,7 @@ void test_encode_packet_offset_last( void )
 
     TEST_ASSERT_EQUAL_MESSAGE( sizeof(expected), serial_position, "Unexpected number of output bytes" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected, serial_buffer, sizeof(expected) );
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder didn't return expected status code" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_OK, encode_result, "Encoder didn't return expected status code" );
 }
 
 //use offsets to encode 2 bytes from a 4 byte array
@@ -414,7 +414,7 @@ void test_encode_packet_offset( void )
 
     TEST_ASSERT_EQUAL_MESSAGE( sizeof(expected), serial_position, "Unexpected number of output bytes" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected, serial_buffer, sizeof(expected) );
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder didn't return expected status code" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_OK, encode_result, "Encoder didn't return expected status code" );
 }
 
 //use offsets to encode 2 bytes from a 4 byte array
@@ -466,7 +466,7 @@ void test_encode_packet_large( void )
 
     TEST_ASSERT_EQUAL_MESSAGE( sizeof(expected), serial_position, "Unexpected number of output bytes" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected, serial_buffer, sizeof(expected) );
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder didn't return expected status code" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_OK, encode_result, "Encoder didn't return expected status code" );
 }
 
 void test_encode_packet_null_output_pointer( void )

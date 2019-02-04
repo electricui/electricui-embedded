@@ -95,7 +95,7 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
 {
     uint8_t parse_status = eui_decode(inbound_byte, &p_link->packet);
 
-    if( parser_complete == parse_status )
+    if( EUI_OK == parse_status )
     {
         eui_header_t   header       = *(eui_header_t*)&p_link->packet.header;
         eui_message_t *p_msglocal   = find_message_object(  (char*)p_link->packet.msgid_in,
@@ -103,41 +103,37 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
 
         if( p_msglocal )
         {
-            handle_packet_action( p_link, &header, p_msglocal );
+            parse_status = handle_packet_action( p_link, &header, p_msglocal );
 
-            if( header.response )
+            if( header.response && (EUI_OK == parse_status) )
             {
-                handle_packet_response( p_link, &header, p_msglocal );
+                parse_status = handle_packet_response( p_link, &header, p_msglocal );
             }
 
             if( p_link->interface_cb )
             {
-                p_link->interface_cb( cb_tracked );
+                p_link->interface_cb( CB_TRACKED );
             }
-
-            parse_status = status_known_id;
         }
         else
         {
             if( p_link->interface_cb )
             {
-                p_link->interface_cb( cb_untracked );
+                p_link->interface_cb( CB_UNTRACKED );
             }
-
-            parse_status = status_unknown_id;
         }
 
         memset( &p_link->packet, 0, sizeof(eui_packet_t) );
     }
-    else if( parser_error <= parse_status )
+    else if( EUI_ERROR_PARSER >= parse_status )
     {
         if( p_link->interface_cb )
         {
-            p_link->interface_cb( cb_parse_failure );
+            p_link->interface_cb( CB_PARSE_FAIL );
         }
 
         memset( &p_link->packet, 0, sizeof(eui_packet_t) );
-        parse_status = status_parser_generic;
+        parse_status = EUI_ERROR_PARSER;
     }
 
     return parse_status;
@@ -148,7 +144,7 @@ handle_packet_action(   eui_interface_t *valid_packet,
                         eui_header_t    *header,
                         eui_message_t   *msgObjPtr )
 {
-    uint8_t status = 0;
+    uint8_t status = EUI_OK;
 
     uint8_t is_writable = !(msgObjPtr->type >> 7);
     uint8_t is_callback = (msgObjPtr->type & 0x0F) == TYPE_CALLBACK;
@@ -166,7 +162,7 @@ handle_packet_action(   eui_interface_t *valid_packet,
             }
             else
             {
-                status = status_missing_callback;
+                status = EUI_ERROR_CALLBACK;
             }
         }
     }
@@ -183,7 +179,7 @@ handle_packet_action(   eui_interface_t *valid_packet,
         }
         else
         {
-            status = status_offset_er;
+            status = EUI_ERROR_OFFSET;
         }
     }
 
@@ -191,11 +187,13 @@ handle_packet_action(   eui_interface_t *valid_packet,
 }
 
 // Check the inbound packet's response requirements and output as required
-void
+uint8_t
 handle_packet_response( eui_interface_t *valid_packet,
                         eui_header_t    *header,
                         eui_message_t   *msgObjPtr )
 {
+    uint8_t status = EUI_OK;
+
     if( header->acknum )
     {
         eui_header_t tmp_header = { .internal   = header->internal,
@@ -206,11 +204,11 @@ handle_packet_response( eui_interface_t *valid_packet,
                                     .offset     = header->offset,
                                     .data_len   = 0  };
 
-        eui_encode( valid_packet->output_func,
-                    &tmp_header,
-                    msgObjPtr->msgID,
-                    valid_packet->packet.offset_in,
-                    msgObjPtr->payload );
+        status = eui_encode(    valid_packet->output_func,
+                                &tmp_header,
+                                msgObjPtr->msgID,
+                                valid_packet->packet.offset_in,
+                                msgObjPtr->payload );
     }
     else
     {
@@ -222,7 +220,7 @@ handle_packet_response( eui_interface_t *valid_packet,
         // inverted logic used to keep ifdef disable clean
         if( TYPE_OFFSET_METADATA != header->type )
         {
-            send_packet(valid_packet->output_func, msgObjPtr, &res_header);
+            status = send_packet(valid_packet->output_func, msgObjPtr, &res_header);
         }
 #ifndef EUI_CONF_OFFSETS_DISABLED
         else
@@ -230,27 +228,31 @@ handle_packet_response( eui_interface_t *valid_packet,
             uint16_t base_address = 0;
             uint16_t end_address  = 0;
             
-            base_address = (uint16_t)valid_packet->packet.data_in[1] << 8;
+            base_address  = (uint16_t)valid_packet->packet.data_in[1] << 8;
             base_address |= valid_packet->packet.data_in[0];
 
-            end_address = (uint16_t)valid_packet->packet.data_in[3] << 8;
+            end_address  = (uint16_t)valid_packet->packet.data_in[3] << 8;
             end_address |= valid_packet->packet.data_in[2];
 
-            send_packet_range(  valid_packet->output_func,
-                                msgObjPtr,
-                                &res_header,
-                                base_address,
-                                end_address );
+            status = send_packet_range( valid_packet->output_func,
+                                        msgObjPtr,
+                                        &res_header,
+                                        base_address,
+                                        end_address );
         }
 #endif
     }
+
+    return status;
 }
 
-void
+uint8_t
 send_packet(    callback_data_out_t output_function,
                 eui_message_t       *msgObjPtr,
                 eui_pkt_settings_t  *settings )
 {
+    uint8_t status = EUI_ERROR_SEND;
+
     if( output_function && msgObjPtr )
     {
         settings->type = msgObjPtr->type;
@@ -258,33 +260,35 @@ send_packet(    callback_data_out_t output_function,
         //decide if data will fit in a normal message, or requires multi-packet output
         if( msgObjPtr->size <= PAYLOAD_SIZE_MAX )
         {
-            eui_encode_simple(  output_function,
-                                settings,
-                                msgObjPtr->msgID,
-                                msgObjPtr->size,
-                                msgObjPtr->payload );
+            status = eui_encode_simple( output_function,
+                                        settings,
+                                        msgObjPtr->msgID,
+                                        msgObjPtr->size,
+                                        msgObjPtr->payload );
         }
 #ifndef EUI_CONF_OFFSETS_DISABLED
         else
         {
-            send_packet_range(  output_function,
-                                msgObjPtr,
-                                settings,
-                                0,
-                                msgObjPtr->size );
+            status = send_packet_range( output_function,
+                                        msgObjPtr,
+                                        settings,
+                                        0,
+                                        msgObjPtr->size );
         }
 #endif
     }
 
+    return status;
 }
 
-void
+uint8_t
 send_packet_range(  callback_data_out_t output_function, 
                     eui_message_t       *msgObjPtr, 
                     eui_pkt_settings_t  *settings, 
                     uint16_t            base_addr, 
                     uint16_t            end_addr ) 
 {
+    uint8_t status = EUI_ERROR_SEND_OFFSET;
 
     uint16_t data_range[2]  = { 0 };
     validate_offset_range(  base_addr,
@@ -303,13 +307,13 @@ send_packet_range(  callback_data_out_t output_function,
     tmp_header.data_len     = sizeof(base_addr) * 2; //base and end are sent
     tmp_header.type         = TYPE_OFFSET_METADATA;
 
-    eui_encode( output_function, &tmp_header, msgObjPtr->msgID, 0x00, &data_range);
+    status = eui_encode( output_function, &tmp_header, msgObjPtr->msgID, 0x00, &data_range);
 
     //send the offset packets
     tmp_header.offset = 1;
     tmp_header.type   = msgObjPtr->type;
 
-    while( end_addr > base_addr )
+    while( end_addr > base_addr && ( EUI_OK == status) )
     {
         uint16_t bytes_remaining = end_addr - base_addr;
 
@@ -325,12 +329,14 @@ send_packet_range(  callback_data_out_t output_function,
         //the current position through the buffer in bytes is also the end offset
         end_addr -= tmp_header.data_len;  
 
-        eui_encode( output_function,
-                    &tmp_header,
-                    msgObjPtr->msgID,
-                    end_addr,
-                    msgObjPtr->payload );
+        status = eui_encode(    output_function,
+                                &tmp_header,
+                                msgObjPtr->msgID,
+                                end_addr,
+                                msgObjPtr->payload );
     }
+
+    return status;
 }
 
 void
@@ -492,7 +498,7 @@ announce_board( void )
 
     if( selected_interface && selected_interface->interface_cb )
     {
-        selected_interface->interface_cb( cb_handshake );
+        selected_interface->interface_cb( CB_ANNOUNCE );
     }
 }
 
@@ -502,7 +508,7 @@ announce_dev_msg_readonly( void )
     eui_variable_count_t num_read_only  = 0;
     num_read_only = send_tracked_message_id_list( READ_ONLY_FLAG );
 
-    eui_pkt_settings_t      temp_header = { 0 };
+    eui_pkt_settings_t temp_header = { 0 };
     temp_header.internal  = MSG_INTERNAL;
     temp_header.response  = MSG_NRESP;
     temp_header.type      = TYPE_UINT8;
@@ -519,7 +525,7 @@ announce_dev_msg_writable( void )
     eui_variable_count_t num_writable  = 0;
     num_writable = send_tracked_message_id_list( WRITABLE_FLAG );
 
-    eui_pkt_settings_t      temp_header = { 0 };
+    eui_pkt_settings_t temp_header = { 0 };
     temp_header.internal  = MSG_INTERNAL;
     temp_header.response  = MSG_NRESP;
     temp_header.type      = TYPE_UINT8;
@@ -547,7 +553,7 @@ send_tracked_message_id_list( uint8_t read_only )
 {
     eui_variable_count_t variables_sent = 0;
 
-    eui_pkt_settings_t      temp_header = { 0 };
+    eui_pkt_settings_t temp_header = { 0 };
     temp_header.internal  = MSG_INTERNAL;
     temp_header.response  = MSG_NRESP;
     temp_header.type      = TYPE_CUSTOM;
@@ -597,8 +603,8 @@ send_tracked_variables( uint8_t read_or_writable )
     eui_variable_count_t    sent_variables = 0;
     eui_pkt_settings_t      temp_header = { 0 };
 
-    temp_header.internal  = MSG_DEV;
-    temp_header.response  = MSG_NRESP;
+    temp_header.internal    = MSG_DEV;
+    temp_header.response    = MSG_NRESP;
 
     for(eui_variable_count_t i = 0; i < numDevObjects; i++)
     {

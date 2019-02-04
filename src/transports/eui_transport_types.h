@@ -14,12 +14,6 @@
 
 #define MSGID_SIZE 16
 
-enum packet_signals {
-    parser_idle = 0,
-    parser_complete,
-    parser_error,
-};
-
 typedef struct {
     unsigned state          : 4;
     unsigned id_bytes_in    : 4;

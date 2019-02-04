@@ -35,13 +35,13 @@ find_tracked_object( const char * msg_id );
 uint8_t
 parse_packet( uint8_t inbound_byte, eui_interface_t *p_link );
 
-void
+uint8_t
 send_packet(    callback_data_out_t output_function,
                 eui_message_t       *msgObjPtr,
                 eui_pkt_settings_t  *settings );
 
 #ifndef EUI_CONF_OFFSETS_DISABLED
-    void
+    uint8_t
     send_packet_range(  callback_data_out_t output_function,
                         eui_message_t       *msgObjPtr,
                         eui_pkt_settings_t  *settings,
