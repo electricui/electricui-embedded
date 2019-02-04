@@ -162,7 +162,7 @@ void test_ingest_unknown_id( void )
     TEST_ASSERT_EQUAL( 0 , test_pk_ptr->parser.state);
 }
 
-// simple packet with some data to write
+// simple packet with some data to write (no response so no output expected)
 void test_ingest_data_packet( void )
 {
     test_pk_ptr->parser.state           = exp_crc_b2;
@@ -323,8 +323,41 @@ void test_ingest_data_packet_exceeds_range( void )
     TEST_ASSERT_EQUAL( 0 , test_pk_ptr->parser.state);
 }
 
-// packet is querying a variable 
-void test_ingest_response_packet_query( void )
+// packet is querying a variable without writing
+void test_ingest_response_packet_query_only( void )
+{
+    TEST_IGNORE_MESSAGE("Create parser input for query only packet");
+
+    test_pk_ptr->parser.state           = exp_crc_b2;
+    test_pk_ptr->parser.id_bytes_in     = 4;
+    test_pk_ptr->parser.data_bytes_in   = 0;
+    test_pk_ptr->parser.frame_offset    = 0;
+
+    test_pk_ptr->header.data_len    = 0;
+    test_pk_ptr->header.type        = TYPE_UINT8;
+    test_pk_ptr->header.internal    = 0;
+    test_pk_ptr->header.offset      = 0;
+    test_pk_ptr->header.id_len      = 4;
+    test_pk_ptr->header.response    = 1;
+    test_pk_ptr->header.acknum      = 0;
+
+    memcpy(&test_pk_ptr->msgid_in, "data", 4);
+    test_pk_ptr->offset_in          = 0;
+    test_pk_ptr->data_in[0]         = 0x12;
+    test_pk_ptr->crc_in             = 0xfefe;
+
+    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_OK);
+    encode_packet_simple_ExpectAnyArgsAndReturn( EUI_OK );
+    TEST_ASSERT_EQUAL_INT8( EUI_OK , parse_packet( 0x00, &test_interface ) );
+
+    //only querying... check existing value intact
+    TEST_ASSERT_EQUAL_INT8( 20, test_uint);
+
+    TEST_ASSERT_EQUAL( 0 , test_pk_ptr->parser.state);
+}
+
+// packet is querying a variable after writing (expect a response and value change)
+void test_ingest_response_packet_query_write( void )
 {
     test_pk_ptr->parser.state           = exp_crc_b2;
     test_pk_ptr->parser.id_bytes_in     = 4;
@@ -340,7 +373,7 @@ void test_ingest_response_packet_query( void )
     test_pk_ptr->header.acknum      = 0;
 
     memcpy(&test_pk_ptr->msgid_in, "data", 4);
-    test_pk_ptr->offset_in          = 2;
+    test_pk_ptr->offset_in          = 0;
     test_pk_ptr->data_in[0]         = 0x12;
     test_pk_ptr->crc_in             = 0xfefe;
 
@@ -348,14 +381,14 @@ void test_ingest_response_packet_query( void )
     encode_packet_simple_ExpectAnyArgsAndReturn( EUI_OK );
     TEST_ASSERT_EQUAL_INT8( EUI_OK , parse_packet( 0x00, &test_interface ) );
 
-    //only querying... check existing value intact
-    TEST_ASSERT_EQUAL_INT8( 20, test_uint);
+    //check value changed 
+    TEST_ASSERT_EQUAL_INT8( 0x12, test_uint);
 
     TEST_ASSERT_EQUAL( 0 , test_pk_ptr->parser.state);
 }
 
-// packet is querying a range of data 
-void test_ingest_response_packet_query_offset( void )
+// packet is querying a range of data with no writen data
+void test_ingest_response_packet_offset_query_only( void )
 {
     // inbound message is a offset_metadata message which contains start 
     // and end addresses being questioned
@@ -546,14 +579,13 @@ void test_ingest_callback_packet_query( void )
     TEST_ASSERT_EQUAL_INT8( EUI_OK , parse_packet( 0x00, &test_interface ) );
 
     TEST_ASSERT_EQUAL_INT8( 20, test_uint);
-    TEST_ASSERT_EQUAL_INT8( 0, test_cb_hit);    //check our callback has been called
+    TEST_ASSERT_EQUAL_INT8( 0, test_cb_hit);    //check our callback has not been called
 
     TEST_ASSERT_EQUAL( 0 , test_pk_ptr->parser.state);
 }
 
 void test_ingest_interface_callback_handshake( void )
 {
-
     test_pk_ptr->parser.state           = exp_crc_b2;
     test_pk_ptr->parser.id_bytes_in     = 1;
     test_pk_ptr->parser.data_bytes_in   = 0;
