@@ -51,8 +51,8 @@ eui_variable_count_t
 send_tracked_variables( uint8_t read_only );
 
 //interface management
-eui_interface_t     *interfaceArray;
-uint8_t             numInterfaces;
+eui_interface_t     *interface_arr;
+uint8_t             interface_count;
 
 //dev interface
 eui_message_t           *devObjectArray;

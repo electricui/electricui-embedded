@@ -57,9 +57,6 @@ void setUp(void)
 
     setup_dev_msg(internal_callback_test_store, ARR_ELEM(internal_callback_test_store));
     setup_interfaces( multi_interfaces, ARR_ELEM(multi_interfaces));
-
-    interface_result = 0;
-    interface_expecting = 0;
 }
  
 void tearDown(void)
@@ -72,13 +69,12 @@ void tearDown(void)
 //gives us a pointer to an interface object
 void test_auto_interface_single( void )
 {
-    setup_interface( &multi_interfaces[1]);
+    setup_interface( &multi_interfaces[1] );
 
     //ask the auto-interface for an interface pointer
     interface_expecting = &multi_interfaces[1];
 
-    interface_result = auto_interface();
-    TEST_ASSERT_EQUAL_PTR(interface_expecting, interface_result);
+    TEST_ASSERT_EQUAL_PTR(interface_expecting, auto_interface());
 }
 
 void test_auto_interface_many( void )
@@ -87,10 +83,17 @@ void test_auto_interface_many( void )
     for(uint8_t i = 0; i < ARR_ELEM(multi_interfaces); i++)
     {
         active_interface = i;
-        interface_expecting = &multi_interfaces[i];
-        interface_result = auto_interface();
-        TEST_ASSERT_EQUAL_PTR(interface_expecting, interface_result);
+        TEST_ASSERT_EQUAL_PTR( &multi_interfaces[i], auto_interface() );
     }
+
+    //an invalid active interface value should return an error (null ptr)
+    active_interface = 5;
+    TEST_ASSERT_NULL( auto_interface() );
+
+    //test off-by-one case
+    //the ARR_ELEM macro gives logical count, will be +1 over index notation
+    active_interface = ARR_ELEM(multi_interfaces);  
+    TEST_ASSERT_NULL( auto_interface() );
 }
 
 //test with invalid developer provided information
@@ -101,32 +104,26 @@ void test_auto_interface_invalid( void )
     for(uint8_t i = 0; i < ARR_ELEM(multi_interfaces); i++)
     {
         active_interface = i;
-        interface_expecting = &multi_interfaces[i];
-        interface_result = auto_interface();
-        TEST_ASSERT_EQUAL( 0, interface_result );
+        TEST_ASSERT_NULL( auto_interface() );
     }
 
-    //test a malformed interface setup
-    interfaceArray = &multi_interfaces[1];
-    numInterfaces = 0;
+    //test a malformed interface setup by manually overriding the 'internal' interface vars
+    interface_arr = &multi_interfaces[1];
+    interface_count = 0;
 
     for(uint8_t i = 0; i < ARR_ELEM(multi_interfaces); i++)
     {
         active_interface = i;
-        interface_expecting = &multi_interfaces[i];
-        interface_result = auto_interface();
-        TEST_ASSERT_EQUAL( 0, interface_result );
+        TEST_ASSERT_NULL( auto_interface() );
     }
 
-    interfaceArray = 0;
-    numInterfaces = 3;
+    interface_arr = 0;
+    interface_count = 3;
 
     for(uint8_t i = 0; i < ARR_ELEM(multi_interfaces); i++)
     {
         active_interface = i;
-        interface_expecting = &multi_interfaces[i];
-        interface_result = auto_interface();
-        TEST_ASSERT_EQUAL( 0, interface_result );
+        TEST_ASSERT_NULL( auto_interface() );
     }
 }
 

@@ -69,9 +69,9 @@ auto_interface( void )
 {
     eui_interface_t *interface_ptr = 0;
 
-    if( numInterfaces && interfaceArray )
+    if( interface_count && interface_arr && (active_interface < interface_count) )
     {
-        interface_ptr = &interfaceArray[active_interface];
+        interface_ptr = &interface_arr[active_interface];
     }
 
     return interface_ptr;
@@ -408,13 +408,13 @@ setup_interfaces( eui_interface_t *link_array, uint8_t link_count )
 {
     if( link_array && link_count )
     {
-        interfaceArray  = link_array;
-        numInterfaces   = link_count;
+        interface_arr   = link_array;
+        interface_count = link_count;
     }
     else
     {
-        interfaceArray  = 0;
-        numInterfaces   = 0;
+        interface_arr   = 0;
+        interface_count = 0;
     }
 
     //the default interface should be the 'highest' priority one
@@ -457,7 +457,7 @@ setup_identifier( char * uuid, uint8_t bytes )
 void
 set_default_interface( uint8_t interface_index )
 {
-    if( interface_index <= (numInterfaces - 1) )
+    if( interface_index <= (interface_count - 1) )
     {
         active_interface = interface_index;
     }
