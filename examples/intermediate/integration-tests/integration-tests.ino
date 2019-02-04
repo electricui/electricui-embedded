@@ -17,7 +17,7 @@ void toggleLed()
 uint8_t   example_uint8   = 21;
 uint16_t  example_uint16  = 321;
 uint32_t  example_uint32  = 654321;
-float     example_float   = 3.14159;
+float     example_float   = 3.141592;
 
 uint8_t   example_uint8_arr[]  = { 21, 20, 19 };
 uint16_t  example_uint16_arr[] = { 321, 320, 319 };

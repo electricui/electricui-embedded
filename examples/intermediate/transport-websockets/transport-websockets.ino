@@ -24,7 +24,7 @@ char 	ws_path[] 		= "ws(s)://255.255.255.255:81";
 uint8_t   example_uint8   = 21;
 uint16_t  example_uint16  = 321;
 uint32_t  example_uint32  = 654321;
-float     example_float   = 3.14159;
+float     example_float   = 3.141592;
 char 	  demo_string[] = "ESP32 Test Board";
 
 eui_message_t dev_msg_store[] = {

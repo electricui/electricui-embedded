@@ -10,8 +10,8 @@ uint16_t example_uint16 = 321;
 int32_t  example_int32  = -654321;
 uint32_t example_uint32 = 654321;
 
-float    example_float  = 3.14159;
-double   example_double = 6.14159;
+float    example_float  = 3.141592;
+double   example_double = 6.283185307179586;
 
 char example_char = 'a';
 
