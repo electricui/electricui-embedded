@@ -338,14 +338,13 @@ send_tracked( const char * msg_id )
 {
     if( msg_id )
     {
-        eui_pkt_settings_t      temp_header = { 0 };
+        eui_pkt_settings_t temp_header = { 0 };
         temp_header.internal  = MSG_DEV;
         temp_header.response  = MSG_NRESP;
 
         send_packet(    auto_output(),
                         find_message_object( msg_id, MSG_DEV ),
-                        &temp_header);
-        
+                        &temp_header );
     }
 }
 
@@ -360,7 +359,7 @@ send_tracked_on(const char * msg_id, eui_interface_t *interface)
 
         send_packet(    interface->output_func,
                         find_message_object( msg_id, MSG_DEV ),
-                        &temp_header);
+                        &temp_header );
     }
 }
 
@@ -375,8 +374,7 @@ send_untracked( eui_message_t *msg_obj_ptr )
 
         send_packet(    auto_output(),
                         msg_obj_ptr,
-                        &temp_header);
-        
+                        &temp_header );
     }
 }
 
@@ -391,8 +389,7 @@ send_untracked_on( eui_message_t *msg_obj_ptr, eui_interface_t *interface )
 
         send_packet(    interface->output_func,
                         msg_obj_ptr,
-                        &temp_header);
-        
+                        &temp_header );
     }
 }
 

@@ -52,9 +52,12 @@
   :enforce_strict_ordering: TRUE
   :plugins:
     - :ignore
-    - :callback
+    - :ignore_arg
+    - :expect
     - :expect_any_args
-
+    - :callback
+  :c_calling_conventions:
+          - CALLBACK
   :treat_as:
     uint8:    HEX8
     uint16:   HEX16
