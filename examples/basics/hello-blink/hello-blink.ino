@@ -52,33 +52,28 @@ void loop()
 {
   uart_rx_handler();  //check for new inbound data
 
-  if( led_state == LOW ) //LED is off
-  {
-    // Check if the LED has been off for the configured duration
-    if( millis() - time_off >= dark_time )
-    {
-      led_state = HIGH;
-      time_on = millis();
-    }
-  }
-  else  //LED is on
-  {
-    if( millis() - time_on >= glow_time )
-    {
-      led_state = LOW;
-      time_off = millis();
-    }
-  }
-
   if( blink_enable )
   {
-    digitalWrite( LED_PIN, led_state ); //allow the led to blink
-  }
-  else
-  {
-    digitalWrite( LED_PIN, led_state );
+    if( led_state == LOW ) //LED is off
+    {
+      // Check if the LED has been off for the configured duration
+      if( millis() - time_off >= dark_time )
+      {
+        led_state = HIGH;
+        time_on = millis();
+      }
+    }
+    else  //LED is on
+    {
+      if( millis() - time_on >= glow_time )
+      {
+        led_state = LOW;
+        time_off = millis();
+      }
+    }
   }
 
+  digitalWrite( LED_PIN, led_state ); //update the LED to match the intended state
 }
 
 void uart_rx_handler()
