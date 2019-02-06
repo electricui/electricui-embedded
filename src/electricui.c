@@ -97,22 +97,31 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
 
     if( EUI_OK == parse_status )
     {
-        eui_header_t   header       = *(eui_header_t*)&p_link->packet.header;
+        eui_header_t   header_in    = *(eui_header_t*)&p_link->packet.header;
         eui_message_t *p_msglocal   = find_message_object(  (char*)p_link->packet.msgid_in,
-                                                            header.internal );
+                                                            header_in.internal );
 
         if( p_msglocal )
         {
-            parse_status = handle_packet_action( p_link, &header, p_msglocal );
-
-            if( header.response && (EUI_OK == parse_status) )
+            //check the packet's type matches the internal type
+            if( header_in.type == TYPE_OFFSET_METADATA
+                || (p_msglocal->type & 0x0F) == header_in.type )
             {
-                parse_status = handle_packet_response( p_link, &header, p_msglocal );
+                parse_status = handle_packet_action( p_link, &header_in, p_msglocal );
+
+                if( header_in.response && (EUI_OK == parse_status) )
+                {
+                    parse_status = handle_packet_response( p_link, &header_in, p_msglocal );
+                }
+
+                if( p_link->interface_cb )
+                {
+                    p_link->interface_cb( CB_TRACKED );
+                }
             }
-
-            if( p_link->interface_cb )
+            else
             {
-                p_link->interface_cb( CB_TRACKED );
+                parse_status = EUI_ERROR_TYPE_MISMATCH;
             }
         }
         else
