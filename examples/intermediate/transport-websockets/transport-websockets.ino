@@ -35,7 +35,7 @@ eui_message_t dev_msg_store[] = {
     EUI_UINT16( "i16", example_uint16 ),
     EUI_UINT32( "i32", example_uint32 ),
     EUI_FLOAT(  "fPI", example_float ),
-    EUI_CHAR_ARRAY_RO( "dst", demo_string ),
+    EUI_CHAR_RO_ARRAY( "dst", demo_string ),
 };
 
 WiFiMulti WiFiMulti;
@@ -141,10 +141,7 @@ void loop()
 
 void tx_putc( uint8_t *data, uint16_t len )
 {
-  for( uint16_t i = 0; i < len; i++ )
-  {
-      Serial.write( data[i] );
-  }
+  Serial.write( data, len );
 }
 
 void ws_tx_putc( uint8_t *data, uint16_t len )
