@@ -256,14 +256,12 @@ void test_cobs_basic_7( void )
 // Expect 00 FF 01 02 03 ... FD FE 02 FF 00
 void test_cobs_basic_8( void )
 {
-        TEST_IGNORE();
-
-    uint8_t test_payload[ 4 + 0xFF ] = { 0 };
+    uint8_t test_payload[ 3 + 0xFF ] = { 0 };
 
     //input data sequence like: 01 02 03 ... FD FE FF
     for(uint16_t i = 1; i <= 0xFF; i++)
     {
-        test_payload[2+i] = i;
+        test_payload[1+i] = i;
     }
 
     uint8_t encode_result = encode_framing( test_payload, sizeof(test_payload) );
@@ -294,7 +292,6 @@ void test_cobs_basic_8( void )
 
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE( expected, test_payload, sizeof(expected), "Encoding not valid" );
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong status" );
-
 }
 
 // Expect 00 FF 02 03 04 ... FE FF 01 01 00
@@ -311,7 +308,7 @@ void test_cobs_basic_9( void )
     test_payload[0x100] = 0x00;
 
     uint8_t encode_result = encode_framing( test_payload, sizeof(test_payload) );
-    
+
     //ground-truth
     uint8_t expected[] = { 
         0x00,
@@ -335,8 +332,6 @@ void test_cobs_basic_9( void )
         0x01, 0x01,
         0x00,
     };
-
-    TEST_IGNORE_MESSAGE("TODO: Resolve issue with >255 non-zero byte runs");
 
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE( expected, test_payload, sizeof(expected), "Encoding not valid" );
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong status" );
