@@ -14,12 +14,15 @@ typedef struct {
 
 //example hardware data
 uint8_t rgb_brightness  = 50;
-rgb_t   led_colour      = { 182, 236, 20 };
+rgb_t   led_colour      = { 10, 128, 60 };
+
+char device_name[] = "name";
 
 eui_message_t dev_msg_store[] = 
 {
     EUI_UINT8( "bright", rgb_brightness ),
-    EUI_CUSTOM("rgb", led_colour ),
+    EUI_CHAR_ARRAY("name", device_name ),
+    EUI_UINT16_ARRAY("rgb", led_colour ),
 };
 
 void tx_putc( uint8_t *data, uint16_t len )
