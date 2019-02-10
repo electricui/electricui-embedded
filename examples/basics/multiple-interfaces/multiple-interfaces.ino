@@ -25,7 +25,11 @@ uint16_t time_off = 0;
 
 char demo_string[] = "HelloElectric";
 
-//internal index of developer-space message metadata
+// Function declarations for the serial output callbacks
+void serial0_tx( uint8_t *data, uint16_t len );
+void serial1_tx( uint8_t *data, uint16_t len );
+
+// Tracked variables
 eui_message_t dev_msg_store[] = {
 
     EUI_UINT8( "led_blink",  blink_enable ),
@@ -34,6 +38,7 @@ eui_message_t dev_msg_store[] = {
     EUI_UINT16("unlit_time", dark_time ),
 };
 
+// List of interfaces passed to Electric UI with the output pointers
 eui_interface_t transport_methods[] = {
     EUI_INTERFACE( &serial0_tx ),
     EUI_INTERFACE( &serial1_tx ),
