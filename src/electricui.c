@@ -11,7 +11,6 @@ eui_message_t internal_msg_store[] =
 {
     EUI_UINT8_RO(   EUI_INTERNAL_LIB_VER,       library_version     ),
     EUI_UINT16_RO(  EUI_INTERNAL_BOARD_ID,      board_identifier    ),
-    EUI_UINT8(      EUI_INTERNAL_SESSION_ID,    session_identifier  ),
     EUI_UINT8(      EUI_INTERNAL_HEARTBEAT,     heartbeat           ),
     EUI_UINT8(      EUI_DEFAULT_INTERFACE,      active_interface    ),
 

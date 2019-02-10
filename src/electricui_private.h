@@ -56,7 +56,6 @@ eui_variable_count_t    numDevObjects;
 // eUI variables accessible to developer
 uint8_t     heartbeat;
 uint16_t    board_identifier;
-uint8_t     session_identifier;
 uint8_t     active_interface;
 
 #endif //end EUI_PRIVATE_H
