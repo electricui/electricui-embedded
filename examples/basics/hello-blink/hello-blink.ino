@@ -7,11 +7,9 @@
 uint8_t   blink_enable = 1; //if the blinker should be running
 uint8_t   led_state  = 0;   //track if the LED is illuminated
 uint16_t  glow_time  = 200; //in milliseconds
-uint16_t  dark_time  = 200; //in milliseconds
 
 // Keep track of when the light turns on or off
-uint32_t time_on = 0;
-uint32_t time_off = 0;
+uint32_t led_timer = 0;
 
 // Electric UI manages variables referenced in this array
 eui_message_t dev_msg_store[] = 
@@ -19,7 +17,6 @@ eui_message_t dev_msg_store[] =
   EUI_UINT8(  "led_blink",  blink_enable ),
   EUI_UINT8(  "led_state",  led_state ),
   EUI_UINT16( "lit_time",   glow_time ),
-  EUI_UINT16( "unlit_time", dark_time ),
 };
 
 // Instantiate the communication interface's management object
@@ -44,39 +41,27 @@ void setup()
   setup_identifier( "hello", 5 );
 
 
-  time_on = millis();
-  time_off = millis();
+  led_timer = millis();
 }
 
 void loop() 
 {
-  uart_rx_handler();  //check for new inbound data
+  serial_rx_handler();  //check for new inbound data
 
   if( blink_enable )
   {
-    if( led_state == LOW ) //LED is off
+    // Check if the LED has been on for the configured duration
+    if( millis() - led_timer >= glow_time )
     {
-      // Check if the LED has been off for the configured duration
-      if( millis() - time_off >= dark_time )
-      {
-        led_state = HIGH;
-        time_on = millis();
-      }
-    }
-    else  //LED is on
-    {
-      if( millis() - time_on >= glow_time )
-      {
-        led_state = LOW;
-        time_off = millis();
-      }
-    }
+      led_state = !led_state; //invert led state
+      led_timer = millis();
+    }    
   }
 
   digitalWrite( LED_PIN, led_state ); //update the LED to match the intended state
 }
 
-void uart_rx_handler()
+void serial_rx_handler()
 {
   // While we have data, we will pass those bytes to the ElectricUI parser
   while( Serial.available() > 0 )  
@@ -87,6 +72,5 @@ void uart_rx_handler()
   
 void tx_putc( uint8_t *data, uint16_t len )
 {
-  //output on the main serial port
-  Serial.write( data, len );
+  Serial.write( data, len ); //output on the main serial port
 }
