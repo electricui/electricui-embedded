@@ -519,7 +519,7 @@ announce_dev_msg_readonly( void )
     eui_pkt_settings_t temp_header = { 0 };
     temp_header.internal  = MSG_INTERNAL;
     temp_header.response  = MSG_NRESP;
-    temp_header.type      = TYPE_UINT8;
+    temp_header.type      = TYPE_MANY_VARIABLES_SIZED;
     eui_encode_simple(  auto_output(),
                         &temp_header,
                         EUI_INTERNAL_AM_RO_END,
@@ -536,7 +536,7 @@ announce_dev_msg_writable( void )
     eui_pkt_settings_t temp_header = { 0 };
     temp_header.internal  = MSG_INTERNAL;
     temp_header.response  = MSG_NRESP;
-    temp_header.type      = TYPE_UINT8;
+    temp_header.type      = TYPE_MANY_VARIABLES_SIZED;
     eui_encode_simple(  auto_output(),
                         &temp_header, 
                         EUI_INTERNAL_AM_RW_END,
