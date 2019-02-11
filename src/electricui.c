@@ -102,25 +102,27 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
 
         if( p_msglocal )
         {
-            //check the packet's type matches the internal type
+            // check the packet's type matches the internal type before running callbacks or writing
             if( header_in.type == TYPE_OFFSET_METADATA
                 || (p_msglocal->type & 0x0F) == header_in.type )
             {
                 parse_status = handle_packet_action( p_link, &header_in, p_msglocal );
-
-                if( header_in.response && (EUI_OK == parse_status) )
-                {
-                    parse_status = handle_packet_response( p_link, &header_in, p_msglocal );
-                }
-
-                if( p_link->interface_cb )
-                {
-                    p_link->interface_cb( CB_TRACKED );
-                }
             }
             else
             {
                 parse_status = EUI_ERROR_TYPE_MISMATCH;
+            }
+
+            // respond to queries or ack as required
+            if( header_in.response && (EUI_OK == parse_status) )
+            {
+                parse_status = handle_packet_response( p_link, &header_in, p_msglocal );
+            }
+
+            // notify the developer
+            if( p_link->interface_cb )
+            {
+                p_link->interface_cb( CB_TRACKED );
             }
         }
         else
