@@ -599,7 +599,6 @@ void test_ingest_interface_callback_handshake( void )
     decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_OK);
     encode_packet_simple_ExpectAnyArgsAndReturn(0);
     encode_packet_simple_ExpectAnyArgsAndReturn(0);
-    encode_packet_simple_ExpectAnyArgsAndReturn(0);
 
     parse_packet( 0x00, &test_interface );
 
@@ -687,7 +686,6 @@ void test_ingest_interface_callback_handshake_no_ptr( void )
     memcpy(&test_pk_ptr->msgid_in, EUI_INTERNAL_SEARCH, 1);
 
     decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_OK );
-    encode_packet_simple_ExpectAnyArgsAndReturn(0);
     encode_packet_simple_ExpectAnyArgsAndReturn(0);
     encode_packet_simple_ExpectAnyArgsAndReturn(0);
 

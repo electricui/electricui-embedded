@@ -60,8 +60,7 @@ void tearDown(void)
 
 void test_announce_board( void )
 {
-    //expect the library version, board ID and session ID (lv, bi, si)
-    encode_packet_simple_ExpectAnyArgsAndReturn(0);
+    //expect the library version, board ID (lv, bi)
     encode_packet_simple_ExpectAnyArgsAndReturn(0);
     encode_packet_simple_ExpectAnyArgsAndReturn(0);
 
