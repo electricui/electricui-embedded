@@ -122,14 +122,14 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
             // notify the developer
             if( p_link->interface_cb )
             {
-                p_link->interface_cb( CB_TRACKED );
+                p_link->interface_cb( EUI_CB_TRACKED );
             }
         }
         else
         {
             if( p_link->interface_cb )
             {
-                p_link->interface_cb( CB_UNTRACKED );
+                p_link->interface_cb( EUI_CB_UNTRACKED );
             }
         }
 
@@ -139,7 +139,7 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
     {
         if( p_link->interface_cb )
         {
-            p_link->interface_cb( CB_PARSE_FAIL );
+            p_link->interface_cb( EUI_CB_PARSE_FAIL );
         }
 
         memset( &p_link->packet, 0, sizeof(eui_packet_t) );
@@ -508,7 +508,7 @@ announce_board( void )
 
     if( selected_interface && selected_interface->interface_cb )
     {
-        selected_interface->interface_cb( CB_ANNOUNCE );
+        selected_interface->interface_cb( EUI_CB_ANNOUNCE );
     }
 }
 

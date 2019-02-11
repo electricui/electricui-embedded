@@ -21,12 +21,12 @@ enum eui_type {
 };
 
 enum eui_callback_codes {
-    CB_GENERIC = 0,
-    CB_TRACKED,
-    CB_UNTRACKED,
-    CB_ANNOUNCE,
-    CB_PARSE_FAIL,
-    CB_LAST_ENUM,
+    EUI_CB_GENERIC = 0,
+    EUI_CB_TRACKED,
+    EUI_CB_UNTRACKED,
+    EUI_CB_ANNOUNCE,
+    EUI_CB_PARSE_FAIL,
+    EUI_CB_LAST_ENUM,
 };
 
 enum eui_status_codes {
