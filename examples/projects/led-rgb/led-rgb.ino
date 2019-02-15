@@ -16,7 +16,7 @@ typedef struct {
 uint8_t rgb_brightness  = 50;
 rgb_t   led_colour      = { 10, 128, 60 };
 
-char device_name[] = "name";
+char device_name[] = "led-rgb test";
 
 eui_message_t dev_msg_store[] = 
 {

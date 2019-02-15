@@ -124,7 +124,7 @@ void test_ingest_error( void )
     TEST_ASSERT_EQUAL_INT8( EUI_ERROR_PARSER , parse_packet( 0xAB, &test_interface ) );
 
     TEST_ASSERT_EQUAL_INT8( 1, interface_cb_hit );
-    TEST_ASSERT_EQUAL_INT8( CB_PARSE_FAIL, interface_cb_arg[0] );
+    TEST_ASSERT_EQUAL_INT8( EUI_CB_PARSE_FAIL, interface_cb_arg[0] );
 
     //we expect the handler to wipe the packet handler data after an error
     eui_packet_t blank_packet = { 0 };
@@ -156,7 +156,7 @@ void test_ingest_unknown_id( void )
     TEST_ASSERT_EQUAL_INT8( EUI_OK , parse_packet( 0x00, &test_interface ) );
 
     TEST_ASSERT_EQUAL_INT8( 1 , interface_cb_hit );
-    TEST_ASSERT_EQUAL_INT8( CB_UNTRACKED , interface_cb_arg[0] );
+    TEST_ASSERT_EQUAL_INT8( EUI_CB_UNTRACKED , interface_cb_arg[0] );
 
     // handler should clean up after itself
     TEST_ASSERT_EQUAL( 0 , test_pk_ptr->parser.state);
@@ -191,7 +191,7 @@ void test_ingest_data_packet( void )
     TEST_ASSERT_EQUAL_INT8(0x0A, test_uint);
 
     TEST_ASSERT_EQUAL_INT8( 1 , interface_cb_hit );
-    TEST_ASSERT_EQUAL_INT8( CB_TRACKED , interface_cb_arg[0] );
+    TEST_ASSERT_EQUAL_INT8( EUI_CB_TRACKED , interface_cb_arg[0] );
 
     TEST_ASSERT_EQUAL( 0 , test_pk_ptr->parser.state);
 }
@@ -224,7 +224,7 @@ void test_ingest_data_packet_internal( void )
     TEST_ASSERT_EQUAL_INT8( 2 , heartbeat );
 
     TEST_ASSERT_EQUAL_INT8( 1 , interface_cb_hit );
-    TEST_ASSERT_EQUAL_INT8( CB_TRACKED , interface_cb_arg[0] );
+    TEST_ASSERT_EQUAL_INT8( EUI_CB_TRACKED , interface_cb_arg[0] );
 
     TEST_ASSERT_EQUAL( 0 , test_pk_ptr->parser.state);
 }
@@ -604,8 +604,8 @@ void test_ingest_interface_callback_handshake( void )
 
     //callbacks expected
     TEST_ASSERT_EQUAL_INT8( 2, interface_cb_hit );
-    TEST_ASSERT_EQUAL_INT8( CB_ANNOUNCE, interface_cb_arg[0] );
-    TEST_ASSERT_EQUAL_INT8( CB_TRACKED, interface_cb_arg[1] );
+    TEST_ASSERT_EQUAL_INT8( EUI_CB_ANNOUNCE, interface_cb_arg[0] );
+    TEST_ASSERT_EQUAL_INT8( EUI_CB_TRACKED, interface_cb_arg[1] );
 }
 
 // validate the developer interface space callbacks don't fire when not set

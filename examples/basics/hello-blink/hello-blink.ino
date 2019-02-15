@@ -1,7 +1,7 @@
 //Import the ElectricUI Library
 #include "electricui.h"
 
-#define LED_PIN 13
+#define LED_PIN LED_BUILTIN
 
 // Simple variables to modify the LED behaviour
 uint8_t   blink_enable = 1; //if the blinker should be running
