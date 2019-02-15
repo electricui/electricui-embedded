@@ -18,7 +18,7 @@ else
 		sudo gem install ceedling
 	else
 		echo "Error: We need ceedling for test harnesses."
-		exit 0
+		exit 1
 	fi		
 fi
 
@@ -29,3 +29,4 @@ cd ../
 echo "n" | ceedling new test
 
 echo " - Execute 'ceedling test:all' to run all tests"
+exit 0
