@@ -5,23 +5,31 @@ echo "Checking if ceedling already exists on the system..."
 # Check the ruby gem ceedling is installed
 GEM_INSTALLED=`gem list -i ceedling`
 
+echo $1
+
 if [ $GEM_INSTALLED == "true" ]
 then
 	echo "Ceedling gem found, awesome!"
 else
-	# Prompt to install it
-	read -p "Install the ceedling ruby gem?" -n 1 -r
-	echo    # (optional) move to a new line
-	if [[ $REPLY =~ ^[Yy]$ ]]
+	# Check to see if auto-install is requested as the first input argument
+	if ! [[ $1 =~ ^[Yy]$ ]]
 	then
-		# install it
-		PATH="`ruby -e 'puts Gem.user_dir'`/bin:$PATH"
-		export PATH
-		gem install --user-install ceedling
-	else
-		echo "Error: We need ceedling for test harnesses."
-		exit 1
-	fi		
+		# Prompt to install it
+		read -p "Install the ceedling ruby gem?" -n 1 -r
+		echo    # (optional) move to a new line
+
+		if ! [[ $REPLY =~ ^[Yy]$ ]]
+		then
+			echo "Error: We need ceedling for test harnesses."
+			exit 1
+		fi
+	fi
+
+	# install it
+	PATH="`ruby -e 'puts Gem.user_dir'`/bin:$PATH"
+	export PATH
+	gem install --user-install ceedling
+
 fi
 
 # Setup project
