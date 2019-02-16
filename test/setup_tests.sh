@@ -5,8 +5,6 @@ echo "Checking if ceedling already exists on the system..."
 # Check the ruby gem ceedling is installed
 GEM_INSTALLED=`gem list -i ceedling`
 
-echo $1
-
 if [ $GEM_INSTALLED == "true" ]
 then
 	echo "Ceedling gem found, awesome!"

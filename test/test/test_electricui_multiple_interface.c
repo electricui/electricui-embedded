@@ -54,12 +54,12 @@ eui_interface_t multi_interfaces[] = {
 
 // CMOCK callback
 
-void encode_packet_simple_Callback(   callback_data_out_t output_function,
-                        eui_pkt_settings_t  *settings,
-                        const char          *msg_id,
-                        uint16_t            payload_len,
-                        void*               payload,
-                        int NumCalls )
+void encode_packet_simple_Callback( callback_data_out_t output_function,
+                                    eui_pkt_settings_t  *settings,
+                                    const char          *msg_id,
+                                    uint16_t            payload_len,
+                                    void*               payload,
+                                    int                 NumCalls )
 {
     attempted_interface = output_function;
     attempted_output_times++;
