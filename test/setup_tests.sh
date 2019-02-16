@@ -15,7 +15,9 @@ else
 	if [[ $REPLY =~ ^[Yy]$ ]]
 	then
 		# install it
-		sudo gem install ceedling
+		PATH="`ruby -e 'puts Gem.user_dir'`/bin:$PATH"
+		export PATH
+		gem install --user-install ceedling
 	else
 		echo "Error: We need ceedling for test harnesses."
 		exit 1
@@ -28,5 +30,10 @@ sleep 1 # Let the user read the line
 cd ../
 echo "n" | ceedling new test
 
+
 echo " - Execute 'ceedling test:all' to run all tests"
+echo ""
+echo "If ceedling was installed by this script, its only available for your current user."
+echo "If ceedling can't be found by your shell, ensure `ruby -e 'puts Gem.user_dir'`/bin is in your PATH."
+
 exit 0
