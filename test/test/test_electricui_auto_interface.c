@@ -16,9 +16,6 @@
 char      test_char    = 'a';
 uint8_t   test_uint    = 21;
 
-eui_interface_t *interface_result = 0;
-eui_interface_t *interface_expecting = 0;
-
 // PRIVATE FUNCTIONS
 void callback_mocked_output_1( uint8_t *data, uint16_t len )
 {
@@ -71,29 +68,23 @@ void test_auto_interface_single( void )
 {
     setup_interface( &multi_interfaces[1] );
 
-    //ask the auto-interface for an interface pointer
-    interface_expecting = &multi_interfaces[1];
+    //pretend we've had a message come in and have set last_interface
+    last_interface = &multi_interfaces[1];
 
-    TEST_ASSERT_EQUAL_PTR(interface_expecting, auto_interface());
+    TEST_ASSERT_EQUAL_PTR(&multi_interfaces[1], auto_interface());
 }
 
 void test_auto_interface_many( void )
 {
-    //test return of each interface
+    // When multiple come in, only the 0th index will be used
+    TEST_ASSERT_EQUAL_PTR(&multi_interfaces[0], auto_interface());
+
+    //test return of changing interface
     for(uint8_t i = 0; i < ARR_ELEM(multi_interfaces); i++)
     {
-        active_interface = i;
+        last_interface = &multi_interfaces[i];
         TEST_ASSERT_EQUAL_PTR( &multi_interfaces[i], auto_interface() );
     }
-
-    //an invalid active interface value should return an error (null ptr)
-    active_interface = 5;
-    TEST_ASSERT_NULL( auto_interface() );
-
-    //test off-by-one case
-    //the ARR_ELEM macro gives logical count, will be +1 over index notation
-    active_interface = ARR_ELEM(multi_interfaces);  
-    TEST_ASSERT_NULL( auto_interface() );
 }
 
 //test with invalid developer provided information
@@ -103,7 +94,7 @@ void test_auto_interface_invalid( void )
     setup_interfaces( 0, 0);
     for(uint8_t i = 0; i < ARR_ELEM(multi_interfaces); i++)
     {
-        active_interface = i;
+        last_interface = &multi_interfaces[i];
         TEST_ASSERT_NULL( auto_interface() );
     }
 
@@ -113,7 +104,7 @@ void test_auto_interface_invalid( void )
 
     for(uint8_t i = 0; i < ARR_ELEM(multi_interfaces); i++)
     {
-        active_interface = i;
+        last_interface = &multi_interfaces[i];
         TEST_ASSERT_NULL( auto_interface() );
     }
 
@@ -122,19 +113,7 @@ void test_auto_interface_invalid( void )
 
     for(uint8_t i = 0; i < ARR_ELEM(multi_interfaces); i++)
     {
-        active_interface = i;
+        last_interface = &multi_interfaces[i];
         TEST_ASSERT_NULL( auto_interface() );
     }
-}
-
-// gives us a output function
-void test_auto_output( void )
-{
-    //ask the auto-interface for an interface pointer
-    callback_data_out_t cb_result = 0;
-    callback_data_out_t cb_expecting = &callback_mocked_output_2;
-    active_interface = 1;
-
-    cb_result = auto_output();
-    TEST_ASSERT_EQUAL_PTR(cb_expecting, cb_result);
 }

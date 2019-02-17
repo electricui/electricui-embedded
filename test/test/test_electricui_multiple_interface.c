@@ -76,7 +76,6 @@ void setUp(void)
     setup_dev_msg(internal_callback_test_store, ARR_ELEM(internal_callback_test_store));
     setup_interfaces( multi_interfaces, ARR_ELEM(multi_interfaces));
 
-    active_interface = 0;
     attempted_interface = 0;
     attempted_output_times = 0;
 }
@@ -88,132 +87,8 @@ void tearDown(void)
 
 // TESTS
 
-//gives us a pointer to an interface object
-void test_active_interface_get( void )
-{    
-    //The default interface for a 1-interface set should be 0
-    setup_interface( &multi_interfaces[1]);
-    TEST_ASSERT_EQUAL( 0, get_default_interface() );
-
-    //The default interface for a n-interface should also be 0
-    setup_interfaces( multi_interfaces, ARR_ELEM(multi_interfaces) );
-    TEST_ASSERT_EQUAL( 0, get_default_interface() );
-
-    //manually mutate the active interface variable in the 'private scope' and check we fetch that
-    active_interface = 14;
-    TEST_ASSERT_EQUAL( 14, get_default_interface() );
-
-}
-
-void test_active_interface_set( void )
-{
-    //check the default value is 0 (so we know it does change)
-    setup_interfaces( multi_interfaces, ARR_ELEM(multi_interfaces) );
-    TEST_ASSERT_EQUAL(0, active_interface);
-
-    //set it to a non-zero interface (legal situation, interfaces on [0], [1], [2])
-    set_default_interface(1);
-    //grab the actual active interface variable from the 'private scope'
-    TEST_ASSERT_EQUAL(1, active_interface);
-
-    //set it to a (very) invalid interface index, shouldn't change
-    set_default_interface(6);
-    TEST_ASSERT_EQUAL(1, active_interface);
-
-    //test off-by one from the last interface
-    set_default_interface(2);
-    set_default_interface(3);
-    TEST_ASSERT_EQUAL(2, active_interface);
-
-    //test negative interface index (underflow)
-    set_default_interface(-1);
-    TEST_ASSERT_EQUAL(2, active_interface);
-
-}
-
-void test_active_interface_init_safety( void )
-{
-    setup_interfaces( multi_interfaces, ARR_ELEM(multi_interfaces) );
-    set_default_interface(2);
-    TEST_ASSERT_EQUAL( 2, get_default_interface() );
-
-    //see if reconfiguring the interface(s) changes the active interface
-    setup_interface( &multi_interfaces[0] );
-    TEST_ASSERT_EQUAL(0, active_interface);
-
-    //set it to a non-zero interface (illegal situation)
-    set_default_interface(1);
-    TEST_ASSERT_EQUAL(0, active_interface);
-
-    set_default_interface(2);
-    TEST_ASSERT_EQUAL(0, active_interface);
-}
-
 void test_active_interface_switching_outputs( void )
 {
-    encode_packet_simple_ExpectAnyArgsAndReturn(0);
+    TEST_IGNORE_MESSAGE("Test micro handshake responses going over correct links");
 
-    // use CMOCK's callback to call us here with the arguments of the encode_packet_simple( ... )
-    // the callback instead captures the function pointer intended as the developer's output
-    encode_packet_simple_StubWithCallback( encode_packet_simple_Callback );
-
-    set_default_interface(0);
-    send_tracked("u8w");
-    TEST_ASSERT_EQUAL_PTR_MESSAGE( multi_interfaces[0].output_func, attempted_interface, "Wrong output interface was used" );
-
-    set_default_interface(1);
-    send_tracked("chw");
-    TEST_ASSERT_EQUAL_PTR_MESSAGE( multi_interfaces[1].output_func, attempted_interface, "Wrong output interface was used" );
-
-    set_default_interface(2);
-    send_tracked("u8w");
-    TEST_ASSERT_EQUAL_PTR_MESSAGE( multi_interfaces[2].output_func, attempted_interface, "Wrong output interface was used" );
-
-
-    //developer attempts an invalid interface selection and it shouldn't change of the previous setting
-    set_default_interface(7);
-    send_tracked("u8w");
-    TEST_ASSERT_EQUAL_PTR_MESSAGE( multi_interfaces[2].output_func, attempted_interface, "Wrong output interface was used" );
-
-}
-
-
-void test_active_interface_switch_by_ui( void )
-{
-    encode_packet_simple_ExpectAnyArgsAndReturn(0);
-
-    // use CMOCK's callback to call us here with the arguments of the encode_packet_simple( ... )
-    // the callback instead captures the function pointer intended as the developer's output
-    encode_packet_simple_StubWithCallback( encode_packet_simple_Callback );
-
-    send_tracked("u8w");
-    TEST_ASSERT_EQUAL_MESSAGE( 1, attempted_output_times, "Expected a output attempt" );
-    TEST_ASSERT_EQUAL_PTR_MESSAGE( multi_interfaces[0].output_func, attempted_interface, "Wrong output interface was used" );
-    
-    //reset the interface callback and counter
-    attempted_interface = 0;
-    attempted_output_times = 0;
-
-    //emulate a UI interface change
-    active_interface = 1;
-    send_tracked("u8w");
-    TEST_ASSERT_EQUAL_MESSAGE( 1, attempted_output_times, "Expected a output attempt" );
-    TEST_ASSERT_EQUAL_PTR_MESSAGE( multi_interfaces[1].output_func, attempted_interface, "Wrong output interface was used" );
-
-}
-
-void test_active_interface_invalid_switch_by_ui( void )
-{
-    // We should not see the library calling for output if the UI sets the active interface to an invalid number
-    //encode_packet_simple_ExpectAnyArgsAndReturn(0);
-
-    // use CMOCK's callback to call us here with the arguments of the encode_packet_simple( ... )
-    // the callback instead captures the function pointer intended as the developer's output
-    encode_packet_simple_StubWithCallback( encode_packet_simple_Callback );
-
-    //UI sets an invalid interface target
-    active_interface = 14;
-    send_tracked("u8w");
-
-    TEST_ASSERT_EQUAL_MESSAGE( 0, attempted_output_times, "Shouldn't have tried to send" );
 }

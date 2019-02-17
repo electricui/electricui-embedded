@@ -12,7 +12,6 @@ eui_message_t internal_msg_store[] =
     EUI_UINT8_RO(   EUI_INTERNAL_LIB_VER,       library_version     ),
     EUI_UINT16_RO(  EUI_INTERNAL_BOARD_ID,      board_identifier    ),
     EUI_UINT8(      EUI_INTERNAL_HEARTBEAT,     heartbeat           ),
-    EUI_UINT8(      EUI_DEFAULT_INTERFACE,      active_interface    ),
 
     EUI_FUNC(   EUI_INTERNAL_AM_RO, announce_dev_msg_readonly   ),
     EUI_FUNC(   EUI_INTERNAL_AM_RW, announce_dev_msg_writable   ),
@@ -68,9 +67,9 @@ auto_interface( void )
 {
     eui_interface_t *interface_ptr = 0;
 
-    if( interface_count && interface_arr && (active_interface < interface_count) )
+    if( interface_count && interface_arr && last_interface )
     {
-        interface_ptr = &interface_arr[active_interface];
+        interface_ptr = last_interface;
     }
 
     return interface_ptr;
@@ -96,6 +95,7 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
 
     if( EUI_OK == parse_status )
     {
+        last_interface = p_link;
         eui_header_t   header_in    = *(eui_header_t*)&p_link->packet.header;
         eui_message_t *p_msglocal   = find_message_object(  (char*)p_link->packet.msgid_in,
                                                             header_in.internal );
@@ -423,15 +423,17 @@ setup_interfaces( eui_interface_t *link_array, uint8_t link_count )
     {
         interface_arr   = link_array;
         interface_count = link_count;
+
+        // bootstrap the auto_interface with the 0th interface from the array
+        last_interface = link_array;
     }
     else
     {
         interface_arr   = 0;
         interface_count = 0;
+        last_interface = 0;
     }
 
-    //the default interface should be the 'highest' priority one
-    active_interface = 0;
 }
 
 void
@@ -465,21 +467,6 @@ setup_identifier( char * uuid, uint8_t bytes )
         //a null identifier demonstrates an issue
         board_identifier = 0;
     }
-}
-
-void
-set_default_interface( uint8_t interface_index )
-{
-    if( interface_index <= (interface_count - 1) )
-    {
-        active_interface = interface_index;
-    }
-}
-
-uint8_t
-get_default_interface( void )
-{
-    return active_interface;
 }
 
 //application layer callbacks

@@ -48,6 +48,7 @@ send_tracked_variables( uint8_t read_only );
 //interface management
 eui_interface_t     *interface_arr;
 uint8_t             interface_count;
+eui_interface_t 	*last_interface;
 
 //dev interface
 eui_message_t           *devObjectArray;
@@ -56,6 +57,5 @@ eui_variable_count_t    numDevObjects;
 // eUI variables accessible to developer
 uint8_t     heartbeat;
 uint16_t    board_identifier;
-uint8_t     active_interface;
 
 #endif //end EUI_PRIVATE_H

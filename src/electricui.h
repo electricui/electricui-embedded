@@ -62,12 +62,6 @@ void
 setup_identifier( char * uuid, uint8_t bytes );
 
 void
-set_default_interface( uint8_t interface_index );
-
-uint8_t
-get_default_interface( void );
-
-void
 send_tracked( const char * msg_id );
 
 void
