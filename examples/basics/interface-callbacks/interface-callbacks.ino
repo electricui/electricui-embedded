@@ -15,12 +15,12 @@
 #define LED_PIN LED_BUILTIN   //typically 13 on many Arduino boards.
 
 
-#define SIMULATED_LOAD_mV        20  // device load = discharge rate
-#define SIMULATED_CHARGE_RATE_mV 35  // battery charge rate
-#define CHARGE_START_PERCENT     15  // SoC % where charger should start
+#define SIMULATED_LOAD_mV        2  // device load = discharge rate
+#define SIMULATED_CHARGE_RATE_mV 8  // battery charge rate
+#define CHARGE_START_PERCENT     35  // SoC % where charger should start
 #define CHARGE_FINISH_PERCENT    95  // SoC % where the battery should stop charging
 
-#define SIMULATION_RATE_MS      250  //elapsed time between simulation steps
+#define SIMULATION_RATE_MS      50  //elapsed time between simulation steps (20hz)
 
 // Lets use a lookup table to calculate the lead-acid percentage from battery voltage 
 typedef struct {
@@ -58,7 +58,7 @@ eui_message_t dev_msg_store[] =
 {
   EUI_UINT8(  "plugged_in",  power_available ),
 
-  EUI_FLOAT_RO( "bat_voltage", battery_percentage ),\
+  EUI_FLOAT_RO( "bat_voltage",  battery_voltage ),
   EUI_UINT8_RO( "bat_percent",  battery_percentage ),
   EUI_UINT8_RO( "bat_state",    battery_charge_status ),
 };
@@ -201,10 +201,15 @@ float calculate_battery_soc( float voltage )
 void simulate_device_load( void )
 {
   // Adds random additional draw to naively simulate varying load condition
-  // Allowed to draw the battery to 0V if charging not supplied!
-  if( battery_voltage > 0.0f )
+  // Allowed to draw the battery to 10V if charging not supplied!
+  // Device kicks into a low power mode after 11.5V
+  if( battery_voltage > 11.5f )
   {
-    battery_voltage -= system_v_draw_mV + random( 5, 40);
+    battery_voltage -= (float)(system_v_draw_mV + random( 1, 6))/1000;
+  } 
+  else if ( battery_voltage > 10.0f )
+  {
+    battery_voltage -= (float)(system_v_draw_mV)/1000;
   }
 }
 
@@ -233,6 +238,6 @@ void simulate_battery_charger( void )
   // Add to the battery voltage to simulate charging behaviour
   if( battery_charge_status == CHARGING)
   {
-    battery_voltage += SIMULATED_CHARGE_RATE_mV;
+    battery_voltage += (float)SIMULATED_CHARGE_RATE_mV/1000;
   }
 }
