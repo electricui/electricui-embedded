@@ -18,10 +18,7 @@ extern "C" {
     #warning "ElectricUI will not handle data larger than PAYLOAD_SIZE_MAX"
 #endif
 
-//library versions follow semvar2 style
-#define VER_MAJOR 0
-#define VER_MINOR 7
-#define VER_PATCH 0
+#define LIBRARY_VERSION 006 
 
 typedef struct {
     eui_packet_t        packet;

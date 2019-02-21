@@ -5,7 +5,7 @@
 #include "utilities/eui_offset_validation.h"
 
 //internal eUI tracked variables
-uint8_t library_version[] = { VER_MAJOR, VER_MINOR, VER_PATCH };
+uint8_t library_version = LIBRARY_VERSION;
 
 eui_message_t internal_msg_store[] = 
 {
