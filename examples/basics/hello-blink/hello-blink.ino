@@ -1,8 +1,6 @@
 //Import the ElectricUI Library
 #include "electricui.h"
 
-#define LED_PIN LED_BUILTIN
-
 // Simple variables to modify the LED behaviour
 uint8_t   blink_enable = 1; //if the blinker should be running
 uint8_t   led_state  = 0;   //track if the LED is illuminated
@@ -10,6 +8,9 @@ uint16_t  glow_time  = 200; //in milliseconds
 
 // Keep track of when the light turns on or off
 uint32_t led_timer = 0;
+
+// Instantiate the communication interface's management object
+eui_interface_t serial_comms; 
 
 // Electric UI manages variables referenced in this array
 eui_message_t dev_msg_store[] = 
@@ -19,14 +20,11 @@ eui_message_t dev_msg_store[] =
   EUI_UINT16( "lit_time",   glow_time ),
 };
 
-// Instantiate the communication interface's management object
-eui_interface_t serial_comms; 
-
 void setup() 
 {
   // Setup the serial port and status LED
   Serial.begin( 115200 );
-  pinMode( LED_PIN, OUTPUT );
+  pinMode( LED_BUILTIN, OUTPUT );
 
   // Each communications interface uses a settable output function
   serial_comms.output_func = &tx_putc;
@@ -58,7 +56,7 @@ void loop()
     }    
   }
 
-  digitalWrite( LED_PIN, led_state ); //update the LED to match the intended state
+  digitalWrite( LED_BUILTIN, led_state ); //update the LED to match the intended state
 }
 
 void serial_rx_handler()

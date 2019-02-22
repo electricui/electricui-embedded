@@ -8,10 +8,7 @@ uint16_t delta_time     = 0;
 uint16_t loop_time      = 0;
 
 //example function called by UI
-void toggleLed()
-{
-  digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
-}
+void toggleLed( void );
 
 //example variable types
 uint8_t   example_uint8   = 21;
@@ -112,6 +109,11 @@ void loop()
 
   delta_time = micros() - loop_time;  //counter diff between last loop, and now
   loop_time = micros();
+}
+
+void toggleLed( void )
+{
+  digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
 }
 
 void uart_rx_handler()

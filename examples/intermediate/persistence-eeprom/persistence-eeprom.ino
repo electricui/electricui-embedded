@@ -15,13 +15,13 @@
 #include "electricui.h"
 #include <EEPROM.h>
 
+#define EEPROM_BASE_ADDR 	0x00
+#define EEPROM_MAGIC_WORD 	0x42
 
 void save_settings();			// Define the callback used to save data
 void erase_settings();			// Define the callback for flash erase
 uint16_t unique_device_id = 0;	// Persistent UUID useful for device identification
 
-#define EEPROM_BASE_ADDR 	0x00
-#define EEPROM_MAGIC_WORD 	0x42
 
 // Same as hello-blink.ino example
 uint8_t   blink_enable = 1;
@@ -31,6 +31,7 @@ uint32_t  led_timer    = 0;
 
 char device_name[16]     = "persistent-blink";
 
+// Standard interface and tracked variables
 eui_interface_t serial_comms; 
 eui_message_t 	dev_msg_store[] = 
 {
@@ -61,7 +62,6 @@ void setup()
 
   //not going to be random for first use
   setup_identifier( unique_device_id, 2 );	
-
 
   led_timer = millis();
 }
