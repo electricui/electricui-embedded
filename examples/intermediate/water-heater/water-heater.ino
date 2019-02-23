@@ -1,11 +1,11 @@
-#include "electricui.h"
-
 /* 
  * This example implements a simplistic PID controller with simulated water heating behaviour.
  * 
  * UI control of gains for tuning, along with setpoint control and feedback.
  * Different variable types are used, and with read-only exposure to immutable data.
 */
+
+#include "electricui.h"
 
 #define WATER_SPECIFIC_HEAT  4.186  // c in J/gm K
 #define HEATER_RATING_W      800    // Watts
