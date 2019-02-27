@@ -22,7 +22,7 @@ typedef struct {
 uint8_t rgb_brightness  = 50;
 rgb_t   led_colour[ STRIP_LENGTH ] = { 0, 0, 0 };
 
-const num_leds_connected = STRIP_LENGTH;
+const uint16_t num_leds_connected = STRIP_LENGTH;
 
 eui_message_t dev_msg_store[] = 
 {

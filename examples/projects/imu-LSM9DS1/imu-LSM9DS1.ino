@@ -1,14 +1,18 @@
+/*
+ * This demo was conducted using the i2c based LSM9DS1 IMU.
+ * We used the Sparkfun ESP32 and ESP32 Motion Shield, it's got battery support too!
+ * Dependant on the Adafruit library https://github.com/adafruit/Adafruit_LSM9DS1
+ * The adafruit library needs "Adafruit Unified Sensor Library" https://github.com/adafruit/Adafruit_Sensor
+*/
+
 #include "electricui.h"
 
-// This demo was conducted using the i2c based LSM9DS1 IMU.
-// We used the Sparkfun ESP32 and ESP32 Motion Shield, it's got battery support too!
-// Dependant on the Adafruit library https://github.com/adafruit/Adafruit_LSM9DS1
-// Their library needs the Adafruit Unified Sensor Library https://github.com/adafruit/Adafruit_Sensor
 #include "Wire.h"
 #include <Adafruit_LSM9DS1.h>
 #include <Adafruit_Sensor.h>
 
-Adafruit_LSM9DS1 lsm = Adafruit_LSM9DS1(); // Create LSM9DS1 object, without arguments it defaults to i2c mode
+// Create LSM9DS1 object, without arguments it defaults to i2c mode
+Adafruit_LSM9DS1 lsm = Adafruit_LSM9DS1();
 
 eui_interface_t serial_comms;
 
@@ -20,51 +24,60 @@ sensors_event_t gyr;
 sensors_event_t mag;
 sensors_event_t internal_temp;
 
+// default sensor ranges
+uint8_t accelerometer_setting = lsm.LSM9DS1_ACCELRANGE_2G;
+uint8_t gyro_setting = lsm.LSM9DS1_GYROSCALE_245DPS;
+uint8_t mag_setting = lsm.LSM9DS1_MAGGAIN_4GAUSS;
+
 uint8_t sensor_configured = 0;
+
+uint8_t loop_frequency_hz = 50;
 
 eui_message_t dev_msg_store[] = 
 {
-    EUI_CUSTOM_RO(  "status", sensor_configured ),
-    EUI_CUSTOM_RO( "acc",  acc.acceleration ),
-    EUI_CUSTOM_RO( "gyro", gyr.gyro ),
-    EUI_CUSTOM_RO( "mag",  mag.magnetic ),
-    EUI_CUSTOM_RO( "temp", internal_temp.temperature ),
+    EUI_UINT8_RO( "status", sensor_configured ),
+    EUI_CUSTOM_RO( "acc",   acc.acceleration ),
+    EUI_CUSTOM_RO( "gyro",  gyr.gyro ),
+    EUI_CUSTOM_RO( "mag",   mag.magnetic ),
+    EUI_CUSTOM_RO( "temp",  internal_temp.temperature ),
+
+    EUI_UINT8( "acc_range",   accelerometer_setting ),
+    EUI_UINT8( "gyro_range",  gyro_setting ),
+    EUI_UINT8( "mag_range",   mag_setting ),
+    EUI_FUNC( "reconfig",     setup_sensor ),
+
+    EUI_UINT16( "rate", loop_frequency_hz ),
 };
 
-void setupSensor()
+void setup_sensor()
 {
-  // Set the accelerometer range
-  lsm.setupAccel(lsm.LSM9DS1_ACCELRANGE_2G);
-  //lsm.setupAccel(lsm.LSM9DS1_ACCELRANGE_4G);
-  //lsm.setupAccel(lsm.LSM9DS1_ACCELRANGE_8G);
-  //lsm.setupAccel(lsm.LSM9DS1_ACCELRANGE_16G);
+  // The Adafruit driver has the accelerometer enum ordering from 0b00 to 0b11 in order of
+  // 2G, 16G, 4G, 8G. We use the UI configurable setting, but clamp within the driver ranges
+  lsm.setupAccel( constrain( accelerometer_setting, lsm.LSM9DS1_ACCELRANGE_2G, lsm.LSM9DS1_ACCELRANGE_8G ) );
   
-  // Set the magnetometer sensitivity
-  lsm.setupMag(lsm.LSM9DS1_MAGGAIN_4GAUSS);
-  //lsm.setupMag(lsm.LSM9DS1_MAGGAIN_8GAUSS);
-  //lsm.setupMag(lsm.LSM9DS1_MAGGAIN_12GAUSS);
-  //lsm.setupMag(lsm.LSM9DS1_MAGGAIN_16GAUSS);
-
-  // Setup the gyroscope
-  lsm.setupGyro(lsm.LSM9DS1_GYROSCALE_245DPS);
-  //lsm.setupGyro(lsm.LSM9DS1_GYROSCALE_500DPS);
-  //lsm.setupGyro(lsm.LSM9DS1_GYROSCALE_2000DPS);
+  // Gyroscope and mag sensors have normal configuration enum ordering
+  lsm.setupGyro( constrain( gyro_setting, lsm.LSM9DS1_GYROSCALE_245DPS, lsm.LSM9DS1_GYROSCALE_2000DPS ) );
+  lsm.setupMag( constrain( mag_setting, lsm.LSM9DS1_MAGGAIN_4GAUSS, lsm.LSM9DS1_MAGGAIN_16GAUSS ) );
 }
 
 void setup() 
 {
-  Serial.begin(115200);
+  Serial.begin( 115200 );
   
   // Basic eUI setup for serial interface
   serial_comms.output_func = &tx_putc;
-  setup_interface(&serial_comms);
-  EUI_TRACK(dev_msg_store);
-  setup_identifier("imu", 3);
+  setup_interface( &serial_comms );
+  EUI_TRACK( dev_msg_store );
+  setup_identifier( "imu", 3 );
 
 }
 
 void loop() 
 {  
+  while( Serial.available() > 0 )
+  {  
+      parse_packet(Serial.read(), &serial_comms);
+  }
 
   if( sensor_configured )
   {
@@ -80,16 +93,11 @@ void loop()
     }
     else
     {
-      setupSensor();
+      setup_sensor();
       sensor_configured = 1;  //flag a successful setup
     }
   }
 
-  //pass inbound serial data to ElectricUI
-  while(Serial.available() > 0)
-  {  
-      parse_packet(Serial.read(), &serial_comms);
-  }
 }
 
 void tx_putc( uint8_t *data, uint16_t len )
