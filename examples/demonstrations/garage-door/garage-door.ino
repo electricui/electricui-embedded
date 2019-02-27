@@ -1,8 +1,7 @@
 /*
-	Example garage door opener
-	Provides simplistic example of using Electric UI with simple statemachines
-	Provides the UI with the state of the door, controls to open or close, and progress indicators
-
+ * Example garage door opener
+ * Provides simplistic example of using Electric UI with simple statemachines
+ * Gives the UI the state of the door, controls to open or close, and progress indicators
 */
 
 #include "electricui.h"
@@ -69,7 +68,10 @@ void setup()
 
 void loop() 
 {
-    uart_rx_handler();
+    while( Serial.available() > 0 )
+    {  
+        parse_packet( Serial.read(), &serial_comms );
+    }
 
 	simulate_door_mechanism();
 
@@ -181,13 +183,6 @@ void simulate_door_mechanism()
 	// Simulate the limit switches indicating if the mechanism is at the end of travel
 	limit_sw_open   = ( mechanism_position_sim > MECHANISM_POS_OPEN   );
 	limit_sw_closed = ( mechanism_position_sim < MECHANISM_POS_CLOSED );
-}
-void uart_rx_handler()
-{
-    while(Serial.available() > 0)
-    {  
-        parse_packet(Serial.read(), &serial_comms);
-    }
 }
 
 void tx_putc( uint8_t *data, uint16_t len )

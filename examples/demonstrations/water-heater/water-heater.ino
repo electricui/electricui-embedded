@@ -65,8 +65,11 @@ void setup()
 
 void loop() 
 {
-    uart_rx_handler();
-
+    while( Serial.available() > 0 )
+    {  
+        parse_packet( Serial.read(), &serial_comms );
+    }
+    
     simulate_water();
 
     // Measure the water temperature, run the control process, and modify the output
@@ -147,14 +150,6 @@ void simulate_water()
     simulated_water_c += heater_temp_increase - environment_losses;
 
     prev_water_sim = millis();   //timestamp current time
-}
-
-void uart_rx_handler()
-{
-    while(Serial.available() > 0)
-    {  
-        parse_packet(Serial.read(), &serial_comms);
-    }
 }
 
 void tx_putc( uint8_t *data, uint16_t len )

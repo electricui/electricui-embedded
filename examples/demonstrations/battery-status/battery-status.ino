@@ -85,8 +85,11 @@ void setup()
 
 void loop() 
 {
-  rx_handler();
-
+  while( Serial.available() > 0 )
+  {  
+      parse_packet( Serial.read(), &serial_comms );
+  }
+    
   // Simulate changing battery level periodically
   if( millis() - simulation_timer >= SIMULATION_RATE_MS )
   {
@@ -143,14 +146,6 @@ void eui_callback( uint8_t message )
       // Inbound message parsing failed, this callback can aid debugging
 
     break;
-  }
-}
-
-void rx_handler()
-{
-  while( Serial.available() > 0 )  
-  {  
-    parse_packet( Serial.read(), &serial_comms );
   }
 }
   

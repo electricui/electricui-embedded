@@ -1,10 +1,12 @@
-#include "electricui.h"
+/*
+ * This example shows how structures can be used to pack and use structured data more effectively.
+ * Demonstrates a simple PWM fan controller with multiple temperature sensors.
+ * The emulated temperature sensors are all sampled and sent to the UI in a structure.
+ * Fan speed control is achieved with user-configurable curves.
+ * Fan control is capable of identifying a stall condition, and restarting. Blips to 100% during start.
+*/
 
-// This example shows how structures can be used to pack and use structured data more effectively.
-// Demonstrates a simple PWM fan controller with multiple temperature sensors.
-// The emulated temperature sensors are all sampled and sent to the UI in a structure.
-// Fan speed control is achieved with user-configurable curves.
-// Fan control is capable of identifying a stall condition, and restarting. Blips to 100% during start.
+#include "electricui.h"
 
 #define FAN_STALL_MAX_RPM       2200
 #define FAN_STALL_FAULT_RPM     400
@@ -97,14 +99,16 @@ void setup()
 
     serial_comms.output_func = &tx_putc;
     setup_interface(&serial_comms);
-
     EUI_TRACK(dev_msg_store);
     setup_identifier( "structs", 7 );
 }
 
 void loop()
 {
-    uart_rx_handler();
+    while( Serial.available() > 0 )
+    {  
+        parse_packet( Serial.read(), &serial_comms );
+    }
 
     simulate_read_temp_sensors();               // read the temperature sensors and convert to celsius
     simulate_read_fan_speed( &computer_fan );   // read the fan's speed from hall effect sensor
@@ -126,14 +130,6 @@ void loop()
         digitalWrite( LED_BUILTIN, LOW );
     }
 
-}
-
-void uart_rx_handler()
-{
-    while(Serial.available() > 0)
-    {  
-        parse_packet(Serial.read(), &serial_comms);
-    }
 }
 
 void tx_putc( uint8_t *data, uint16_t len )
