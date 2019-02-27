@@ -1,10 +1,15 @@
+/*
+ * This demo uses a single WS2812 RGB led, use with the colour picker UI component.
+ * Dependant on the Adafruit library https://github.com/adafruit/Adafruit_NeoPixel
+*/
+
 #include "electricui.h"
-#include <Adafruit_NeoPixel.h>    // Required library for the WS2812 RGB led
+#include <Adafruit_NeoPixel.h>
 
 #define PIN_WS2812 7
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(1, PIN_WS2812, NEO_GRB + NEO_KHZ800);
-eui_interface_t serial_comms; //eui Transport
+eui_interface_t serial_comms;
 
 typedef struct {
   int red;
@@ -20,26 +25,22 @@ char device_name[] = "led-rgb test";
 
 eui_message_t dev_msg_store[] = 
 {
-    EUI_UINT8( "bright", rgb_brightness ),
-    EUI_CHAR_ARRAY("name", device_name ),
-    EUI_UINT16_ARRAY("rgb", led_colour ),
+    EUI_UINT8(        "bright", rgb_brightness ),
+    EUI_CHAR_ARRAY(   "name",   device_name ),
+    EUI_UINT16_ARRAY( "rgb",    led_colour ),
 };
-
-void tx_putc( uint8_t *data, uint16_t len )
-{
-  Serial.write( data, len );
-}
 
 void setup() 
 {
   Serial.begin(115200);
 
-  //eUI setup
+  // eUI setup
   serial_comms.output_func = &tx_putc;
   setup_interface(&serial_comms);
   EUI_TRACK(dev_msg_store);
   setup_identifier("rgbled", 6);
 
+  // LEDs should start off
   strip.begin();
   strip.clear();
   strip.show();
@@ -47,7 +48,7 @@ void setup()
 
 void loop() 
 {
-  while(Serial.available() > 0)   //handle inbound serial data
+  while(Serial.available() > 0)
   {  
     parse_packet(Serial.read(), &serial_comms);
   }
@@ -58,4 +59,9 @@ void loop()
   strip.show();
 
   delay(1);
+}
+
+void tx_putc( uint8_t *data, uint16_t len )
+{
+  Serial.write( data, len );
 }
