@@ -17,8 +17,6 @@ eui_message_t internal_msg_store[] =
     EUI_FUNC(   EUI_INTERNAL_AM_RW, announce_dev_msg_writable   ),
     EUI_FUNC(   EUI_INTERNAL_AV_RO, announce_dev_vars_readonly  ),
     EUI_FUNC(   EUI_INTERNAL_AV_RW, announce_dev_vars_writable  ),
-
-    EUI_FUNC(   EUI_INTERNAL_SEARCH, announce_board ),
 };
 
 // Developer facing search
@@ -470,34 +468,6 @@ setup_identifier( char * uuid, uint8_t bytes )
 }
 
 //application layer callbacks
-void
-announce_board( void )
-{
-    //repond to search request with board info
-    eui_pkt_settings_t  temp_header;
-    temp_header.internal  = MSG_INTERNAL;
-    temp_header.response  = MSG_NRESP;
-
-    send_packet(    auto_output(), 
-                    find_message_object(EUI_INTERNAL_LIB_VER, MSG_INTERNAL), 
-                    &temp_header);
-
-    send_packet(    auto_output(),
-                    find_message_object(EUI_INTERNAL_BOARD_ID, MSG_INTERNAL),
-                    &temp_header);
-
-    send_packet(    auto_output(),
-                    find_message_object(EUI_INTERNAL_SESSION_ID, MSG_INTERNAL),
-                    &temp_header);
-
-    // Developer callback allows them to publish connection hints etc
-    eui_interface_t *selected_interface = auto_interface();
-
-    if( selected_interface && selected_interface->interface_cb )
-    {
-        selected_interface->interface_cb( EUI_CB_ANNOUNCE );
-    }
-}
 
 void
 announce_dev_msg_readonly( void )

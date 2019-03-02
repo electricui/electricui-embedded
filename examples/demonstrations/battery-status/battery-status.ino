@@ -136,12 +136,6 @@ void eui_callback( uint8_t message )
     }
     break;
 
-    case EUI_CB_ANNOUNCE:
-      // Tell the UI about some interesting info during handshake.
-      // Use this to add battery level info to the connections screen
-      send_tracked("bat_percent");
-    break;
-
     case EUI_CB_PARSE_FAIL:
       // Inbound message parsing failed, this callback can aid debugging
 

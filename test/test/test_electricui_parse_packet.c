@@ -584,30 +584,6 @@ void test_ingest_callback_packet_query( void )
     TEST_ASSERT_EQUAL( 0 , test_pk_ptr->parser.state);
 }
 
-void test_ingest_interface_callback_handshake( void )
-{
-    test_pk_ptr->parser.state           = exp_crc_b2;
-    test_pk_ptr->parser.id_bytes_in     = 1;
-    test_pk_ptr->parser.data_bytes_in   = 0;
-
-    test_pk_ptr->header.data_len    = 0;
-    test_pk_ptr->header.type        = TYPE_CALLBACK;
-    test_pk_ptr->header.internal    = 1;
-    test_pk_ptr->header.id_len      = 1;
-    memcpy(&test_pk_ptr->msgid_in, EUI_INTERNAL_SEARCH, 1);
-
-    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_OK);
-    encode_packet_simple_ExpectAnyArgsAndReturn(0);
-    encode_packet_simple_ExpectAnyArgsAndReturn(0);
-
-    parse_packet( 0x00, &test_interface );
-
-    //callbacks expected
-    TEST_ASSERT_EQUAL_INT8( 2, interface_cb_hit );
-    TEST_ASSERT_EQUAL_INT8( EUI_CB_ANNOUNCE, interface_cb_arg[0] );
-    TEST_ASSERT_EQUAL_INT8( EUI_CB_TRACKED, interface_cb_arg[1] );
-}
-
 // validate the developer interface space callbacks don't fire when not set
 void test_ingest_interface_callback_tracked_invalid( void )
 {
@@ -670,31 +646,6 @@ void test_ingest_interface_callback_error_invalid( void )
     TEST_ASSERT_EQUAL_INT8( 0, interface_cb_arg[0] );
 }
 
-void test_ingest_interface_callback_handshake_no_ptr( void )
-{
-    //no dev callback, but the interface is still live
-    test_interface.interface_cb = 0;
-
-    test_pk_ptr->parser.state           = exp_crc_b2;
-    test_pk_ptr->parser.id_bytes_in     = 1;
-    test_pk_ptr->parser.data_bytes_in   = 0;
-
-    test_pk_ptr->header.internal    = 1;
-    test_pk_ptr->header.data_len    = 0;
-    test_pk_ptr->header.type        = TYPE_CALLBACK;
-    test_pk_ptr->header.id_len      = 1;
-    memcpy(&test_pk_ptr->msgid_in, EUI_INTERNAL_SEARCH, 1);
-
-    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_OK );
-    encode_packet_simple_ExpectAnyArgsAndReturn(0);
-    encode_packet_simple_ExpectAnyArgsAndReturn(0);
-
-    parse_packet( 0x00, &test_interface );
-
-    TEST_ASSERT_EQUAL_INT8( 0, interface_cb_hit );
-    TEST_ASSERT_EQUAL_INT8( 0, interface_cb_arg[0] );
-}
-
 void test_ingest_interface_callback_handshake_no_interface( void )
 {
     // with no configured interface, the print output function won't operate
@@ -710,9 +661,9 @@ void test_ingest_interface_callback_handshake_no_interface( void )
 
     test_pk_ptr->header.internal    = 1;
     test_pk_ptr->header.data_len    = 0;
-    test_pk_ptr->header.type        = TYPE_CALLBACK;
+    test_pk_ptr->header.type        = TYPE_UINT8;
     test_pk_ptr->header.id_len      = 1;
-    memcpy(&test_pk_ptr->msgid_in, EUI_INTERNAL_SEARCH, 1);
+    memcpy(&test_pk_ptr->msgid_in, EUI_INTERNAL_HEARTBEAT, 1);
 
     decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_OK );
     //no output function means no printed handshake calls

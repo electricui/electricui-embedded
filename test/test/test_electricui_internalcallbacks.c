@@ -58,15 +58,6 @@ void tearDown(void)
 
 // TESTS
 
-void test_announce_board( void )
-{
-    //expect the library version, board ID (lv, bi)
-    encode_packet_simple_ExpectAnyArgsAndReturn(0);
-    encode_packet_simple_ExpectAnyArgsAndReturn(0);
-
-    announce_board();
-}
-
 void test_announce_dev_msg_readonly( void )
 {
     // expect message(s): payload is the messageIDs of ro vars  

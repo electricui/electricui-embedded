@@ -25,9 +25,6 @@ handle_packet_response( eui_interface_t *valid_packet,
 
 //application layer functionality
 void
-announce_board( void );
-
-void
 announce_dev_msg_readonly( void );
 
 void

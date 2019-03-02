@@ -158,11 +158,6 @@ void eui_callback( uint8_t message )
     }
     break;
 
-    case EUI_CB_ANNOUNCE:
-      // Provide the UI with additional information during the announcement phase
-      send_tracked("bat_percent");
-    break;
-
     case EUI_CB_PARSE_FAIL:
       // Inbound message parsing failed, this callback help while debugging
 

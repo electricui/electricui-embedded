@@ -46,11 +46,7 @@
 // Configure internal message ID strings
 #define EUI_INTERNAL_LIB_VER    "o"
 #define EUI_INTERNAL_BOARD_ID   "i"
-#define EUI_INTERNAL_SESSION_ID "j"
 #define EUI_INTERNAL_HEARTBEAT  "h"
-#define EUI_DEFAULT_INTERFACE   "k"
-
-#define EUI_INTERNAL_SEARCH     "x" //preliminary handshake 
 
 // Used for variable sync during first connection
 #define EUI_INTERNAL_AM_RO      "p" //announce readonly ID's 

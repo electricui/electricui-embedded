@@ -24,7 +24,6 @@ enum eui_callback_codes {
     EUI_CB_GENERIC = 0,
     EUI_CB_TRACKED,
     EUI_CB_UNTRACKED,
-    EUI_CB_ANNOUNCE,
     EUI_CB_PARSE_FAIL,
     EUI_CB_LAST_ENUM,
 };
