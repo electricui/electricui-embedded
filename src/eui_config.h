@@ -49,13 +49,9 @@
 #define EUI_INTERNAL_HEARTBEAT  "h"
 
 // Used for variable sync during first connection
-#define EUI_INTERNAL_AM_RO      "p" //announce readonly ID's 
-#define EUI_INTERNAL_AV_RO      "r" //send readonly variables
-#define EUI_INTERNAL_AM_RO_LIST "q" //delimit readonly ID
-#define EUI_INTERNAL_AM_RO_END  "s" //end of readonly ID's
-#define EUI_INTERNAL_AM_RW      "t" //announce writable ID's 
-#define EUI_INTERNAL_AM_RW_LIST "u" //delimit writable ID
-#define EUI_INTERNAL_AM_RW_END  "v" //end of writable ID's
-#define EUI_INTERNAL_AV_RW      "w" //send writable variables
+#define EUI_INTERNAL_AM      "t" //announce writable ID's 
+#define EUI_INTERNAL_AM_LIST "u" //delimit writable ID
+#define EUI_INTERNAL_AM_END  "v" //end of writable ID's
+#define EUI_INTERNAL_AV      "w" //send writable variables
 
 #endif //end EUI_CONF

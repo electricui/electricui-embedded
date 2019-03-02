@@ -25,22 +25,16 @@ handle_packet_response( eui_interface_t *valid_packet,
 
 //application layer functionality
 void
-announce_dev_msg_readonly( void );
+announce_dev_msg( void );
 
 void
-announce_dev_msg_writable( void );
-
-void
-announce_dev_vars_readonly( void );
-
-void
-announce_dev_vars_writable( void );
+announce_dev_vars( void );
 
 eui_variable_count_t
-send_tracked_message_id_list( uint8_t read_only );
+send_tracked_message_id_list( void );
 
 eui_variable_count_t
-send_tracked_variables( uint8_t read_only );
+send_tracked_variables( void );
 
 //interface management
 eui_interface_t     *interface_arr;

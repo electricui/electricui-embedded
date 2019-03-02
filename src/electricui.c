@@ -13,10 +13,8 @@ eui_message_t internal_msg_store[] =
     EUI_UINT16_RO(  EUI_INTERNAL_BOARD_ID,      board_identifier    ),
     EUI_UINT8(      EUI_INTERNAL_HEARTBEAT,     heartbeat           ),
 
-    EUI_FUNC(   EUI_INTERNAL_AM_RO, announce_dev_msg_readonly   ),
-    EUI_FUNC(   EUI_INTERNAL_AM_RW, announce_dev_msg_writable   ),
-    EUI_FUNC(   EUI_INTERNAL_AV_RO, announce_dev_vars_readonly  ),
-    EUI_FUNC(   EUI_INTERNAL_AV_RW, announce_dev_vars_writable  ),
+    EUI_FUNC(   EUI_INTERNAL_AM, announce_dev_msg        ),
+    EUI_FUNC(   EUI_INTERNAL_AV, send_tracked_variables  ),
 };
 
 // Developer facing search
@@ -470,27 +468,10 @@ setup_identifier( char * uuid, uint8_t bytes )
 //application layer callbacks
 
 void
-announce_dev_msg_readonly( void )
-{
-    eui_variable_count_t num_read_only  = 0;
-    num_read_only = send_tracked_message_id_list( READ_ONLY_FLAG );
-
-    eui_pkt_settings_t temp_header = { 0 };
-    temp_header.internal  = MSG_INTERNAL;
-    temp_header.response  = MSG_NRESP;
-    temp_header.type      = TYPE_MANY_VARIABLES_SIZED;
-    eui_encode_simple(  auto_output(),
-                        &temp_header,
-                        EUI_INTERNAL_AM_RO_END,
-                        sizeof(num_read_only),
-                        &num_read_only);
-}
-
-void
-announce_dev_msg_writable( void )
+announce_dev_msg( void )
 {
     eui_variable_count_t num_writable  = 0;
-    num_writable = send_tracked_message_id_list( WRITABLE_FLAG );
+    num_writable = send_tracked_message_id_list();
 
     eui_pkt_settings_t temp_header = { 0 };
     temp_header.internal  = MSG_INTERNAL;
@@ -498,25 +479,13 @@ announce_dev_msg_writable( void )
     temp_header.type      = TYPE_MANY_VARIABLES_SIZED;
     eui_encode_simple(  auto_output(),
                         &temp_header, 
-                        EUI_INTERNAL_AM_RW_END,
+                        EUI_INTERNAL_AM_END,
                         sizeof(num_writable),
                         &num_writable);
 }
 
-void
-announce_dev_vars_readonly( void )
-{
-    send_tracked_variables( READ_ONLY_FLAG );
-}
-
-void
-announce_dev_vars_writable( void )
-{
-    send_tracked_variables( WRITABLE_FLAG );
-}
-
 eui_variable_count_t
-send_tracked_message_id_list( uint8_t read_only )
+send_tracked_message_id_list( void )
 {
     eui_variable_count_t variables_sent = 0;
 
@@ -532,25 +501,20 @@ send_tracked_message_id_list( uint8_t read_only )
 
     for( eui_variable_count_t i = 0; i < numDevObjects; i++ )
     {
-        // filter based on writable flag
-        if( read_only == devObjectArray[i].type >> 7 )
-        {
-            //copy messageID into the buffer, account for null termination characters as delimiter
-            msgIDlen = strlen(devObjectArray[i].msgID) + 1;
-            memcpy(msgBuffer+msgBufferPos, devObjectArray[i].msgID, msgIDlen);
-            msgBufferPos += msgIDlen;
-            msgIDPacked++;
+        //copy messageID into the buffer, account for null termination characters as delimiter
+        msgIDlen = strlen(devObjectArray[i].msgID) + 1;
+        memcpy(msgBuffer+msgBufferPos, devObjectArray[i].msgID, msgIDlen);
+        msgBufferPos += msgIDlen;
+        msgIDPacked++;
 
-            variables_sent++;
-        }
-    
+        variables_sent++;
+            
         //send messages and clear buffer
-        if( ((sizeof(msgBuffer) - 16/2) <= msgBufferPos) || (numDevObjects - 1 <= i ) )
+        if( ((sizeof(msgBuffer) - 16/2) <= msgBufferPos) || (numDevObjects - 1 <= i) )
         {
-            const char * headerID = (read_only) ? EUI_INTERNAL_AM_RO_LIST : EUI_INTERNAL_AM_RW_LIST;
             eui_encode_simple(  auto_output(),
                                 &temp_header,
-                                headerID,
+                                EUI_INTERNAL_AM_LIST,
                                 msgBufferPos,
                                 &msgBuffer );
 
@@ -565,7 +529,7 @@ send_tracked_message_id_list( uint8_t read_only )
 }
 
 eui_variable_count_t
-send_tracked_variables( uint8_t read_or_writable )
+send_tracked_variables( void )
 {
     eui_variable_count_t    sent_variables = 0;
     eui_pkt_settings_t      temp_header = { 0 };
@@ -575,12 +539,8 @@ send_tracked_variables( uint8_t read_or_writable )
 
     for(eui_variable_count_t i = 0; i < numDevObjects; i++)
     {
-        //only send messages which have the specified read-only bit state
-        if( read_or_writable == devObjectArray[i].type >> 7 )
-        {
-            send_packet( auto_output(), devObjectArray + i, &temp_header );
-            sent_variables++;
-        }
+        send_packet( auto_output(), devObjectArray + i, &temp_header );
+        sent_variables++;
     }
     return sent_variables;
 }

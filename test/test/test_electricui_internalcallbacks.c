@@ -27,6 +27,7 @@ eui_message_t internal_callback_test_store[] = {
 
 const uint16_t number_ro_expected = 2;
 const uint16_t number_rw_expected = 2;
+const uint16_t number_expected    = number_ro_expected + number_rw_expected;
 
 eui_interface_t mock_interface = { 0 };
 
@@ -58,46 +59,25 @@ void tearDown(void)
 
 // TESTS
 
-void test_announce_dev_msg_readonly( void )
+void test_announce_dev_msg( void )
 {
-    // expect message(s): payload is the messageIDs of ro vars  
+    // expect message(s): payload is the messageIDs of vars  
     encode_packet_simple_ExpectAnyArgsAndReturn(0);
 
-    // expect a message describing the number of ro vars
+    // expect a message describing the number of vars
     encode_packet_simple_ExpectAnyArgsAndReturn(0);
 
-    announce_dev_msg_readonly();
+    announce_dev_msg();
 }
 
-void test_announce_dev_msg_writable( void )
+void test_announce_dev_vars( void )
 {
-    // expect message(s): payload is the messageIDs of rw vars  
-    encode_packet_simple_ExpectAnyArgsAndReturn(0);
-
-    // expect a message describing the number of rw vars
-    encode_packet_simple_ExpectAnyArgsAndReturn(0);
-
-    announce_dev_msg_writable();
-}
-
-void test_announce_dev_vars_readonly( void )
-{
-    for(uint16_t i = 0; i < number_ro_expected; i++)
+    for(uint16_t i = 0; i < number_expected; i++)
     {
         encode_packet_simple_ExpectAnyArgsAndReturn(0);
     }
 
-    announce_dev_vars_readonly();
-}
-
-void test_announce_dev_vars_writable( void )
-{
-    for(uint16_t i = 0; i < number_rw_expected; i++)
-    {
-        encode_packet_simple_ExpectAnyArgsAndReturn(0);
-    }
-
-    announce_dev_vars_writable();
+    send_tracked_variables();
 }
 
 // tests that the function correctly counts the number of messageID's sent
@@ -105,6 +85,7 @@ void test_send_msgID_list_callback( void )
 {
     uint16_t ro_expected = 0;
     uint16_t rw_expected = 0;
+    uint16_t total_expected = 0;
 
     //test reasonable number of both kinds
     eui_message_t ro_rw_testset[] = {
@@ -116,68 +97,27 @@ void test_send_msgID_list_callback( void )
 
     ro_expected = 2;
     rw_expected = 2;
+    total_expected = ro_expected + rw_expected;
     setup_dev_msg( ro_rw_testset, ARR_ELEM(ro_rw_testset) );
 
     encode_packet_simple_IgnoreAndReturn(0);
 
-    TEST_ASSERT_EQUAL_INT_MESSAGE(  rw_expected, 
-                                    send_tracked_message_id_list( 0 ), 
-                                    "Base - Writable msgID count incorrect" );
+    TEST_ASSERT_EQUAL_INT_MESSAGE(  total_expected, 
+                                    send_tracked_message_id_list(), 
+                                    "Base - Tracked msgID count incorrect" );
 
-    TEST_ASSERT_EQUAL_INT_MESSAGE(  ro_expected, 
-                                    send_tracked_message_id_list( 1 ), 
-                                    "Base - Read-Only msgID count incorrect" );
 
     //test an array with nothing
     eui_message_t empty_testset[] = { };
 
     ro_expected = 0;
     rw_expected = 0;
+    total_expected = ro_expected + rw_expected;
     setup_dev_msg( empty_testset, ARR_ELEM(empty_testset) );
 
-    TEST_ASSERT_EQUAL_INT_MESSAGE(  rw_expected, 
-                                    send_tracked_message_id_list( 0 ), 
-                                    "Empty - Writable msgID count incorrect" );
-
-    TEST_ASSERT_EQUAL_INT_MESSAGE(  ro_expected, 
-                                    send_tracked_message_id_list( 1 ), 
-                                    "Empty - Read-Only msgID count incorrect" );
-
-    //test writable only
-    eui_message_t rw_testset[] = {
-        EUI_CHAR( "cw",     test_char ),
-        EUI_INT8( "iw",     test_uint ),
-    };
-
-    ro_expected = 0;
-    rw_expected = 2;
-    setup_dev_msg( rw_testset, ARR_ELEM(rw_testset) );
-
-    TEST_ASSERT_EQUAL_INT_MESSAGE(  rw_expected, 
-                                    send_tracked_message_id_list( 0 ), 
-                                    "Read Only - Writable msgID count incorrect" );
-
-    TEST_ASSERT_EQUAL_INT_MESSAGE(  ro_expected, 
-                                    send_tracked_message_id_list( 1 ), 
-                                    "Read Only - Read-Only msgID count incorrect" );
-
-    //test writable only
-    eui_message_t ro_testset[] = {
-        EUI_CHAR_RO( "cr",  test_char ),
-        EUI_INT8_RO( "ir",  test_uint ),
-    };
-
-    ro_expected = 2;
-    rw_expected = 0;
-    setup_dev_msg( ro_testset, ARR_ELEM(ro_testset) );
-
-    TEST_ASSERT_EQUAL_INT_MESSAGE(  rw_expected, 
-                                    send_tracked_message_id_list( 0 ), 
-                                    "Writable Only - Writable msgID count incorrect" );
-
-    TEST_ASSERT_EQUAL_INT_MESSAGE(  ro_expected, 
-                                    send_tracked_message_id_list( 1 ), 
-                                    "Writable Only - Read-Only msgID count incorrect" );
+    TEST_ASSERT_EQUAL_INT_MESSAGE(  total_expected, 
+                                    send_tracked_message_id_list(), 
+                                    "Empty - Tracked msgID count incorrect" );
 
     //test mixed order of vars
     eui_message_t mixed_testset[] = {
@@ -197,15 +137,13 @@ void test_send_msgID_list_callback( void )
 
     ro_expected = 4;
     rw_expected = 6;
+    total_expected = ro_expected + rw_expected;
+
     setup_dev_msg( mixed_testset, ARR_ELEM(mixed_testset) );
 
-    TEST_ASSERT_EQUAL_INT_MESSAGE(  rw_expected, 
-                                    send_tracked_message_id_list( 0 ), 
-                                    "Mixed set - Writable msgID count incorrect" );
-
-    TEST_ASSERT_EQUAL_INT_MESSAGE(  ro_expected, 
-                                    send_tracked_message_id_list( 1 ), 
-                                    "Mixed set - Read-Only msgID count incorrect" );
+    TEST_ASSERT_EQUAL_INT_MESSAGE(  total_expected, 
+                                    send_tracked_message_id_list(), 
+                                    "Mixed set - Tracked msgID count incorrect" );
 
     //test many vars
     eui_message_t large_testset[60] = { 0 };
@@ -230,38 +168,27 @@ void test_send_msgID_list_callback( void )
 
     ro_expected = 30;
     rw_expected = 30;
+    total_expected = ro_expected + rw_expected;
     setup_dev_msg( large_testset, ARR_ELEM(large_testset) );
 
-    TEST_ASSERT_EQUAL_INT_MESSAGE(  rw_expected, 
-                                    send_tracked_message_id_list( 0 ), 
-                                    "Large set - Writable msgID count incorrect" );
+    TEST_ASSERT_EQUAL_INT_MESSAGE(  total_expected, 
+                                    send_tracked_message_id_list(), 
+                                    "Large set - Tracked msgID count incorrect" );
 
-    TEST_ASSERT_EQUAL_INT_MESSAGE(  ro_expected, 
-                                    send_tracked_message_id_list( 1 ), 
-                                    "Large set - Read-Only msgID count incorrect" );
 }
 
 void test_send_variable_callback( void )
 {
     uint16_t number_sent = 0;
 
-    //test readonly
-    for(uint16_t i = 0; i < number_ro_expected; i++)
+    //test variable output count
+    for(uint16_t i = 0; i < number_expected; i++)
     {
         encode_packet_simple_ExpectAnyArgsAndReturn(0);
     }
 
-    number_sent = send_tracked_variables( 0 );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( number_rw_expected, number_sent, "Writable variable count incorrect" );
-
-    //test writable
-    for(uint16_t j = 0; j < number_rw_expected; j++)
-    {
-        encode_packet_simple_ExpectAnyArgsAndReturn(0);
-    }
-
-    number_sent = send_tracked_variables( 1 );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( number_ro_expected, number_sent, "Read-Only variable count incorrect" );
+    number_sent = send_tracked_variables();
+    TEST_ASSERT_EQUAL_INT_MESSAGE( number_expected, number_sent, "Tracked variable count incorrect" );
 }
 
 //as the crc function is mocked, it doesn't write the crc result to the board_identifier value.
