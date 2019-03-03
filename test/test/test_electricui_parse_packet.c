@@ -98,7 +98,7 @@ void test_ingest_unfinished( void )
 
     //expects a 'idle' code returned
     decode_packet_ExpectAndReturn( 0xAF, &test_interface.packet, EUI_PARSER_IDLE);
-    TEST_ASSERT_EQUAL_INT8( EUI_PARSER_IDLE , parse_packet( 0xAF, &test_interface ) );
+    TEST_ASSERT_EQUAL_INT8( EUI_PARSER_IDLE , parse_packet( 0xAF, &test_interface ).parser );
     
     TEST_ASSERT_EQUAL_INT8( 0, interface_cb_hit );
 }
@@ -118,10 +118,10 @@ void test_ingest_error( void )
     test_pk_ptr->header.internal    = 0;
     test_pk_ptr->header.id_len      = 3;
 
-    decode_packet_ExpectAndReturn( 0xAB, &test_interface.packet, EUI_ERROR_PARSER);
+    decode_packet_ExpectAndReturn( 0xAB, &test_interface.packet, EUI_PARSER_ERROR);
 
     //expect the parse_packet to return an error to the user
-    TEST_ASSERT_EQUAL_INT8( EUI_ERROR_PARSER , parse_packet( 0xAB, &test_interface ) );
+    TEST_ASSERT_EQUAL_INT8( EUI_PARSER_ERROR , parse_packet( 0xAB, &test_interface ).parser );
 
     TEST_ASSERT_EQUAL_INT8( 1, interface_cb_hit );
     TEST_ASSERT_EQUAL_INT8( EUI_CB_PARSE_FAIL, interface_cb_arg[0] );
@@ -152,8 +152,8 @@ void test_ingest_unknown_id( void )
     test_pk_ptr->data_in[0] = 0x0A;
     test_pk_ptr->crc_in = 0xfefe;
 
-    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_OK);
-    TEST_ASSERT_EQUAL_INT8( EUI_OK , parse_packet( 0x00, &test_interface ) );
+    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_PARSER_OK);
+    TEST_ASSERT_EQUAL_INT8( 1 , parse_packet( 0x00, &test_interface ).untracked );
 
     TEST_ASSERT_EQUAL_INT8( 1 , interface_cb_hit );
     TEST_ASSERT_EQUAL_INT8( EUI_CB_UNTRACKED , interface_cb_arg[0] );
@@ -184,8 +184,8 @@ void test_ingest_data_packet( void )
 
     test_pk_ptr->crc_in = 0xfefe;
 
-    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_OK);
-    TEST_ASSERT_EQUAL_INT8( EUI_OK , parse_packet( 0x00, &test_interface ) );
+    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_PARSER_OK);
+    TEST_ASSERT_EQUAL_INT8( EUI_PARSER_OK , parse_packet( 0x00, &test_interface ).parser );
 
     //inbound byte is written to the local variable
     TEST_ASSERT_EQUAL_INT8(0x0A, test_uint);
@@ -218,8 +218,8 @@ void test_ingest_data_packet_internal( void )
 
     test_pk_ptr->crc_in = 0xfefe;
 
-    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_OK);
-    TEST_ASSERT_EQUAL_INT8( EUI_OK , parse_packet( 0x00, &test_interface ) );
+    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_PARSER_OK);
+    TEST_ASSERT_EQUAL_INT8( EUI_ACTION_OK , parse_packet( 0x00, &test_interface ).action );
 
     TEST_ASSERT_EQUAL_INT8( 2 , heartbeat );
 
@@ -251,8 +251,8 @@ void test_ingest_data_packet_readonly( void )
 
     test_pk_ptr->crc_in = 0xfefe;
 
-    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_OK);
-    TEST_ASSERT_EQUAL_INT8( EUI_OK , parse_packet( 0x00, &test_interface ) );
+    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_PARSER_OK);
+    TEST_ASSERT_EQUAL_INT8( EUI_ACTION_WRITE_ERROR , parse_packet( 0x00, &test_interface ).action );
 
     //inbound byte is should not be written
     TEST_ASSERT_EQUAL_INT8(20, test_uint);
@@ -284,14 +284,48 @@ void test_ingest_data_packet_exceeds_size( void )
     test_pk_ptr->data_in[3]         = 0x78;
     test_pk_ptr->crc_in             = 0xfefe;
 
-    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_OK);
-    TEST_ASSERT_EQUAL_INT8( EUI_ERROR_OFFSET , parse_packet( 0x00, &test_interface ) );
+    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_PARSER_OK);
+    TEST_ASSERT_EQUAL_INT8( EUI_ACTION_WRITE_ERROR , parse_packet( 0x00, &test_interface ).action );
 
     //inbound byte shouldn't be written to the local variable - check existing value intact
     TEST_ASSERT_EQUAL_INT8( 20, test_uint);
 
     TEST_ASSERT_EQUAL( 0 , test_pk_ptr->parser.state);
 }
+
+// inbound packet has a different type from the internal tracked variable
+void test_ingest_data_packet_wrong_type( void )
+{
+    test_pk_ptr->parser.state           = exp_crc_b2;
+    test_pk_ptr->parser.id_bytes_in     = 4;
+    test_pk_ptr->parser.data_bytes_in   = 4;
+    test_pk_ptr->parser.frame_offset    = 0;
+
+    test_pk_ptr->header.data_len    = 4;
+    test_pk_ptr->header.type        = TYPE_INT8;
+    test_pk_ptr->header.internal    = 0;
+    test_pk_ptr->header.offset      = 0;
+    test_pk_ptr->header.id_len      = 4;
+    test_pk_ptr->header.response    = 0;
+    test_pk_ptr->header.acknum      = 0;
+
+    memcpy(&test_pk_ptr->msgid_in, "data", 4);
+    test_pk_ptr->offset_in          = 0;
+    test_pk_ptr->data_in[0]         = 0x12;
+    test_pk_ptr->data_in[1]         = 0x34;
+    test_pk_ptr->data_in[2]         = 0x56;
+    test_pk_ptr->data_in[3]         = 0x78;
+    test_pk_ptr->crc_in             = 0xfefe;
+
+    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_PARSER_OK);
+    TEST_ASSERT_EQUAL_INT8( EUI_ACTION_TYPE_MISMATCH_ERROR , parse_packet( 0x00, &test_interface ).action );
+
+    //inbound byte shouldn't be written to the local variable - check existing value intact
+    TEST_ASSERT_EQUAL_INT8( 20, test_uint);
+
+    TEST_ASSERT_EQUAL( 0 , test_pk_ptr->parser.state);
+}
+
 
 // offset packet with target range outside variable bounds
 void test_ingest_data_packet_exceeds_range( void )
@@ -314,8 +348,8 @@ void test_ingest_data_packet_exceeds_range( void )
     test_pk_ptr->data_in[0]         = 0x12;
     test_pk_ptr->crc_in             = 0xfefe;
 
-    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_OK);
-    TEST_ASSERT_EQUAL_INT8( EUI_ERROR_OFFSET , parse_packet( 0x00, &test_interface ) );
+    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_PARSER_OK);
+    TEST_ASSERT_EQUAL_INT8( EUI_ACTION_WRITE_ERROR , parse_packet( 0x00, &test_interface ).action );
 
     //inbound byte shouldn't be written to the local variable - check existing value intact
     TEST_ASSERT_EQUAL_INT8( 20, test_uint);
@@ -346,9 +380,42 @@ void test_ingest_response_packet_query_only( void )
     test_pk_ptr->data_in[0]         = 0x12;
     test_pk_ptr->crc_in             = 0xfefe;
 
-    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_OK);
-    encode_packet_simple_ExpectAnyArgsAndReturn( EUI_OK );
-    TEST_ASSERT_EQUAL_INT8( EUI_OK , parse_packet( 0x00, &test_interface ) );
+    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_PARSER_OK);
+    encode_packet_simple_ExpectAnyArgsAndReturn( EUI_OUTPUT_OK );
+    TEST_ASSERT_EQUAL_INT8( EUI_QUERY_OK , parse_packet( 0x00, &test_interface ).query );
+
+    //only querying... check existing value intact
+    TEST_ASSERT_EQUAL_INT8( 20, test_uint);
+
+    TEST_ASSERT_EQUAL( 0 , test_pk_ptr->parser.state);
+}
+
+// packet is querying, but output response fails
+void test_ingest_response_packet_query_failure( void )
+{
+    TEST_IGNORE_MESSAGE("Create parser input for query only packet");
+
+    test_pk_ptr->parser.state           = exp_crc_b2;
+    test_pk_ptr->parser.id_bytes_in     = 4;
+    test_pk_ptr->parser.data_bytes_in   = 0;
+    test_pk_ptr->parser.frame_offset    = 0;
+
+    test_pk_ptr->header.data_len    = 0;
+    test_pk_ptr->header.type        = TYPE_UINT8;
+    test_pk_ptr->header.internal    = 0;
+    test_pk_ptr->header.offset      = 0;
+    test_pk_ptr->header.id_len      = 4;
+    test_pk_ptr->header.response    = 1;
+    test_pk_ptr->header.acknum      = 0;
+
+    memcpy(&test_pk_ptr->msgid_in, "data", 4);
+    test_pk_ptr->offset_in          = 0;
+    test_pk_ptr->data_in[0]         = 0x12;
+    test_pk_ptr->crc_in             = 0xfefe;
+
+    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_PARSER_OK);
+    encode_packet_simple_ExpectAnyArgsAndReturn( EUI_OUTPUT_ERROR );
+    TEST_ASSERT_EQUAL_INT8( EUI_QUERY_SEND_ERROR , parse_packet( 0x00, &test_interface ).query );
 
     //only querying... check existing value intact
     TEST_ASSERT_EQUAL_INT8( 20, test_uint);
@@ -377,9 +444,9 @@ void test_ingest_response_packet_query_write( void )
     test_pk_ptr->data_in[0]         = 0x12;
     test_pk_ptr->crc_in             = 0xfefe;
 
-    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_OK);
-    encode_packet_simple_ExpectAnyArgsAndReturn( EUI_OK );
-    TEST_ASSERT_EQUAL_INT8( EUI_OK , parse_packet( 0x00, &test_interface ) );
+    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_PARSER_OK);
+    encode_packet_simple_ExpectAnyArgsAndReturn( EUI_OUTPUT_OK );
+    TEST_ASSERT_EQUAL_INT8( EUI_QUERY_OK , parse_packet( 0x00, &test_interface ).query );
 
     //check value changed 
     TEST_ASSERT_EQUAL_INT8( 0x12, test_uint);
@@ -415,15 +482,59 @@ void test_ingest_response_packet_offset_query_only( void )
     test_pk_ptr->data_in[2] = 190; //end address uint16
     test_pk_ptr->data_in[3] = 0;
 
-    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_OK);
+    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_PARSER_OK);
     //we include the actual validation function, mocking that is busy-work
 
     //offset outbound has 1x meta-message, + 150bytes into 120b messages for 2x data packets
     for(uint16_t i = 0; i < 3; i++)
     {
-        encode_packet_ExpectAnyArgsAndReturn( EUI_OK );
+        encode_packet_ExpectAnyArgsAndReturn( EUI_OUTPUT_OK );
     }
-    TEST_ASSERT_EQUAL_INT8( EUI_OK , parse_packet( 0x00, &test_interface ) );
+    TEST_ASSERT_EQUAL_INT8( EUI_QUERY_OK , parse_packet( 0x00, &test_interface ).query );
+
+    //only querying... check existing value intact
+    uint8_t ground_truth[250] = { 20 };
+    TEST_ASSERT_EQUAL_INT8_ARRAY( ground_truth, test_array, sizeof(ground_truth));
+
+    TEST_ASSERT_EQUAL( 0 , test_pk_ptr->parser.state);
+}
+
+// packet is querying a range, but the output fails for some reason
+void test_ingest_response_packet_offset_query_failure( void )
+{
+    // inbound message is a offset_metadata message which contains start 
+    // and end addresses being questioned
+    test_pk_ptr->parser.state           = exp_crc_b2;
+    test_pk_ptr->parser.id_bytes_in     = 4;
+    test_pk_ptr->parser.data_bytes_in   = 4;
+    test_pk_ptr->parser.frame_offset    = 0;
+
+    test_pk_ptr->header.data_len    = 4;
+    test_pk_ptr->header.type        = TYPE_OFFSET_METADATA;
+    test_pk_ptr->header.internal    = 0;
+    test_pk_ptr->header.offset      = 0;
+    test_pk_ptr->header.id_len      = 4;
+    test_pk_ptr->header.response    = 1;
+    test_pk_ptr->header.acknum      = 0;
+
+    memcpy(&test_pk_ptr->msgid_in, "ofst", 4);
+    test_pk_ptr->offset_in = 0;
+    test_pk_ptr->crc_in = 0xfefe;
+
+    // our data is 350 element uint8 array, lets ask for values between the 40th and 190th values
+    test_pk_ptr->data_in[0] = 40; //base address uint16
+    test_pk_ptr->data_in[1] = 0;
+    test_pk_ptr->data_in[2] = 190; //end address uint16
+    test_pk_ptr->data_in[3] = 0;
+
+    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_PARSER_OK);
+    //we include the actual validation function, mocking that is busy-work
+
+    //offset outbound has 1x meta-message, + 150bytes into 120b messages for 2x data packets
+    // as we fail the outbound metadata packet, it doesn't try the other two data packets
+    encode_packet_ExpectAnyArgsAndReturn( EUI_OUTPUT_ERROR );
+    
+    TEST_ASSERT_EQUAL_INT8( EUI_QUERY_SEND_OFFSET_ERROR , parse_packet( 0x00, &test_interface ).query );
 
     //only querying... check existing value intact
     uint8_t ground_truth[250] = { 20 };
@@ -453,14 +564,45 @@ void test_ingest_response_packet_ack( void )
     test_pk_ptr->data_in[0] = 0x0E;
     test_pk_ptr->crc_in = 0xfefe;
 
-    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_OK);
-    encode_packet_ExpectAnyArgsAndReturn( EUI_OK );
-    TEST_ASSERT_EQUAL_INT8( EUI_OK , parse_packet( 0x00, &test_interface ) );
+    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_PARSER_OK);
+    encode_packet_ExpectAnyArgsAndReturn( EUI_OUTPUT_OK );
+    TEST_ASSERT_EQUAL_INT8( EUI_ACK_OK , parse_packet( 0x00, &test_interface ).ack );
 
     TEST_ASSERT_EQUAL_INT8( 0x0E, test_uint);
 
     TEST_ASSERT_EQUAL( 0 , test_pk_ptr->parser.state);
 }
+
+// packet wants ack response, but the output failed for some reason
+void test_ingest_response_packet_ack_failure( void )
+{
+    test_pk_ptr->parser.state           = exp_crc_b2;
+    test_pk_ptr->parser.id_bytes_in     = 4;
+    test_pk_ptr->parser.data_bytes_in   = 1;
+    test_pk_ptr->parser.frame_offset    = 0;
+
+    test_pk_ptr->header.data_len    = 1;
+    test_pk_ptr->header.type        = TYPE_UINT8;
+    test_pk_ptr->header.internal    = 0;
+    test_pk_ptr->header.offset      = 0;
+    test_pk_ptr->header.id_len      = 4;
+    test_pk_ptr->header.response    = 1;
+    test_pk_ptr->header.acknum      = 2;
+
+    memcpy(&test_pk_ptr->msgid_in, "data", 4);
+    test_pk_ptr->offset_in = 0;
+    test_pk_ptr->data_in[0] = 0x0E;
+    test_pk_ptr->crc_in = 0xfefe;
+
+    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_PARSER_OK);
+    encode_packet_ExpectAnyArgsAndReturn( EUI_OUTPUT_ERROR );
+    TEST_ASSERT_EQUAL_INT8( EUI_ACK_ERROR , parse_packet( 0x00, &test_interface ).ack );
+
+    TEST_ASSERT_EQUAL_INT8( 0x0E, test_uint);
+
+    TEST_ASSERT_EQUAL( 0 , test_pk_ptr->parser.state);
+}
+
 
 // packet is just a callback, no data, no response
 void test_ingest_callback_packet_silent( void )
@@ -483,8 +625,8 @@ void test_ingest_callback_packet_silent( void )
     test_pk_ptr->data_in[0]         = 0;
     test_pk_ptr->crc_in             = 0xfefe;
 
-    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_OK);
-    TEST_ASSERT_EQUAL_INT8( EUI_OK , parse_packet( 0x00, &test_interface ) );
+    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_PARSER_OK);
+    TEST_ASSERT_EQUAL_INT8( EUI_ACTION_OK , parse_packet( 0x00, &test_interface ).action );
 
     TEST_ASSERT_EQUAL_INT8( 20, test_uint);
     TEST_ASSERT_EQUAL_INT8( 1, test_cb_hit);    //check our callback has been called
@@ -513,8 +655,8 @@ void test_ingest_callback_packet_silent_invalid( void )
     test_pk_ptr->data_in[0]         = 0;
     test_pk_ptr->crc_in             = 0xfefe;
 
-    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_OK);
-    TEST_ASSERT_EQUAL_INT8( EUI_ERROR_CALLBACK , parse_packet( 0x00, &test_interface ) );
+    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_PARSER_OK);
+    TEST_ASSERT_EQUAL_INT8( EUI_ACTION_CALLBACK_ERROR , parse_packet( 0x00, &test_interface ).action );
 
     TEST_ASSERT_EQUAL_INT8( 20, test_uint);
     TEST_ASSERT_EQUAL_INT8( 0, test_cb_hit);    //check our callback has been called
@@ -522,7 +664,7 @@ void test_ingest_callback_packet_silent_invalid( void )
     TEST_ASSERT_EQUAL( 0 , test_pk_ptr->parser.state);
 }
 
-//callback with ack
+// Callback with ack
 void test_ingest_callback_packet_ack( void )
 {
     test_pk_ptr->parser.state           = exp_crc_b2;
@@ -543,9 +685,9 @@ void test_ingest_callback_packet_ack( void )
     test_pk_ptr->data_in[0]         = 0;
     test_pk_ptr->crc_in             = 0xfefe;
 
-    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_OK);    
-    encode_packet_ExpectAnyArgsAndReturn( EUI_OK );
-    TEST_ASSERT_EQUAL_INT8( EUI_OK , parse_packet( 0x00, &test_interface ) );
+    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_PARSER_OK);    
+    encode_packet_ExpectAnyArgsAndReturn( EUI_OUTPUT_OK );
+    TEST_ASSERT_EQUAL_INT8( EUI_ACK_OK , parse_packet( 0x00, &test_interface ).ack );
 
     TEST_ASSERT_EQUAL_INT8( 20, test_uint);
     TEST_ASSERT_EQUAL_INT8( 1, test_cb_hit);    //check our callback has been called
@@ -574,9 +716,9 @@ void test_ingest_callback_packet_query( void )
     test_pk_ptr->data_in[0]         = 0;
     test_pk_ptr->crc_in             = 0xfefe;
 
-    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_OK);    
-    encode_packet_simple_ExpectAnyArgsAndReturn( EUI_OK );
-    TEST_ASSERT_EQUAL_INT8( EUI_OK , parse_packet( 0x00, &test_interface ) );
+    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_PARSER_OK);    
+    encode_packet_simple_ExpectAnyArgsAndReturn( EUI_OUTPUT_OK );
+    TEST_ASSERT_EQUAL_INT8( EUI_QUERY_OK , parse_packet( 0x00, &test_interface ).query );
 
     TEST_ASSERT_EQUAL_INT8( 20, test_uint);
     TEST_ASSERT_EQUAL_INT8( 0, test_cb_hit);    //check our callback has not been called
@@ -598,7 +740,7 @@ void test_ingest_interface_callback_tracked_invalid( void )
     test_pk_ptr->header.id_len      = 4;
     memcpy(&test_pk_ptr->msgid_in, "data", 4);
 
-    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_OK);
+    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_PARSER_OK);
     parse_packet( 0x00, &test_interface );
 
     TEST_ASSERT_EQUAL_INT8( 0, interface_cb_hit );
@@ -618,7 +760,7 @@ void test_ingest_interface_callback_untracked_invalid( void )
     test_pk_ptr->header.id_len      = 4;
     memcpy(&test_pk_ptr->msgid_in, "rand", 4);
 
-    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_OK);
+    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_PARSER_OK);
     parse_packet( 0x00, &test_interface );
 
     TEST_ASSERT_EQUAL_INT8( 0, interface_cb_hit );
@@ -639,7 +781,7 @@ void test_ingest_interface_callback_error_invalid( void )
     test_pk_ptr->header.internal    = 0;
     test_pk_ptr->header.id_len      = 3;
 
-    decode_packet_ExpectAndReturn( 0xAB, &test_interface.packet, EUI_ERROR_PARSER );
+    decode_packet_ExpectAndReturn( 0xAB, &test_interface.packet, EUI_PARSER_ERROR );
     parse_packet( 0xAB, &test_interface );
 
     TEST_ASSERT_EQUAL_INT8( 0, interface_cb_hit );
@@ -665,7 +807,7 @@ void test_ingest_interface_callback_handshake_no_interface( void )
     test_pk_ptr->header.id_len      = 1;
     memcpy(&test_pk_ptr->msgid_in, EUI_INTERNAL_HEARTBEAT, 1);
 
-    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_OK );
+    decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_PARSER_OK );
     //no output function means no printed handshake calls
     parse_packet( 0x00, &test_interface );
 

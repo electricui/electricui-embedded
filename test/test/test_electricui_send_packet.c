@@ -63,13 +63,13 @@ void test_send_packet_boundary_length( void )
 void test_send_packet_large( void )
 {
     validate_offset_range_ExpectAnyArgs();          //validates the offset range before starting
-    encode_packet_ExpectAnyArgsAndReturn(EUI_OK);   //metadata message describing the range
+    encode_packet_ExpectAnyArgsAndReturn(EUI_OUTPUT_OK);   //metadata message describing the range
 
     //we expect a call for each packet required to send the offset range
     uint8_t num_messages_sent = sizeof(large_data) / PAYLOAD_SIZE_MAX;
     for(uint16_t i = 0; i <= num_messages_sent; i++)
     {
-        encode_packet_ExpectAnyArgsAndReturn(EUI_OK);
+        encode_packet_ExpectAnyArgsAndReturn(EUI_OUTPUT_OK);
     }
 
     send_packet(&stub_output_func, &large_payload, &default_settings );

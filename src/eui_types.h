@@ -28,20 +28,43 @@ enum eui_callback_codes {
     EUI_CB_LAST_ENUM,
 };
 
-enum eui_status_codes {
-    EUI_ERROR = 0,
-    EUI_ERROR_CALLBACK,
-    EUI_ERROR_OFFSET,
-    EUI_ERROR_PARSER,
-    EUI_ERROR_OUTPUT,
-    EUI_ERROR_TYPE_MISMATCH,
-    EUI_ERROR_SEND,
-    EUI_ERROR_SEND_OFFSET,
+// Shorthand header
+typedef struct {
+    unsigned parser     : 2;
+    unsigned untracked  : 1;
+    unsigned action     : 2;
+    unsigned ack        : 1;
+    unsigned query      : 2;
+    unsigned reserved   : 1;
+} eui_errors_t;
 
+enum eui_parse_errors {
+    EUI_PARSER_OK = 0,
     EUI_PARSER_IDLE,
-    EUI_OK,
+    EUI_PARSER_ERROR,
+};
 
-    EUI_STATUS_LAST_ENUM,
+enum eui_action_errors {
+    EUI_ACTION_OK = 0,
+    EUI_ACTION_CALLBACK_ERROR,
+    EUI_ACTION_WRITE_ERROR,
+    EUI_ACTION_TYPE_MISMATCH_ERROR,
+};
+
+enum eui_ack_errors {
+    EUI_ACK_OK = 0,
+    EUI_ACK_ERROR,
+};
+
+enum eui_query_errors {
+    EUI_QUERY_OK = 0,
+    EUI_QUERY_SEND_ERROR,
+    EUI_QUERY_SEND_OFFSET_ERROR,
+};
+
+enum eui_output_errors {
+    EUI_OUTPUT_OK = 0,
+    EUI_OUTPUT_ERROR,
 };
 
 #ifdef EUI_CONF_MANY_VARIABLES

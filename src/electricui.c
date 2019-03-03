@@ -9,9 +9,9 @@ uint8_t library_version = LIBRARY_VERSION;
 
 eui_message_t internal_msg_store[] = 
 {
+    EUI_UINT8(      EUI_INTERNAL_HEARTBEAT,     heartbeat           ),
     EUI_UINT8_RO(   EUI_INTERNAL_LIB_VER,       library_version     ),
     EUI_UINT16_RO(  EUI_INTERNAL_BOARD_ID,      board_identifier    ),
-    EUI_UINT8(      EUI_INTERNAL_HEARTBEAT,     heartbeat           ),
 
     EUI_FUNC(   EUI_INTERNAL_AM, announce_dev_msg        ),
     EUI_FUNC(   EUI_INTERNAL_AV, send_tracked_variables  ),
@@ -84,38 +84,35 @@ auto_output( void )
     return 0;
 }
 
-uint8_t
+eui_errors_t
 parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
 {
-    uint8_t parse_status = eui_decode(inbound_byte, &p_link->packet);
+    eui_errors_t status;
+    status.parser = eui_decode(inbound_byte, &p_link->packet);
 
-    if( EUI_OK == parse_status )
+    if( EUI_PARSER_OK == status.parser )
     {
-        last_interface = p_link;
+        last_interface              = p_link;
         eui_header_t   header_in    = *(eui_header_t*)&p_link->packet.header;
         eui_message_t *p_msglocal   = find_message_object(  (char*)p_link->packet.msgid_in,
                                                             header_in.internal );
 
         if( p_msglocal )
         {
-            // check the packet's type matches the internal type before running callbacks or writing
-            if( header_in.type == TYPE_OFFSET_METADATA
-                || (p_msglocal->type & 0x0F) == header_in.type )
+            // Running callbacks or write inbound data as required
+            status.action = handle_packet_action( p_link, &header_in, p_msglocal );
+
+            // Respond to a request for ack if the action completed successfully
+            if( status.action == EUI_ACTION_OK )
             {
-                parse_status = handle_packet_action( p_link, &header_in, p_msglocal );
-            }
-            else
-            {
-                parse_status = EUI_ERROR_TYPE_MISMATCH;
+                status.ack = handle_packet_ack( p_link, &header_in, p_msglocal );           
             }
 
-            // respond to queries or ack as required
-            if( header_in.response && (EUI_OK == parse_status) )
-            {
-                parse_status = handle_packet_response( p_link, &header_in, p_msglocal );
-            }
+            // Respond to queries 
+            // this includes invalid inbound header types, as we provide 'correct' type info
+            status.query = handle_packet_query( p_link, &header_in, p_msglocal );          
 
-            // notify the developer
+            // Notify the developer of the tracked message
             if( p_link->interface_cb )
             {
                 p_link->interface_cb( EUI_CB_TRACKED );
@@ -123,6 +120,8 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
         }
         else
         {
+            status.untracked = 1;
+
             if( p_link->interface_cb )
             {
                 p_link->interface_cb( EUI_CB_UNTRACKED );
@@ -131,7 +130,7 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
 
         memset( &p_link->packet, 0, sizeof(eui_packet_t) );
     }
-    else if( EUI_ERROR_PARSER >= parse_status )
+    else if( EUI_PARSER_ERROR == status.parser )
     {
         if( p_link->interface_cb )
         {
@@ -139,10 +138,9 @@ parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
         }
 
         memset( &p_link->packet, 0, sizeof(eui_packet_t) );
-        parse_status = EUI_ERROR_PARSER;
     }
 
-    return parse_status;
+    return status;
 }
 
 uint8_t
@@ -150,59 +148,66 @@ handle_packet_action(   eui_interface_t *valid_packet,
                         eui_header_t    *header,
                         eui_message_t   *msgObjPtr )
 {
-    uint8_t status = EUI_OK;
+    uint8_t status = EUI_ACTION_OK;
 
-    uint8_t is_writable = !(msgObjPtr->type >> 7);
-    uint8_t is_callback = (msgObjPtr->type & 0x0F) == TYPE_CALLBACK;
+    uint8_t inbound_type_matches = (msgObjPtr->type & 0x0F) == header->type;
 
-    if( is_callback )
+    if ( inbound_type_matches )
     {
-        if( (header->response && header->acknum) || (!header->response && !header->acknum) )
-        {
-            // Create a function to call from the internal stored pointer
-            eui_cb_t cb_packet_h = msgObjPtr->payload;
+        uint8_t is_callback = (msgObjPtr->type & 0x0F) == TYPE_CALLBACK;
+        uint8_t is_writable = !(msgObjPtr->type >> 7);
 
-            if( cb_packet_h )
+        if( is_callback )
+        {
+            if( (header->response && header->acknum) || (!header->response && !header->acknum) )
             {
-                cb_packet_h();
+                // Create a function to call from the internal stored pointer
+                eui_cb_t cb_packet_h = msgObjPtr->payload;
+
+                if( cb_packet_h )
+                {
+                    cb_packet_h();
+                }
+                else
+                {
+                    status = EUI_ACTION_CALLBACK_ERROR;
+                }
+            }
+        }
+        else if( valid_packet->packet.parser.data_bytes_in )
+        {
+            // Ensure data won't exceed bounds with invalid offsets/lengths
+            if( is_writable && 
+                (valid_packet->packet.offset_in + header->data_len) <= msgObjPtr->size )
+            {
+                memcpy( (uint8_t *)msgObjPtr->payload + valid_packet->packet.offset_in,
+                        valid_packet->packet.data_in,
+                        header->data_len );
             }
             else
             {
-                status = EUI_ERROR_CALLBACK;
+                status = EUI_ACTION_WRITE_ERROR;
             }
         }
     }
-    else if( TYPE_OFFSET_METADATA != header->type
-             && is_writable
-             && valid_packet->packet.parser.data_bytes_in )
+    else if( header->type != TYPE_OFFSET_METADATA )
     {
-        // Ensure data won't exceed bounds with invalid offsets
-        if( valid_packet->packet.offset_in + header->data_len <= msgObjPtr->size )
-        {
-            memcpy( (uint8_t *)msgObjPtr->payload + valid_packet->packet.offset_in,
-                    valid_packet->packet.data_in,
-                    header->data_len );
-        }
-        else
-        {
-            status = EUI_ERROR_OFFSET;
-        }
+        status = EUI_ACTION_TYPE_MISMATCH_ERROR;
     }
 
     return status;
 }
 
-// Check the inbound packet's response requirements and output as required
 uint8_t
-handle_packet_response( eui_interface_t *valid_packet,
-                        eui_header_t    *header,
-                        eui_message_t   *msgObjPtr )
+handle_packet_ack(  eui_interface_t *valid_packet,
+                    eui_header_t    *header,
+                    eui_message_t   *msgObjPtr )
 {
-    uint8_t status = EUI_OK;
+    uint8_t status = EUI_ACK_OK;
 
     if( header->acknum )
     {
-        eui_header_t tmp_header = { .internal   = header->internal,
+        eui_header_t ack_header = { .internal   = header->internal,
                                     .response   = MSG_NRESP,
                                     .type       = msgObjPtr->type,
                                     .id_len     = strlen(msgObjPtr->msgID),
@@ -211,14 +216,26 @@ handle_packet_response( eui_interface_t *valid_packet,
                                     .data_len   = 0  };
 
         status = eui_encode(    valid_packet->output_func,
-                                &tmp_header,
+                                &ack_header,
                                 msgObjPtr->msgID,
                                 valid_packet->packet.offset_in,
                                 msgObjPtr->payload );
+
     }
-    else
+
+    return status;
+}
+
+uint8_t
+handle_packet_query(    eui_interface_t *valid_packet,
+                        eui_header_t    *header,
+                        eui_message_t   *msgObjPtr )
+{
+    uint8_t status = EUI_QUERY_OK;
+
+    if ( header->response && !header->acknum )
     {
-        //respond with data to fufil query behaviour
+        // Respond with data to fufil query behaviour
         eui_pkt_settings_t res_header = { .internal = header->internal,
                                           .response = MSG_NRESP, 
                                           .type     = msgObjPtr->type };
@@ -244,7 +261,7 @@ handle_packet_response( eui_interface_t *valid_packet,
                                         msgObjPtr,
                                         &res_header,
                                         base_address,
-                                        end_address );
+                                        end_address ) << 1;
         }
 #endif
     }
@@ -252,12 +269,13 @@ handle_packet_response( eui_interface_t *valid_packet,
     return status;
 }
 
+
 uint8_t
 send_packet(    callback_data_out_t output_function,
                 eui_message_t       *msgObjPtr,
                 eui_pkt_settings_t  *settings )
 {
-    uint8_t status = EUI_ERROR_SEND;
+    uint8_t status = EUI_OUTPUT_ERROR;
 
     if( output_function && msgObjPtr )
     {
@@ -294,7 +312,7 @@ send_packet_range(  callback_data_out_t output_function,
                     uint16_t            base_addr, 
                     uint16_t            end_addr ) 
 {
-    uint8_t status = EUI_ERROR_SEND_OFFSET;
+    uint8_t status = EUI_OUTPUT_ERROR;
 
     uint16_t data_range[2]  = { 0 };
     validate_offset_range(  base_addr,
@@ -319,7 +337,7 @@ send_packet_range(  callback_data_out_t output_function,
     tmp_header.offset = 1;
     tmp_header.type   = msgObjPtr->type;
 
-    while( end_addr > base_addr && ( EUI_OK == status) )
+    while( end_addr > base_addr && ( EUI_OUTPUT_OK == status) )
     {
         uint16_t bytes_remaining = end_addr - base_addr;
 

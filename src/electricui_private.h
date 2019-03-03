@@ -19,7 +19,12 @@ handle_packet_action(   eui_interface_t *valid_packet,
                         eui_message_t   *msgObjPtr );
 
 uint8_t
-handle_packet_response( eui_interface_t *valid_packet,
+handle_packet_ack( 	eui_interface_t *valid_packet,
+                    eui_header_t    *header,
+                    eui_message_t   *msgObjPtr );
+
+uint8_t
+handle_packet_query( 	eui_interface_t *valid_packet,
                         eui_header_t    *header,
                         eui_message_t   *msgObjPtr );
 

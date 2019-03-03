@@ -49,7 +49,7 @@ void test_decode_packet( void )
         decode_result = decode_packet( inbound_bytes[rxByte], &test_interface );
     }
     
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_OK, decode_result, "Decoder didn't finish with a valid packet" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_PARSER_OK, decode_result, "Decoder didn't finish with a valid packet" );
 
     //check parsed results from data structure directly
     TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.header.data_len,    "Unexpected data_length" );
@@ -87,7 +87,7 @@ void test_decode_packet_short_id( void )
         decode_result = decode_packet( inbound_bytes[rxByte], &test_interface );
     }
     
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_OK, decode_result, "Decoder didn't finish with a valid packet" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_PARSER_OK, decode_result, "Decoder didn't finish with a valid packet" );
 
     //check parsed results from data structure directly
     TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.header.data_len,    "Unexpected data_length"        );
@@ -125,7 +125,7 @@ void test_decode_packet_long_id( void )
         decode_result = decode_packet( inbound_bytes[rxByte], &test_interface );
     }
     
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_OK, decode_result, "Decoder didn't finish with a valid packet" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_PARSER_OK, decode_result, "Decoder didn't finish with a valid packet" );
 
     //check parsed results from data structure directly
     TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.header.data_len,    "Unexpected data_length"        );
@@ -163,7 +163,7 @@ void test_decode_packet_internal( void )
         decode_result = decode_packet( inbound_bytes[rxByte], &test_interface );
     }
     
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_OK, decode_result, "Decoder didn't finish with a valid packet" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_PARSER_OK, decode_result, "Decoder didn't finish with a valid packet" );
 
     //check parsed results from data structure directly
     TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.header.data_len,    "Unexpected data_length" );
@@ -202,7 +202,7 @@ void test_decode_packet_response( void )
         decode_result = decode_packet( inbound_bytes[rxByte], &test_interface );
     }
     
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_OK, decode_result, "Decoder didn't finish with a valid packet" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_PARSER_OK, decode_result, "Decoder didn't finish with a valid packet" );
 
     //check parsed results from data structure directly
     TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.header.data_len,    "Unexpected data_length" );
@@ -239,7 +239,7 @@ void test_decode_packet_acknum( void ){
         decode_result = decode_packet( inbound_bytes[rxByte], &test_interface );
     }
     
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_OK, decode_result, "Decoder didn't finish with a valid packet" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_PARSER_OK, decode_result, "Decoder didn't finish with a valid packet" );
 
     //check parsed decode_results from data structure directly
     TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.header.data_len,    "Unexpected data_length" );
@@ -277,7 +277,7 @@ void test_decode_packet_float( void )
         decode_result = decode_packet( inbound_bytes[rxByte], &test_interface );
     }
     
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_OK, decode_result, "Decoder didn't finish with a valid packet" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_PARSER_OK, decode_result, "Decoder didn't finish with a valid packet" );
 
     //check parsed results from data structure directly
     TEST_ASSERT_EQUAL_INT_MESSAGE( 4, test_interface.header.data_len,    "Unexpected data_length" );
@@ -319,7 +319,7 @@ void test_decode_packet_invalidCRC( void )
     TEST_ASSERT_EQUAL_UINT16( 0xBA64, test_interface_2.crc_in );
 
     //the decoder should return the error flag    
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_ERROR_PARSER, decode_result, "Decoder didn't error on invalid CRC byte2" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_PARSER_ERROR, decode_result, "Decoder didn't error on invalid CRC byte2" );
 
     //test the first byte being incorrect
     eui_packet_t test_interface_1 = {0};
@@ -341,7 +341,7 @@ void test_decode_packet_invalidCRC( void )
     TEST_ASSERT_EQUAL_UINT16( 0xBA64, test_interface_1.crc_in );
 
     //the decoder should return the error flag    
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_ERROR_PARSER, decode_result, "Decoder didn't error on invalid CRC byte1" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_PARSER_ERROR, decode_result, "Decoder didn't error on invalid CRC byte1" );
 }
 
 void test_decode_packet_offset_last( void )
@@ -366,7 +366,7 @@ void test_decode_packet_offset_last( void )
         decode_result = decode_packet( inbound_bytes[rxByte], &test_interface );
     }
     
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_OK, decode_result, "Decoder didn't finish with a valid packet" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_PARSER_OK, decode_result, "Decoder didn't finish with a valid packet" );
 
     //check parsed results from data structure directly
     TEST_ASSERT_EQUAL_INT_MESSAGE( 4, test_interface.header.data_len,    "Unexpected data_length" );
@@ -407,7 +407,7 @@ void test_decode_packet_offset( void )
         decode_result = decode_packet( inbound_bytes[rxByte], &test_interface );
     }
     
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_OK, decode_result, "Decoder didn't finish with a valid packet" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_PARSER_OK, decode_result, "Decoder didn't finish with a valid packet" );
 
     //check parsed results from data structure directly
     TEST_ASSERT_EQUAL_INT_MESSAGE( 2, test_interface.header.data_len,    "Unexpected data_length" );
@@ -458,7 +458,7 @@ void test_decode_packet_large( void )
         decode_result = decode_packet( inbound_bytes[rxByte], &test_interface );
     }
     
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_OK, decode_result, "Decoder didn't finish with a valid packet" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_PARSER_OK, decode_result, "Decoder didn't finish with a valid packet" );
 
     //check parsed results from data structure directly
     TEST_ASSERT_EQUAL_INT_MESSAGE( sizeof(expected_payload), test_interface.header.data_len,    "Unexpected data_length" );
@@ -514,7 +514,7 @@ void test_decode_packet_oversized( void )
         decode_result = decode_packet( inbound_bytes[rxByte], &test_interface );
     }
     
-    TEST_ASSERT_EQUAL_UINT8( EUI_ERROR_PARSER, decode_result );
+    TEST_ASSERT_EQUAL_UINT8( EUI_PARSER_ERROR, decode_result );
     TEST_ASSERT_NOT_EQUAL( 0x295E, test_interface.crc_in );
 }
 
@@ -528,5 +528,5 @@ void test_decode_packet_invalid_state( void )
 
     decode_result = decode_packet( 0x0F, &test_interface );
     
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_ERROR_PARSER, decode_result, "Decoder didn't error with malformed state" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_PARSER_ERROR, decode_result, "Decoder didn't error with malformed state" );
 }

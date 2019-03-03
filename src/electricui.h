@@ -29,7 +29,7 @@ typedef struct {
 eui_message_t *
 find_tracked_object( const char * msg_id );
 
-uint8_t
+eui_errors_t
 parse_packet( uint8_t inbound_byte, eui_interface_t *p_link );
 
 uint8_t

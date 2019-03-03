@@ -71,54 +71,56 @@ void serial_rx_handler()
   	uint8_t inbound_byte = Serial.read();
 
   	// The inbound data handler returns status flags indicating errors or successes
-    uint8_t parse_status = parse_packet( inbound_byte, &comm_interface );
+    eui_errors_t parse_status = parse_packet( inbound_byte, &comm_interface );
 
-    switch( parse_status )
+    switch( parse_status.parser )
     {
-   		case EUI_ERROR_CALLBACK:
-   			// Couldn't call a developer tracked callback function due to null pointer reference
+      case EUI_PARSER_IDLE:
+      // Waiting for more data to complete a valid message
+      break;
 
-   		break;
+      case EUI_PARSER_OK:
+        // Parsed a message and everything worked as expected
+      break;
 
-    	case EUI_ERROR_OFFSET:
-    		// Inbound packet has invalid offset data which would result in out-of-bounds data operations
-    		// When this occurs, data is not written
-
-    	break;
-
-    	case EUI_ERROR_PARSER:
-    		// The parser encountered an error or failure, e.g. CRC check fails, invalid packet formats
-    	break;
-
-    	case EUI_ERROR_OUTPUT:
-    		// Data output failed, likely causes are invalid inputs or null output tx pointer
-
-    	break;
-
-    	case EUI_ERROR_TYPE_MISMATCH:
-    		// Data type in the inbound packet doesn't match the internal type
-
-    	break;	
-
-    	case EUI_ERROR_SEND:
-    		// Didn't get an OK while attempting packet output
-    	break;
-
-    	case EUI_ERROR_SEND_OFFSET:
-    		// Couldn't send an offset based packet
-
-    	break;
-
-    	case EUI_PARSER_IDLE:
-    		// Waiting for more data to complete a valid message
-
-    	break;
-
-    	case EUI_OK:
-    		// Parsed a message and everything worked as expected
-
-    	break;
+      case EUI_PARSER_ERROR:
+      // The parser encountered an error or failure, e.g. CRC check fails, invalid packet formats
+      break;
     }
+
+    switch( parse_status.action )
+    {
+      case EUI_ACTION_CALLBACK_ERROR:
+      // Couldn't call a developer tracked callback function due to null pointer reference
+      break;
+
+      case EUI_ACTION_WRITE_ERROR:
+      // Inbound packet has invalid offset data or invalid length which would result in 
+      // out-of-bounds data operations. When this occurs, data is not written
+      break;
+
+      case EUI_ACTION_TYPE_MISMATCH_ERROR:
+      // Data type in the inbound packet doesn't match the internal type
+      break;
+    }
+
+    if( parse_status.ack )
+    {
+      // Had an issue sending an ack.
+
+    }
+
+    switch( parse_status.query )
+    {
+      case EUI_QUERY_SEND_ERROR:
+        // Couldn't reply to the query
+      break;
+
+      case EUI_QUERY_SEND_OFFSET_ERROR:
+        // Couldn't reply to the ranged query
+      break;
+    }
+
   }
 }
   

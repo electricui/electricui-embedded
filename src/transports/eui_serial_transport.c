@@ -86,7 +86,7 @@ encode_packet(  callback_data_out_t out_char,
                 uint16_t            offset,
                 void*               payload )
 {
-    uint8_t status = EUI_ERROR_OUTPUT;
+    uint8_t status = EUI_OUTPUT_ERROR;
 
     if( out_char && header && msg_id && payload )
     {  
@@ -128,7 +128,7 @@ encode_packet(  callback_data_out_t out_char,
 
         out_char( pk_tmp, pk_i );
     
-        status = EUI_OK; // success
+        status = EUI_OUTPUT_OK; // success
     }
 
     return status;
@@ -242,7 +242,7 @@ parse_decoded_packet( uint8_t byte_in, eui_packet_t *p_link_in )
                     p_link_in->parser.state = exp_offset_b1;
 #else
                     //add a error code for 'doesn't support offsets
-                    parse_status = EUI_ERROR_PARSER;
+                    parse_status = EUI_PARSER_ERROR;
 #endif
                 }
                 else
@@ -293,7 +293,7 @@ parse_decoded_packet( uint8_t byte_in, eui_packet_t *p_link_in )
             }
             else  //first byte didn't match CRC, fail early
             {
-                parse_status = EUI_ERROR_PARSER;
+                parse_status = EUI_PARSER_ERROR;
             }
         }
         break;
@@ -301,18 +301,18 @@ parse_decoded_packet( uint8_t byte_in, eui_packet_t *p_link_in )
         case exp_crc_b2:
             if( byte_in == (p_link_in->crc_in >> 8) )
             {
-                parse_status = EUI_OK;
+                parse_status = EUI_PARSER_OK;
             }
             else
             {
-                parse_status = EUI_ERROR_PARSER;
+                parse_status = EUI_PARSER_ERROR;
             }
 
         break;
 
         default:
             //shouldn't have unexpected parser state
-            parse_status = EUI_ERROR_PARSER;
+            parse_status = EUI_PARSER_ERROR;
         break;
     }
 

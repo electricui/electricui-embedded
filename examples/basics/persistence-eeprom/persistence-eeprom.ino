@@ -29,7 +29,7 @@ uint8_t   led_state    = 0;
 uint16_t  glow_time    = 200;
 uint32_t  led_timer    = 0;
 
-char device_name[16]     = "persistent-blink";
+char device_name[15]     = "persistent-blink";
 
 // Standard interface and tracked variables
 eui_interface_t serial_comms; 
