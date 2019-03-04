@@ -360,8 +360,6 @@ void test_ingest_data_packet_exceeds_range( void )
 // packet is querying a variable without writing
 void test_ingest_response_packet_query_only( void )
 {
-    TEST_IGNORE_MESSAGE("Create parser input for query only packet");
-
     test_pk_ptr->parser.state           = exp_crc_b2;
     test_pk_ptr->parser.id_bytes_in     = 4;
     test_pk_ptr->parser.data_bytes_in   = 0;
@@ -377,7 +375,7 @@ void test_ingest_response_packet_query_only( void )
 
     memcpy(&test_pk_ptr->msgid_in, "data", 4);
     test_pk_ptr->offset_in          = 0;
-    test_pk_ptr->data_in[0]         = 0x12;
+    test_pk_ptr->data_in[0]         = 0x00;
     test_pk_ptr->crc_in             = 0xfefe;
 
     decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_PARSER_OK);
@@ -393,8 +391,6 @@ void test_ingest_response_packet_query_only( void )
 // packet is querying, but output response fails
 void test_ingest_response_packet_query_failure( void )
 {
-    TEST_IGNORE_MESSAGE("Create parser input for query only packet");
-
     test_pk_ptr->parser.state           = exp_crc_b2;
     test_pk_ptr->parser.id_bytes_in     = 4;
     test_pk_ptr->parser.data_bytes_in   = 0;
