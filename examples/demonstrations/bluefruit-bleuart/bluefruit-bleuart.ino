@@ -14,15 +14,17 @@
 #include "electricui.h"
 #include <bluefruit.h>
 
-// BLE Service
-BLEDis  bledis;  // device information
-BLEUart bleuart; // uart over ble
-BLEBas  blebas;  // battery
+// Set this to the CID provided by BT SIG after certification
+#define BT_COMPANY_ID 0xFFFF  // FFFF is the accepted test CID
 
-uint8_t   blink_enable = 1;
-uint8_t   led_state  = 0;
-uint16_t  glow_time  = 200;
-uint32_t  led_timer  = 0;
+// BLE Service
+BLEDis  bledis;     // Device information
+BLEUart bleuart;    // uart over ble
+
+uint8_t   blink_enable  = 1;
+uint8_t   led_state     = 0;
+uint16_t  glow_time     = 200;
+uint32_t  led_timer     = 0;
 
 void usb_tx(  uint8_t *data, uint16_t len );
 void uart_tx( uint8_t *data, uint16_t len );
@@ -35,7 +37,8 @@ eui_message_t dev_msg_store[] = {
     EUI_UINT8( "led_blink",  blink_enable ),
     EUI_UINT8( "led_state",  led_state ),
     EUI_UINT16("lit_time",   glow_time ),
-    EUI_CHAR_ARRAY( "conn", central_name ),
+    EUI_UINT32("time",   led_timer ),
+    EUI_CHAR_ARRAY( "central", central_name ),
 };
 
 eui_interface_t transport_methods[] = {
@@ -58,10 +61,6 @@ void setup()
   configure_bluetooth();
   bleuart.begin();
 
-  // Advertise a 100% battery level service
-  blebas.begin();
-  blebas.write(100);
-
   // Set up and start advertising
   start_advertisements();
 
@@ -70,21 +69,21 @@ void setup()
 
 void configure_bluetooth( void )
 {
-  // Config the peripheral connection with maximum bandwidth 
   Bluefruit.configPrphBandwidth( BANDWIDTH_MAX );
-
   Bluefruit.begin();
-  // Set max power. Accepted values are: -40, -30, -20, -16, -12, -8, -4, 0, 4
-  Bluefruit.setTxPower(4);
-  Bluefruit.setName("eUI BLE");
-  //Bluefruit.setName(getMcuUniqueID()); // useful testing with multiple central connections
+
+  // Set max power. -40, -30, -20, -16, -12, -8, -4, 0, 4
+  Bluefruit.setTxPower( 4 );
+  Bluefruit.setName( "eUI BLE" );
 
   Bluefruit.setConnectCallback( connect_callback );
   Bluefruit.setDisconnectCallback( disconnect_callback );
 
   // Configure and Start Device Information Service
-  bledis.setManufacturer("Electric UI Pty Ltd");
-  bledis.setModel("BLE Dev Board");
+  bledis.setModel( "BLE Dev Board" );
+  bledis.setHardwareRev("hwTest");
+  bledis.setSoftwareRev("0.1.1");
+  bledis.setManufacturer( "Electric UI Pty Ltd" );
   bledis.begin();
 }
 
@@ -96,8 +95,21 @@ void start_advertisements(void)
 
   // Include bleuart 128-bit uuid
   Bluefruit.Advertising.addService( bleuart );
-  Bluefruit.ScanResponse.addName();
-  
+  Bluefruit.Advertising.addName();
+  // Bluefruit.Advertising.addAppearance();
+
+  // Demonstrates setting the company data section of the advertisement.
+  // This requires the CID to be valid or you will fail BT SIG certification
+  uint8_t manf_data[8] = { 0 };
+  memcpy( manf_data, (uint8_t*)BT_COMPANY_ID, 2);
+
+  uint8_t manf_payload[] = { 0xDE, 0xAD, 0xBE, 0XEF };
+  memcpy( manf_data, manf_payload, 4);
+
+  Bluefruit.Advertising.addData(BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA, manf_data, sizeof(manf_data));
+
+// getMcuUniqueID()
+
   /* Start Advertising
    * - Enable auto advertising if disconnected
    * - Interval:  fast mode = 20 ms, slow mode = 152.5 ms
@@ -125,8 +137,17 @@ void loop()
     {
       led_state = !led_state; // Invert led state
       led_timer = millis();
+
+      if( !digitalRead(13) && Bluefruit.connected() )
+      {
+        send_tracked_on( "time", &transport_methods[2] );
+      }
+
     }    
   }
+
+  // Make it easier to see when a central is setup for the uart RX
+  glow_time = ( bleuart.notifyEnabled() )? 100 : 250;
 
   digitalWrite( LED_BUILTIN, led_state );
 
