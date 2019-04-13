@@ -12,13 +12,24 @@
 
 #include "electricui.h"
 
+#define LED_PIN LED_BUILTIN
+
+
 // Define default network credentials
-char * wifi_ssid = "Name";
+char * wifi_ssid = "ssid";
 char * wifi_pass = "password";
 
 uint8_t ws_connected 	= 0;	//state indication
 uint8_t ws_port 		= 80;
 char 	ws_path[] 		= "ws(s)://255.255.255.255:81";
+
+// Simple variables to modify the LED behaviour
+uint8_t   blink_enable = 1; //if the blinker should be running
+uint8_t   led_state  = 0;   //track if the LED is illuminated
+uint16_t  glow_time  = 200; //in milliseconds
+
+// Keep track of when the light turns on or off
+uint32_t led_timer = 0;
 
 //example variables
 uint8_t   example_uint8   = 21;
@@ -31,11 +42,15 @@ eui_message_t dev_msg_store[] = {
     EUI_UINT8( "wsc", ws_connected),
     EUI_CHAR_ARRAY( "ws", ws_path ),
 
+    EUI_UINT8(  "led_blink",  blink_enable ),
+    EUI_UINT8(  "led_state",  led_state ),
+    EUI_UINT16( "lit_time",   glow_time ),
+    
     EUI_UINT8(  "ui8", example_uint8 ),
     EUI_UINT16( "i16", example_uint16 ),
     EUI_UINT32( "i32", example_uint32 ),
     EUI_FLOAT(  "fPI", example_float ),
-    EUI_CHAR_RO_ARRAY( "dst", demo_string ),
+    EUI_CHAR_RO_ARRAY( "name", demo_string ),
 };
 
 WiFiMulti WiFiMulti;
@@ -101,6 +116,8 @@ void wifi_handle()
 		    memset( ws_path, 0, sizeof(ws_path) );	//clear the string first
 			snprintf(ws_path, sizeof(ws_path), "ws://%s:%d", WiFi.localIP().toString().c_str(), ws_port);
 
+            glow_time = 200;
+
 			// Using Arduino Strings
 		    // String ws_path_string = "ws://" + WiFi.localIP().toString().c_str() + ":" + String(ws_port);
 		    // ws_path_string.toCharArray(ws_path, sizeof(ws_path));
@@ -117,26 +134,79 @@ void wifi_handle()
     }
 }
 
+
+void eui_callback( uint8_t message )
+{
+  switch(message)
+  {
+    case EUI_CB_TRACKED:
+      // UI recieved a tracked message ID and has completed processing
+
+    break;
+
+    case EUI_CB_UNTRACKED:
+    {
+      // UI passed in an untracked message ID
+      // Grab parts of the inbound packet which are are useful
+      eui_header_t header   = comm_links[0].packet.header;
+      uint8_t      *name_rx = comm_links[0].packet.msgid_in;
+      void         *payload = comm_links[0].packet.data_in;
+
+      // See if the inbound packet name matches our intended variable
+      if( strcmp( (char *)name_rx, "talk" ) == 0 )
+      {
+        webSocket.broadcastTXT("hello over websockets");
+        glow_time = 50;
+      }
+    }
+    break;
+
+    case EUI_CB_PARSE_FAIL:
+    break;
+  }
+}
+
 void setup() 
 {  
     Serial.begin(115200);
 
     //eUI setup
     setup_interfaces(comm_links, 2);
+
+    comm_links[0].interface_cb = &eui_callback;
+
+    pinMode( LED_BUILTIN, OUTPUT );
+
     EUI_TRACK(dev_msg_store);
     setup_identifier("esp32", 5);
 
     WiFiMulti.addAP(wifi_ssid, wifi_pass);
+
+    led_timer = millis();
+
+
 }
 
 void loop() 
 {
-    wifi_handle();
+  wifi_handle();
 
-    while(Serial.available() > 0)
-    {  
-      parse_packet(Serial.read(), &comm_links[0]);
-    }
+  while(Serial.available() > 0)
+  {  
+    parse_packet(Serial.read(), &comm_links[0]);
+  }
+
+  if( blink_enable )
+  {
+    // Check if the LED has been on for the configured duration
+    if( millis() - led_timer >= glow_time )
+    {
+      led_state = !led_state; //invert led state
+      led_timer = millis();
+    }    
+  }
+
+  digitalWrite( LED_PIN, led_state ); //update the LED to match the intended state
 }
 
 void tx_putc( uint8_t *data, uint16_t len )

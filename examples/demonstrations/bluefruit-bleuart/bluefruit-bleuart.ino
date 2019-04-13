@@ -104,7 +104,7 @@ void start_advertisements(void)
   memcpy( manf_data, (uint8_t*)BT_COMPANY_ID, 2);
 
   uint8_t manf_payload[] = { 0xDE, 0xAD, 0xBE, 0XEF };
-  memcpy( manf_data, manf_payload, 4);
+  memcpy( manf_data+2, manf_payload, 4);
 
   Bluefruit.Advertising.addData(BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA, manf_data, sizeof(manf_data));
 
