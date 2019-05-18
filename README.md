@@ -48,6 +48,7 @@ I don't provide Ceedling's vendor files inside this repo, so first runs need to 
 
 1. Use the provided `test/setup_tests.sh` script to begin with. 
 	- You might need to add execution permission first. From `/test`, run `chmod +x setup_tests.sh`.
+	- Depending on your Ruby/Gem system configuration things may not work first try. Failing that, manually install `ceedling` with `gem install ceedling`.
 
 2. Run the `setup_tests.sh` script. If you don't have ceedling installed, it will prompt to install the ruby gem.
 
@@ -59,6 +60,8 @@ There are also a series of small scripts for other various analysis checks.
 
 Run `ceedling gcov:all` to generate the coverage reports.  
 Use `ceedling utils:gcov` to generate a pretty HTML report. It will be located in the `/test/build/artifacts/gcov` folder.
+
+You need `gcovr` installed, and on some Linux distros, may also need a `gcovr` runtime dependancy `jinja2`.
 
 When attempting to run coverage analysis on OSX, the output results are slightly different due to subtle differences with the `clang` based toolchain. We test with a `gcc`+`gcov` environment running on `$LINUX_DISTRO`.
 
