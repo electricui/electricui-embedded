@@ -34,7 +34,7 @@ void setup()
   pinMode( LED_BUILTIN, OUTPUT );
 
   // Provide Electric UI with the output callback
-  comm_interface.output_func = &tx_putc;
+  comm_interface.output_cb = &tx_putc;
 
   // Provide Electric UI with the interface status callback 
   comm_interface.interface_cb = &eui_callback;
@@ -144,7 +144,7 @@ void eui_callback( uint8_t message )
 
       // Grab parts of the inbound packet which are are useful
       eui_header_t header   = comm_interface.packet.header;
-      uint8_t      *name_rx = comm_interface.packet.msgid_in;
+      uint8_t      *name_rx = comm_interface.packet.id_in;
       void         *payload = comm_interface.packet.data_in;
 
       // See if the inbound packet name matches our intended variable

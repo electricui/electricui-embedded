@@ -23,14 +23,14 @@ uint8_t is_internal = 0;
 //developer-space messages
 eui_message_t test_findobject_store[] = {
     //simple objects with mostly garbage data, we only care about the ID's
-    { .msgID = "a",    .type = TYPE_CHAR,    .size = sizeof(testfind_char),     .payload = &testfind_char      },
-    { .msgID = "si8",   .type = TYPE_INT8,    .size = sizeof(testfind_int8),     .payload = &testfind_int8     },
+    { .id = "a",    .type = TYPE_CHAR,    .size = sizeof(testfind_char),     .payload = &testfind_char      },
+    { .id = "si8",   .type = TYPE_INT8,    .size = sizeof(testfind_int8),     .payload = &testfind_int8     },
     
-    { .msgID = "abcdefghijklmno", 
+    { .id = "abcdefghijklmno", 
                         .type = TYPE_UINT8,   .size = sizeof(testfind_uint8),    .payload = &testfind_uint8     },
     
-    { .msgID = "\x01",  .type = TYPE_UINT8,     .size = sizeof(testfind_int8),  .payload = &testfind_int8   },
-    { .msgID = "",      .type = TYPE_UINT8,     .size = sizeof(testfind_uint8), .payload = &testfind_uint8   },
+    { .id = "\x01",  .type = TYPE_UINT8,     .size = sizeof(testfind_int8),  .payload = &testfind_int8   },
+    { .id = "",      .type = TYPE_UINT8,     .size = sizeof(testfind_uint8), .payload = &testfind_uint8   },
 };
 
 // PRIVATE FUNCTIONS
@@ -108,7 +108,7 @@ void test_find_message_object_nullptr( void )
     // The search is using strcmp, which will cause segfaults or undefined behaviour when passed invalid pointers.
     const char * test_message = 0;
 
-    //will likely segfault if no null check on msgID
+    //will likely segfault if no null check on id
     is_internal = 0;
     TEST_ASSERT_EQUAL_PTR(expecting, find_message_object(test_message, is_internal));
 

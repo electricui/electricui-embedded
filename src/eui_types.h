@@ -103,7 +103,7 @@ typedef struct {
 
 // Base 'object' for a variable
 typedef struct {
-    const char*   msgID;
+    const char*   id;
     uint8_t       type;
     uint16_t      size;
     void          *payload;

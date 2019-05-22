@@ -29,7 +29,7 @@ uint8_t   led_state    = 0;
 uint16_t  glow_time    = 200;
 uint32_t  led_timer    = 0;
 
-char device_name[15]     = "persistent-blink";
+char device_name[16]     = "persistent-blink";
 
 // Standard interface and tracked variables
 eui_interface_t serial_comms; 
@@ -56,7 +56,7 @@ void setup()
   // Fetch any saved variables from EEPROM
   retrieve_settings();
 
-  serial_comms.output_func = &tx_putc;
+  serial_comms.output_cb = &tx_putc;
   setup_interface( &serial_comms );
   EUI_TRACK( dev_msg_store );
 

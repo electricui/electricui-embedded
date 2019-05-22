@@ -61,7 +61,7 @@ eui_message_t dev_msg_store[] =
     EUI_UINT8_RO( "u8", example_uint8 ),
 
     // If you want to manually provide the structure, this is what the EUI_UINT8 macro expands into 
-    { .msgID = "manual_u8", .type = TYPE_INT8, .size = sizeof(example_uint8), .payload = &example_uint8 },
+    { .id = "manual_u8", .type = TYPE_INT8, .size = sizeof(example_uint8), .payload = &example_uint8 },
 
     // There are macros for most types available
     EUI_INT8( "s8", example_int8 ),
@@ -93,7 +93,7 @@ void setup()
     Serial.begin(115200);
 
     //eUI setup
-    serial_comms.output_func = &tx_putc;
+    serial_comms.output_cb = &tx_putc;
     setup_interface(&serial_comms);
 
     EUI_TRACK(dev_msg_store);

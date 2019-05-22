@@ -85,7 +85,7 @@ void test_encode_decode_simple( void )
     TEST_ASSERT_EQUAL_INT( strlen(test_id), test_interface.header.id_len        );
     TEST_ASSERT_EQUAL_INT( test_header.response, test_interface.header.response );
     TEST_ASSERT_EQUAL_INT( test_header.acknum, test_interface.header.acknum     );
-    TEST_ASSERT_EQUAL_STRING( test_id, test_interface.msgid_in                  );
+    TEST_ASSERT_EQUAL_STRING( test_id, test_interface.id_in                     );
     TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Offset buffer garbage appeared" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( test_payload, test_interface.data_in, sizeof(test_payload)       );
 }
@@ -128,7 +128,7 @@ void test_encode_decode_headerbits( void )
     TEST_ASSERT_EQUAL_INT( strlen(test_id), test_interface.header.id_len        );
     TEST_ASSERT_EQUAL_INT( test_header.response, test_interface.header.response );
     TEST_ASSERT_EQUAL_INT( test_header.acknum, test_interface.header.acknum     );
-    TEST_ASSERT_EQUAL_STRING( test_id, test_interface.msgid_in                  );
+    TEST_ASSERT_EQUAL_STRING( test_id, test_interface.id_in                     );
     TEST_ASSERT_EQUAL_UINT16_MESSAGE( offset_address, test_interface.offset_in, "Offset buffer garbage appeared" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( offset_payload_expected, test_interface.data_in, sizeof(offset_payload_expected) );
 
@@ -166,7 +166,7 @@ void test_encode_decode_short_id( void )
     TEST_ASSERT_EQUAL_INT( strlen(test_id), test_interface.header.id_len        );
     TEST_ASSERT_EQUAL_INT( test_header.response, test_interface.header.response );
     TEST_ASSERT_EQUAL_INT( test_header.acknum, test_interface.header.acknum     );
-    TEST_ASSERT_EQUAL_STRING( test_id, test_interface.msgid_in                  );
+    TEST_ASSERT_EQUAL_STRING( test_id, test_interface.id_in                     );
     TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Offset buffer garbage appeared" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( test_payload, test_interface.data_in, sizeof(test_payload)       );
 }
@@ -200,7 +200,7 @@ void test_encode_decode_long_id( void )
     TEST_ASSERT_EQUAL_INT( strlen(test_id), test_interface.header.id_len        );
     TEST_ASSERT_EQUAL_INT( 0, test_interface.header.response                    );
     TEST_ASSERT_EQUAL_INT( 0, test_interface.header.acknum                      );
-    TEST_ASSERT_EQUAL_STRING( test_id, test_interface.msgid_in                  );
+    TEST_ASSERT_EQUAL_STRING( test_id, test_interface.id_in                     );
     TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Offset buffer garbage appeared" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( test_payload, test_interface.data_in, sizeof(test_payload)       );
 }
@@ -234,7 +234,7 @@ void test_encode_decode_no_data( void )
     TEST_ASSERT_EQUAL_INT( strlen(test_id), test_interface.header.id_len        );
     TEST_ASSERT_EQUAL_INT( 0, test_interface.header.response                    );
     TEST_ASSERT_EQUAL_INT( 0, test_interface.header.acknum                      );
-    TEST_ASSERT_EQUAL_STRING( test_id, test_interface.msgid_in                  );
+    TEST_ASSERT_EQUAL_STRING( test_id, test_interface.id_in                     );
     TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Offset buffer garbage appeared" );
 }
 
@@ -289,7 +289,7 @@ void test_encode_decode_long_data( void )
     TEST_ASSERT_EQUAL_INT( strlen(test_id), test_interface.header.id_len        );
     TEST_ASSERT_EQUAL_INT( 0, test_interface.header.response                    );
     TEST_ASSERT_EQUAL_INT( 0, test_interface.header.acknum                      );
-    TEST_ASSERT_EQUAL_STRING( test_id, test_interface.msgid_in                  );
+    TEST_ASSERT_EQUAL_STRING( test_id, test_interface.id_in                     );
     TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Offset buffer garbage appeared" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( test_payload, test_interface.data_in, sizeof(test_payload)       );
 
@@ -331,7 +331,7 @@ void test_encode_decode_many_zeros( void )
     TEST_ASSERT_EQUAL_INT( strlen(test_id), test_interface.header.id_len        );
     TEST_ASSERT_EQUAL_INT( 0, test_interface.header.response                    );
     TEST_ASSERT_EQUAL_INT( 0, test_interface.header.acknum                      );
-    TEST_ASSERT_EQUAL_STRING( test_id, test_interface.msgid_in                  );
+    TEST_ASSERT_EQUAL_STRING( test_id, test_interface.id_in                     );
     TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Offset buffer garbage appeared" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( test_payload, test_interface.data_in, sizeof(test_payload)       );
 

@@ -40,14 +40,14 @@ void callback_mocked_output_2( uint8_t *data, uint16_t len )
 
 //developer-space messages
 eui_message_t internal_callback_test_store[] = {
-    { .msgID = "chw",   .type = TYPE_CHAR,    .size = sizeof(test_char),    .payload = &test_char   },
-    { .msgID = "u8w",   .type = TYPE_INT8,    .size = sizeof(test_uint),    .payload = &test_uint   },
+    { .id = "chw",   .type = TYPE_CHAR,    .size = sizeof(test_char),    .payload = &test_char   },
+    { .id = "u8w",   .type = TYPE_INT8,    .size = sizeof(test_uint),    .payload = &test_uint   },
 };
 
 eui_interface_t multi_interfaces[] = {
-    { .packet = { 0 }, .output_func = &callback_mocked_output_0, .interface_cb = 0 },
-    { .packet = { 0 }, .output_func = &callback_mocked_output_1, .interface_cb = 0 },
-    { .packet = { 0 }, .output_func = &callback_mocked_output_2, .interface_cb = 0 },
+    { .packet = { 0 }, .output_cb = &callback_mocked_output_0, .interface_cb = 0 },
+    { .packet = { 0 }, .output_cb = &callback_mocked_output_1, .interface_cb = 0 },
+    { .packet = { 0 }, .output_cb = &callback_mocked_output_2, .interface_cb = 0 },
 };
 
 eui_packet_t * test_pk_ptr_0;  
@@ -89,7 +89,7 @@ void test_active_interface_switching_outputs( void )
     TEST_ASSERT_NULL( attempted_interface );
     TEST_ASSERT_EQUAL( 0, attempted_output_times );
     // by default, the 'first' interface is used
-    TEST_ASSERT_EQUAL_PTR( &multi_interfaces[0], last_interface );
+    TEST_ASSERT_EQUAL_PTR( &multi_interfaces[0], p_interface_last );
 
     // Send a query message to the library from the 'head' interface 
     // (we inject it straight into the inbound interface's state)
@@ -106,7 +106,7 @@ void test_active_interface_switching_outputs( void )
     test_pk_ptr_0->header.response    = 1;
     test_pk_ptr_0->header.acknum      = 0;
 
-    memcpy(&test_pk_ptr_0->msgid_in, "u8w", 3);
+    memcpy(&test_pk_ptr_0->id_in, "u8w", 3);
     test_pk_ptr_0->offset_in          = 0;
     test_pk_ptr_0->data_in[0]         = 0x00;
     test_pk_ptr_0->crc_in             = 0xfefe;   //not checked - we mock == decoder
@@ -117,7 +117,7 @@ void test_active_interface_switching_outputs( void )
     TEST_ASSERT_EQUAL_UINT8( EUI_QUERY_OK , status0.query );
     
     // The library tracks it as the 'last valid' and would respond on this interface
-    TEST_ASSERT_EQUAL_PTR( &multi_interfaces[0], last_interface );
+    TEST_ASSERT_EQUAL_PTR( &multi_interfaces[0], p_interface_last );
 
     // Send a message to the library from the 'last' interface in the set
     test_pk_ptr_2->parser.state           = exp_crc_b2;
@@ -133,7 +133,7 @@ void test_active_interface_switching_outputs( void )
     test_pk_ptr_2->header.response    = 1;
     test_pk_ptr_2->header.acknum      = 0;
 
-    memcpy(&test_pk_ptr_2->msgid_in, "chw", 3);
+    memcpy(&test_pk_ptr_2->id_in, "chw", 3);
     test_pk_ptr_2->offset_in          = 0;
     test_pk_ptr_2->data_in[0]         = 0x00;
     test_pk_ptr_2->crc_in             = 0xfefe;   //not checked - we mock == decoder
@@ -145,5 +145,5 @@ void test_active_interface_switching_outputs( void )
 
     // The library now uses this interface as the 'last valid' interface
     // and would send the response on interface2
-    TEST_ASSERT_EQUAL_PTR( &multi_interfaces[2], last_interface );
+    TEST_ASSERT_EQUAL_PTR( &multi_interfaces[2], p_interface_last );
 }

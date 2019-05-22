@@ -18,11 +18,11 @@ uint8_t   test_uint    = 21;
 
 //developer-space messages
 eui_message_t internal_callback_test_store[] = {
-    { .msgID = "chw",   .type = TYPE_CHAR,    .size = sizeof(test_char),    .payload = &test_char   },
-    { .msgID = "u8w",   .type = TYPE_INT8,    .size = sizeof(test_uint),    .payload = &test_uint   },
+    { .id = "chw",   .type = TYPE_CHAR,    .size = sizeof(test_char),    .payload = &test_char   },
+    { .id = "u8w",   .type = TYPE_INT8,    .size = sizeof(test_uint),    .payload = &test_uint   },
     
-    { .msgID = "chr",   .type = TYPE_CHAR|READ_ONLY_MASK,    .size = sizeof(test_char),    .payload = &test_char   },
-    { .msgID = "u8r",   .type = TYPE_INT8|READ_ONLY_MASK,    .size = sizeof(test_uint),    .payload = &test_uint   },
+    { .id = "chr",   .type = TYPE_CHAR|READ_ONLY_MASK,    .size = sizeof(test_char),    .payload = &test_char   },
+    { .id = "u8r",   .type = TYPE_INT8|READ_ONLY_MASK,    .size = sizeof(test_uint),    .payload = &test_uint   },
 };
 
 const uint16_t number_ro_expected = 2;
@@ -48,7 +48,7 @@ void setUp(void)
     // setup_identifier( (char*)"a", 1 );
     
     setup_dev_msg(internal_callback_test_store, ARR_ELEM(internal_callback_test_store));
-    mock_interface.output_func = &callback_mocked_output;
+    mock_interface.output_cb = &callback_mocked_output;
     setup_interface( &mock_interface );
 }
  
@@ -81,7 +81,7 @@ void test_announce_dev_vars( void )
 }
 
 // tests that the function correctly counts the number of messageID's sent
-void test_send_msgID_list_callback( void )
+void test_send_id_list_callback( void )
 {
     uint16_t ro_expected = 0;
     uint16_t rw_expected = 0;
@@ -104,7 +104,7 @@ void test_send_msgID_list_callback( void )
 
     TEST_ASSERT_EQUAL_INT_MESSAGE(  total_expected, 
                                     send_tracked_message_id_list(), 
-                                    "Base - Tracked msgID count incorrect" );
+                                    "Base - Tracked id count incorrect" );
 
 
     //test an array with nothing
@@ -117,7 +117,7 @@ void test_send_msgID_list_callback( void )
 
     TEST_ASSERT_EQUAL_INT_MESSAGE(  total_expected, 
                                     send_tracked_message_id_list(), 
-                                    "Empty - Tracked msgID count incorrect" );
+                                    "Empty - Tracked id count incorrect" );
 
     //test mixed order of vars
     eui_message_t mixed_testset[] = {
@@ -143,7 +143,7 @@ void test_send_msgID_list_callback( void )
 
     TEST_ASSERT_EQUAL_INT_MESSAGE(  total_expected, 
                                     send_tracked_message_id_list(), 
-                                    "Mixed set - Tracked msgID count incorrect" );
+                                    "Mixed set - Tracked id count incorrect" );
 
     //test many vars
     eui_message_t large_testset[60] = { 0 };
@@ -152,14 +152,14 @@ void test_send_msgID_list_callback( void )
     {
         if( i % 2)
         {
-            large_testset[i].msgID = "cw";
+            large_testset[i].id = "cw";
             large_testset[i].type = TYPE_CHAR;
             large_testset[i].size = 1;
             large_testset[i].payload = &test_char;
         }
         else
         {
-            large_testset[i].msgID = "cr";
+            large_testset[i].id = "cr";
             large_testset[i].type = TYPE_CHAR|READ_ONLY_MASK;
             large_testset[i].size = 1;
             large_testset[i].payload = &test_char;
@@ -173,7 +173,7 @@ void test_send_msgID_list_callback( void )
 
     TEST_ASSERT_EQUAL_INT_MESSAGE(  total_expected, 
                                     send_tracked_message_id_list(), 
-                                    "Large set - Tracked msgID count incorrect" );
+                                    "Large set - Tracked id count incorrect" );
 
 }
 

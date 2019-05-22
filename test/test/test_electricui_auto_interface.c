@@ -34,14 +34,14 @@ void callback_mocked_output_3( uint8_t *data, uint16_t len )
 
 //developer-space messages
 eui_message_t internal_callback_test_store[] = {
-    { .msgID = "chw",   .type = TYPE_CHAR,    .size = sizeof(test_char),    .payload = &test_char   },
-    { .msgID = "u8w",   .type = TYPE_INT8,    .size = sizeof(test_uint),    .payload = &test_uint   },
+    { .id = "chw",   .type = TYPE_CHAR,    .size = sizeof(test_char),    .payload = &test_char   },
+    { .id = "u8w",   .type = TYPE_INT8,    .size = sizeof(test_uint),    .payload = &test_uint   },
 };
 
 eui_interface_t multi_interfaces[] = {
-    { .packet = { 0 }, .output_func = &callback_mocked_output_1, .interface_cb = 0 },
-    { .packet = { 0 }, .output_func = &callback_mocked_output_2, .interface_cb = 0 },
-    { .packet = { 0 }, .output_func = &callback_mocked_output_3, .interface_cb = 0 },
+    { .packet = { 0 }, .output_cb = &callback_mocked_output_1, .interface_cb = 0 },
+    { .packet = { 0 }, .output_cb = &callback_mocked_output_2, .interface_cb = 0 },
+    { .packet = { 0 }, .output_cb = &callback_mocked_output_3, .interface_cb = 0 },
 };
 
 // SETUP, TEARDOWN
@@ -69,7 +69,7 @@ void test_auto_interface_single( void )
     setup_interface( &multi_interfaces[1] );
 
     //pretend we've had a message come in and have set last_interface
-    last_interface = &multi_interfaces[1];
+    p_interface_last = &multi_interfaces[1];
 
     TEST_ASSERT_EQUAL_PTR(&multi_interfaces[1], auto_interface());
 }
@@ -82,7 +82,7 @@ void test_auto_interface_many( void )
     //test return of changing interface
     for(uint8_t i = 0; i < ARR_ELEM(multi_interfaces); i++)
     {
-        last_interface = &multi_interfaces[i];
+        p_interface_last = &multi_interfaces[i];
         TEST_ASSERT_EQUAL_PTR( &multi_interfaces[i], auto_interface() );
     }
 }
@@ -94,26 +94,26 @@ void test_auto_interface_invalid( void )
     setup_interfaces( 0, 0);
     for(uint8_t i = 0; i < ARR_ELEM(multi_interfaces); i++)
     {
-        last_interface = &multi_interfaces[i];
+        p_interface_last = &multi_interfaces[i];
         TEST_ASSERT_NULL( auto_interface() );
     }
 
     //test a malformed interface setup by manually overriding the 'internal' interface vars
-    interface_arr = &multi_interfaces[1];
-    interface_count = 0;
+    p_interface_arr = &multi_interfaces[1];
+    interface_num   = 0;
 
     for(uint8_t i = 0; i < ARR_ELEM(multi_interfaces); i++)
     {
-        last_interface = &multi_interfaces[i];
+        p_interface_last = &multi_interfaces[i];
         TEST_ASSERT_NULL( auto_interface() );
     }
 
-    interface_arr = 0;
-    interface_count = 3;
+    p_interface_arr = 0;
+    interface_num   = 3;
 
     for(uint8_t i = 0; i < ARR_ELEM(multi_interfaces); i++)
     {
-        last_interface = &multi_interfaces[i];
+        p_interface_last = &multi_interfaces[i];
         TEST_ASSERT_NULL( auto_interface() );
     }
 }

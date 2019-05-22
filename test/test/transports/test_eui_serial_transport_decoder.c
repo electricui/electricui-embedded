@@ -60,7 +60,7 @@ void test_decode_packet( void )
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.response,    "Didn't expect a response bit"  );
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.acknum,      "Unexpected ack number"         );
 
-    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.msgid_in);
+    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.id_in);
     TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Wasn't expecting offset packet" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.data_in, sizeof(expected_payload) );
     TEST_ASSERT_EQUAL_UINT16( 0xBA64, test_interface.crc_in );
@@ -98,7 +98,7 @@ void test_decode_packet_short_id( void )
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.response,    "Didn't expect a response bit"  );
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.acknum,      "Unexpected ack number"         );
 
-    TEST_ASSERT_EQUAL_STRING( "a", test_interface.msgid_in);
+    TEST_ASSERT_EQUAL_STRING( "a", test_interface.id_in);
     TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Wasn't expecting offset packet" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.data_in, sizeof(expected_payload) );
     TEST_ASSERT_EQUAL_UINT16( 0xE008, test_interface.crc_in );
@@ -136,7 +136,7 @@ void test_decode_packet_long_id( void )
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.response,    "Didn't expect a response bit"  );
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.acknum,      "Unexpected ack number"         );
 
-    TEST_ASSERT_EQUAL_STRING( "abcdefghijklmno", test_interface.msgid_in);
+    TEST_ASSERT_EQUAL_STRING( "abcdefghijklmno", test_interface.id_in);
     TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Wasn't expecting offset packet" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.data_in, sizeof(expected_payload) );
     TEST_ASSERT_EQUAL_UINT16( 0x8B05, test_interface.crc_in );
@@ -174,7 +174,7 @@ void test_decode_packet_internal( void )
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.response,    "Didn't expect a response bit"  );
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.acknum,      "Unexpected ack number"         );
 
-    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.msgid_in);
+    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.id_in);
     TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Wasn't expecting offset packet" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.data_in, sizeof(expected_payload) );
     TEST_ASSERT_EQUAL_UINT16( 0xD074, test_interface.crc_in );
@@ -213,7 +213,7 @@ void test_decode_packet_response( void )
     TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.header.response,    "Expected a response bit"  );
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.acknum,      "Unexpected ack number"    );
 
-    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.msgid_in);
+    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.id_in);
     TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Wasn't expecting offset packet" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.data_in, sizeof(expected_payload) );
     TEST_ASSERT_EQUAL_UINT16( 0xBE3E, test_interface.crc_in );
@@ -250,7 +250,7 @@ void test_decode_packet_acknum( void ){
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.response,    "Didn't expect a response bit"  );
     TEST_ASSERT_EQUAL_INT_MESSAGE( 3, test_interface.header.acknum,      "Incorrect ack number"         );
 
-    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.msgid_in);
+    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.id_in);
     TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Wasn't expecting offset packet" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.data_in, sizeof(expected_payload) );
     TEST_ASSERT_EQUAL_UINT16( 0xA3B8, test_interface.crc_in );
@@ -288,7 +288,7 @@ void test_decode_packet_float( void )
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.response,    "Didn't expect a response bit"  );
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.acknum,      "Unexpected ack number"         );
 
-    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.msgid_in);
+    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.id_in);
     TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Wasn't expecting offset packet" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.data_in, sizeof(expected_payload) );
     TEST_ASSERT_EQUAL_UINT16( 0x1D8B, test_interface.crc_in );
@@ -377,7 +377,7 @@ void test_decode_packet_offset_last( void )
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.response,    "Didn't expect a response bit"  );
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.acknum,      "Unexpected ack number"         );
 
-    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.msgid_in);
+    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.id_in);
     TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Offset should be zero" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.data_in, sizeof(expected_payload) );
     TEST_ASSERT_EQUAL_UINT16( 0x3148, test_interface.crc_in );
@@ -418,7 +418,7 @@ void test_decode_packet_offset( void )
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.response,    "Didn't expect a response bit"  );
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.acknum,      "Unexpected ack number"         );
 
-    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.msgid_in);
+    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.id_in);
     TEST_ASSERT_EQUAL_UINT16_MESSAGE( 2, test_interface.offset_in, "Offset should be two bytes" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.data_in, sizeof(expected_payload) );
     TEST_ASSERT_EQUAL_UINT16( 0x96D8, test_interface.crc_in );
@@ -469,7 +469,7 @@ void test_decode_packet_large( void )
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.response,    "Didn't expect a response bit"  );
     TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.acknum,      "Unexpected ack number"         );
 
-    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.msgid_in);
+    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.id_in);
     TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Wasn't expecting offset packet" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.data_in, sizeof(expected_payload) );
     TEST_ASSERT_EQUAL_UINT16( 0xF4BE, test_interface.crc_in );

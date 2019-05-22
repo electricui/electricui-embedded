@@ -230,7 +230,7 @@ parse_decoded_packet( uint8_t byte_in, eui_packet_t *p_link_in )
         
         case exp_message_id:
             //Bytes are messageID until we hit the length specified in the header
-            p_link_in->msgid_in[p_link_in->parser.id_bytes_in] = byte_in;
+            p_link_in->id_in[p_link_in->parser.id_bytes_in] = byte_in;
             p_link_in->parser.id_bytes_in++;
 
             if( p_link_in->parser.id_bytes_in >= p_link_in->header.id_len )
@@ -238,7 +238,7 @@ parse_decoded_packet( uint8_t byte_in, eui_packet_t *p_link_in )
                 //terminate msgID string if shorter than max size
                 if( MSGID_SIZE > p_link_in->parser.id_bytes_in )
                 {
-                    p_link_in->msgid_in[p_link_in->parser.id_bytes_in] = '\0';
+                    p_link_in->id_in[p_link_in->parser.id_bytes_in] = '\0';
                 }
 
                 //start reading in the offset or data based on header guide

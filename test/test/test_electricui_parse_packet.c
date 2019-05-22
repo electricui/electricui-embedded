@@ -30,12 +30,12 @@ uint8_t test_array[250] = { 20 };
 
 eui_message_t test_dev_msg[] = {
     //simple objects with mostly garbage data, we only care about the ID's
-    { .msgID = "data", .type = TYPE_UINT8,      .size = sizeof(test_uint),  .payload = &test_uint   },
-    { .msgID = "cb",   .type = TYPE_CALLBACK,   .size = 1,                  .payload = &test_cb     },
-    { .msgID = "nocb", .type = TYPE_CALLBACK,   .size = 1,                  .payload = 0     },
-    { .msgID = "ofst", .type = TYPE_UINT8,      .size = sizeof(test_array), .payload = &test_array  },
+    { .id = "data", .type = TYPE_UINT8,      .size = sizeof(test_uint),  .payload = &test_uint   },
+    { .id = "cb",   .type = TYPE_CALLBACK,   .size = 1,                  .payload = &test_cb     },
+    { .id = "nocb", .type = TYPE_CALLBACK,   .size = 1,                  .payload = 0     },
+    { .id = "ofst", .type = TYPE_UINT8,      .size = sizeof(test_array), .payload = &test_array  },
    
-    { .msgID = "dataro", .type = TYPE_UINT8|READ_ONLY_MASK, .size = sizeof(test_uint),  .payload = &test_uint },
+    { .id = "dataro", .type = TYPE_UINT8|READ_ONLY_MASK, .size = sizeof(test_uint),  .payload = &test_uint },
 };
 
 eui_interface_t test_interface = { 0 };
@@ -65,7 +65,7 @@ void setUp(void)
 {
     //run before each test
     memset(&test_interface, 0, sizeof(test_interface));
-    test_interface.output_func  = &stub_output_func;
+    test_interface.output_cb  = &stub_output_func;
     test_interface.interface_cb = &stub_user_cb;
     test_pk_ptr = &test_interface.packet;
     setup_dev_msg(test_dev_msg, ARR_ELEM(test_dev_msg));
@@ -131,7 +131,7 @@ void test_ingest_error( void )
     TEST_ASSERT_EQUAL_INT8_ARRAY(&blank_packet, test_pk_ptr, sizeof(eui_packet_t));
 }
 
-// packet with a msgID not in our tracked list
+// packet with a id not in our tracked list
 void test_ingest_unknown_id( void )
 {
     test_pk_ptr->parser.state           = exp_data;   //somewhat meaningless
@@ -147,7 +147,7 @@ void test_ingest_unknown_id( void )
     test_pk_ptr->header.response    = 1;
     test_pk_ptr->header.acknum      = 0;
 
-    memcpy(&test_pk_ptr->msgid_in, "unkn", 4);
+    memcpy(&test_pk_ptr->id_in, "unkn", 4);
     test_pk_ptr->offset_in = 0;
     test_pk_ptr->data_in[0] = 0x0A;
     test_pk_ptr->crc_in = 0xfefe;
@@ -178,7 +178,7 @@ void test_ingest_data_packet( void )
     test_pk_ptr->header.response    = 0;
     test_pk_ptr->header.acknum      = 0;
 
-    memcpy(&test_pk_ptr->msgid_in, "data", 4);
+    memcpy(&test_pk_ptr->id_in, "data", 4);
     test_pk_ptr->offset_in = 0;
     test_pk_ptr->data_in[0] = 0x0A;
 
@@ -212,7 +212,7 @@ void test_ingest_data_packet_internal( void )
     test_pk_ptr->header.response    = 0;
     test_pk_ptr->header.acknum      = 0;
 
-    memcpy(&test_pk_ptr->msgid_in, "h", 2);
+    memcpy(&test_pk_ptr->id_in, "h", 2);
     test_pk_ptr->offset_in = 0;
     test_pk_ptr->data_in[0] = 0x02;
 
@@ -245,7 +245,7 @@ void test_ingest_data_packet_readonly( void )
     test_pk_ptr->header.response    = 0;
     test_pk_ptr->header.acknum      = 0;
 
-    memcpy(&test_pk_ptr->msgid_in, "dataro", 6);
+    memcpy(&test_pk_ptr->id_in, "dataro", 6);
     test_pk_ptr->offset_in = 0;
     test_pk_ptr->data_in[0] = 0x0A;
 
@@ -276,7 +276,7 @@ void test_ingest_data_packet_exceeds_size( void )
     test_pk_ptr->header.response    = 0;
     test_pk_ptr->header.acknum      = 0;
 
-    memcpy(&test_pk_ptr->msgid_in, "data", 4);
+    memcpy(&test_pk_ptr->id_in, "data", 4);
     test_pk_ptr->offset_in          = 0;
     test_pk_ptr->data_in[0]         = 0x12;
     test_pk_ptr->data_in[1]         = 0x34;
@@ -309,7 +309,7 @@ void test_ingest_data_packet_wrong_type( void )
     test_pk_ptr->header.response    = 0;
     test_pk_ptr->header.acknum      = 0;
 
-    memcpy(&test_pk_ptr->msgid_in, "data", 4);
+    memcpy(&test_pk_ptr->id_in, "data", 4);
     test_pk_ptr->offset_in          = 0;
     test_pk_ptr->data_in[0]         = 0x12;
     test_pk_ptr->data_in[1]         = 0x34;
@@ -343,7 +343,7 @@ void test_ingest_data_packet_exceeds_range( void )
     test_pk_ptr->header.response    = 0;
     test_pk_ptr->header.acknum      = 0;
 
-    memcpy(&test_pk_ptr->msgid_in, "data", 4);
+    memcpy(&test_pk_ptr->id_in, "data", 4);
     test_pk_ptr->offset_in          = 2;
     test_pk_ptr->data_in[0]         = 0x12;
     test_pk_ptr->crc_in             = 0xfefe;
@@ -373,7 +373,7 @@ void test_ingest_response_packet_query_only( void )
     test_pk_ptr->header.response    = 1;
     test_pk_ptr->header.acknum      = 0;
 
-    memcpy(&test_pk_ptr->msgid_in, "data", 4);
+    memcpy(&test_pk_ptr->id_in, "data", 4);
     test_pk_ptr->offset_in          = 0;
     test_pk_ptr->data_in[0]         = 0x00;
     test_pk_ptr->crc_in             = 0xfefe;
@@ -404,7 +404,7 @@ void test_ingest_response_packet_query_failure( void )
     test_pk_ptr->header.response    = 1;
     test_pk_ptr->header.acknum      = 0;
 
-    memcpy(&test_pk_ptr->msgid_in, "data", 4);
+    memcpy(&test_pk_ptr->id_in, "data", 4);
     test_pk_ptr->offset_in          = 0;
     test_pk_ptr->data_in[0]         = 0x12;
     test_pk_ptr->crc_in             = 0xfefe;
@@ -435,7 +435,7 @@ void test_ingest_response_packet_query_write( void )
     test_pk_ptr->header.response    = 1;
     test_pk_ptr->header.acknum      = 0;
 
-    memcpy(&test_pk_ptr->msgid_in, "data", 4);
+    memcpy(&test_pk_ptr->id_in, "data", 4);
     test_pk_ptr->offset_in          = 0;
     test_pk_ptr->data_in[0]         = 0x12;
     test_pk_ptr->crc_in             = 0xfefe;
@@ -468,7 +468,7 @@ void test_ingest_response_packet_offset_query_only( void )
     test_pk_ptr->header.response    = 1;
     test_pk_ptr->header.acknum      = 0;
 
-    memcpy(&test_pk_ptr->msgid_in, "ofst", 4);
+    memcpy(&test_pk_ptr->id_in, "ofst", 4);
     test_pk_ptr->offset_in = 0;
     test_pk_ptr->crc_in = 0xfefe;
 
@@ -513,7 +513,7 @@ void test_ingest_response_packet_offset_query_failure( void )
     test_pk_ptr->header.response    = 1;
     test_pk_ptr->header.acknum      = 0;
 
-    memcpy(&test_pk_ptr->msgid_in, "ofst", 4);
+    memcpy(&test_pk_ptr->id_in, "ofst", 4);
     test_pk_ptr->offset_in = 0;
     test_pk_ptr->crc_in = 0xfefe;
 
@@ -555,7 +555,7 @@ void test_ingest_response_packet_ack( void )
     test_pk_ptr->header.response    = 1;
     test_pk_ptr->header.acknum      = 2;
 
-    memcpy(&test_pk_ptr->msgid_in, "data", 4);
+    memcpy(&test_pk_ptr->id_in, "data", 4);
     test_pk_ptr->offset_in = 0;
     test_pk_ptr->data_in[0] = 0x0E;
     test_pk_ptr->crc_in = 0xfefe;
@@ -585,7 +585,7 @@ void test_ingest_response_packet_ack_failure( void )
     test_pk_ptr->header.response    = 1;
     test_pk_ptr->header.acknum      = 2;
 
-    memcpy(&test_pk_ptr->msgid_in, "data", 4);
+    memcpy(&test_pk_ptr->id_in, "data", 4);
     test_pk_ptr->offset_in = 0;
     test_pk_ptr->data_in[0] = 0x0E;
     test_pk_ptr->crc_in = 0xfefe;
@@ -616,7 +616,7 @@ void test_ingest_callback_packet_silent( void )
     test_pk_ptr->header.response    = 0;
     test_pk_ptr->header.acknum      = 0;
 
-    memcpy(&test_pk_ptr->msgid_in, "cb", 2);
+    memcpy(&test_pk_ptr->id_in, "cb", 2);
     test_pk_ptr->offset_in          = 0;
     test_pk_ptr->data_in[0]         = 0;
     test_pk_ptr->crc_in             = 0xfefe;
@@ -646,7 +646,7 @@ void test_ingest_callback_packet_silent_invalid( void )
     test_pk_ptr->header.response    = 0;
     test_pk_ptr->header.acknum      = 0;
 
-    memcpy(&test_pk_ptr->msgid_in, "nocb", 4);
+    memcpy(&test_pk_ptr->id_in, "nocb", 4);
     test_pk_ptr->offset_in          = 0;
     test_pk_ptr->data_in[0]         = 0;
     test_pk_ptr->crc_in             = 0xfefe;
@@ -676,7 +676,7 @@ void test_ingest_callback_packet_ack( void )
     test_pk_ptr->header.response    = 1;
     test_pk_ptr->header.acknum      = 2;
 
-    memcpy(&test_pk_ptr->msgid_in, "cb", 2);
+    memcpy(&test_pk_ptr->id_in, "cb", 2);
     test_pk_ptr->offset_in          = 0;
     test_pk_ptr->data_in[0]         = 0;
     test_pk_ptr->crc_in             = 0xfefe;
@@ -707,7 +707,7 @@ void test_ingest_callback_packet_query( void )
     test_pk_ptr->header.response    = 1;
     test_pk_ptr->header.acknum      = 0;
 
-    memcpy(&test_pk_ptr->msgid_in, "cb", 2);
+    memcpy(&test_pk_ptr->id_in, "cb", 2);
     test_pk_ptr->offset_in          = 0;
     test_pk_ptr->data_in[0]         = 0;
     test_pk_ptr->crc_in             = 0xfefe;
@@ -734,7 +734,7 @@ void test_ingest_interface_callback_tracked_invalid( void )
     test_pk_ptr->header.data_len    = 1;
     test_pk_ptr->header.type        = TYPE_UINT8;
     test_pk_ptr->header.id_len      = 4;
-    memcpy(&test_pk_ptr->msgid_in, "data", 4);
+    memcpy(&test_pk_ptr->id_in, "data", 4);
 
     decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_PARSER_OK);
     parse_packet( 0x00, &test_interface );
@@ -754,7 +754,7 @@ void test_ingest_interface_callback_untracked_invalid( void )
     test_pk_ptr->header.data_len    = 1;
     test_pk_ptr->header.type        = TYPE_UINT8;
     test_pk_ptr->header.id_len      = 4;
-    memcpy(&test_pk_ptr->msgid_in, "rand", 4);
+    memcpy(&test_pk_ptr->id_in, "rand", 4);
 
     decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_PARSER_OK);
     parse_packet( 0x00, &test_interface );
@@ -801,7 +801,7 @@ void test_ingest_interface_callback_handshake_no_interface( void )
     test_pk_ptr->header.data_len    = 0;
     test_pk_ptr->header.type        = TYPE_UINT8;
     test_pk_ptr->header.id_len      = 1;
-    memcpy(&test_pk_ptr->msgid_in, EUI_INTERNAL_HEARTBEAT, 1);
+    memcpy(&test_pk_ptr->id_in, EUI_INTERNAL_HEARTBEAT, 1);
 
     decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_PARSER_OK );
     //no output function means no printed handshake calls

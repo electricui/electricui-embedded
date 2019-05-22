@@ -27,7 +27,7 @@ void setup()
   pinMode( LED_BUILTIN, OUTPUT );
 
   // Each communications interface uses a settable output function
-  serial_comms.output_func = &tx_putc;
+  serial_comms.output_cb = &tx_putc;
 
   // Provide the library with the interface we just setup
   setup_interface( &serial_comms );

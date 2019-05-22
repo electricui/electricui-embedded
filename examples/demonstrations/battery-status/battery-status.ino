@@ -70,7 +70,7 @@ void setup()
   Serial.begin( 115200 );
 
   // Setup the output and interface handler callbacks
-  serial_comms.output_func = &tx_putc;
+  serial_comms.output_cb = &tx_putc;
   serial_comms.interface_cb = &eui_callback;
 
   // Generic setup
@@ -121,7 +121,7 @@ void eui_callback( uint8_t message )
       // UI passed in an untracked message ID
       // Grab parts of the inbound packet which are are useful
       eui_header_t header   = serial_comms.packet.header;
-      uint8_t      *name_rx = serial_comms.packet.msgid_in;
+      uint8_t      *name_rx = serial_comms.packet.id_in;
       void         *payload = serial_comms.packet.data_in;
 
       // See if the inbound packet name matches our intended variable

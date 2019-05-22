@@ -60,7 +60,7 @@ void setup()
     Serial.begin(115200);
 
     //eUI setup
-    serial_comms.output_func = &tx_putc;
+    serial_comms.output_cb = &tx_putc;
     setup_interface(&serial_comms);
     EUI_TRACK(dev_msg_store);
     setup_identifier("door", 8);

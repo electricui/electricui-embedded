@@ -14,7 +14,7 @@ void stub_output_func( uint8_t *data, uint16_t len );
 // PRIVATE DATA
 uint8_t test_data[10] = { 0xFF };
 
-eui_message_t test_message = { .msgID = "test", .type = TYPE_UINT8, .size = sizeof(test_data), .payload = &test_data };
+eui_message_t test_message = { .id = "test", .type = TYPE_UINT8, .size = sizeof(test_data), .payload = &test_data };
 
 eui_interface_t mock_interface = { 0 };
 
@@ -31,7 +31,7 @@ void stub_output_func( uint8_t *data, uint16_t len )
 void setUp(void)
 {
     //run before each test
-    mock_interface.output_func = &stub_output_func;
+    mock_interface.output_cb = &stub_output_func;
     setup_interfaces(&mock_interface, 1);
     setup_dev_msg(&test_message, 1);
 }

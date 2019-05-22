@@ -33,6 +33,8 @@ uint8_t sensor_configured = 0;
 
 uint8_t loop_frequency_hz = 50;
 
+void setup_sensor();
+
 eui_message_t dev_msg_store[] = 
 {
     EUI_UINT8_RO( "status", sensor_configured ),
@@ -65,7 +67,7 @@ void setup()
   Serial.begin( 115200 );
   
   // Basic eUI setup for serial interface
-  serial_comms.output_func = &tx_putc;
+  serial_comms.output_cb = &tx_putc;
   setup_interface( &serial_comms );
   EUI_TRACK( dev_msg_store );
   setup_identifier( "imu", 3 );

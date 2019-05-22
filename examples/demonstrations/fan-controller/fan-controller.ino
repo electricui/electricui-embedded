@@ -97,7 +97,7 @@ void setup()
     Serial.begin(115200);
     pinMode( LED_BUILTIN, OUTPUT);
 
-    serial_comms.output_func = &tx_putc;
+    serial_comms.output_cb = &tx_putc;
     setup_interface(&serial_comms);
     EUI_TRACK(dev_msg_store);
     setup_identifier( "structs", 7 );

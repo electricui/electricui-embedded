@@ -25,7 +25,7 @@ typedef struct {
 typedef struct {
     eui_parser_state_t parser;
     eui_header_t header;
-    uint8_t     msgid_in[15];
+    uint8_t     id_in[15];
 
 #ifndef EUI_CONF_OFFSETS_DISABLED
     uint16_t    offset_in;
