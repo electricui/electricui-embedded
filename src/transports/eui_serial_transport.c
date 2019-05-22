@@ -63,15 +63,21 @@ encode_framing( uint8_t *buffer, uint16_t buf_size )
         {
             buffer[previous_null] = bytes_since;
             previous_null = i;
+        } 
+        else if( bytes_since == 0xFF )
+        {
+            buffer[previous_null] = 0xFF;
+
+            // ripple the buffer of data back one byte to make room
+            // this 'extra' new byte is now the offset
+            for( uint16_t j = 1; j < (buf_size-i); j++ )
+            {
+                buffer[ buf_size-j ] = buffer[ buf_size-j-1 ];
+            }
+
+            buffer[i] = 0xEE;
+            previous_null = i;
         }
-        // else
-        // {
-            // if(bytes_since == 0xFE)
-            // {
-                // buffer[previous_null] = 0xFF;
-                // previous_null = i++;
-            // }
-        // }
     }
 
     buffer[0] = 0x00;
@@ -90,7 +96,7 @@ encode_packet(  callback_data_out_t out_char,
 
     if( out_char && header && msg_id && payload )
     {  
-        uint8_t pk_tmp[1 + PACKET_BASE_SIZE + MSGID_SIZE + PAYLOAD_SIZE_MAX ] = { 0 };
+        uint8_t pk_tmp[ 1 + PACKET_BASE_SIZE + MSGID_SIZE + PAYLOAD_SIZE_MAX + 4 ] = { 0 };
         uint16_t pk_i = 2; //leave room for the 0x00 and framing byte
 
         // write header bytes into the buffer
@@ -123,12 +129,12 @@ encode_packet(  callback_data_out_t out_char,
         pk_i += sizeof(outbound_crc);
         
         //Apply Consistent Overhead Byte Stuffing (COBS) for framing/sync
-        pk_i += 1;  //+1 to account for null byte at end
+        pk_i += 1;  // +1 to account for null byte at end
         encode_framing( pk_tmp, pk_i);    
 
         out_char( pk_tmp, pk_i );
     
-        status = EUI_OUTPUT_OK; // success
+        status = EUI_OUTPUT_OK;
     }
 
     return status;
