@@ -1,5 +1,11 @@
+// Example demonstrates connections to the UI over several serial links
+// The UI can switch between the links for failover or as part of load-balancing.
+
 #include "electricui.h"
 
+// Depending on your microcontroller's second UART output, you may need to 
+// enable/disable the SoftwareSerial for the second output.
+// Needs and external UART to USB adaptor or similar for PC connection
 #if defined(ESP32) || defined(ESP8266)
 
 #else
@@ -10,32 +16,28 @@
   #endif
 #endif
 
-// Example demonstrates connections to the UI over several serial links
-// The UI can switch between the links for failover or as part of load-balancing.
 
 // Simple variables to modify the LED behaviour
-uint8_t   blink_enable = 0; //if the blinker should be running
+uint8_t   blink_enable = 1; //if the blinker should be running
 uint8_t   led_state  = 0;   //track if the LED is illuminated
 uint16_t  glow_time  = 200; //in milliseconds
-uint16_t  dark_time  = 200; //in milliseconds
 
-// Keep track of how much time we've spent on or off
-uint16_t time_on = 0;
-uint16_t time_off = 0;
+// Keep track of when the light turns on or off
+uint32_t led_timer = 0;
 
-char demo_string[] = "HelloElectric";
+char demo_string[] = "HelloMultiple";
 
 // Function declarations for the serial output callbacks
 void serial0_tx( uint8_t *data, uint16_t len );
 void serial1_tx( uint8_t *data, uint16_t len );
 
 // Tracked variables
-eui_message_t dev_msg_store[] = {
-
-    EUI_UINT8( "led_blink",  blink_enable ),
-    EUI_UINT8( "led_state",  led_state ),
-    EUI_UINT16("lit_time",   glow_time ),
-    EUI_UINT16("unlit_time", dark_time ),
+eui_message_t dev_msg_store[] = 
+{
+  EUI_UINT8(  "led_blink",  blink_enable ),
+  EUI_UINT8(  "led_state",  led_state ),
+  EUI_UINT16( "lit_time",   glow_time ),
+  EUI_CHAR_ARRAY( "name",   demo_string ),
 };
 
 // List of interfaces passed to Electric UI with the output pointers
@@ -46,24 +48,21 @@ eui_interface_t transport_methods[] = {
 
 void setup() 
 {
-  Serial.begin(115200);   // USB Connector
+  Serial.begin( 115200 );   // USB Connector
 
-  //most arduino targets will use the next hardware serial (or softserial from top of file)
-  Serial1.begin(115200);  
+  // Most arduino targets will use the next hardware serial (or softserial from top of file)
+  Serial1.begin( 115200 );  
 
-  pinMode(LED_BUILTIN, OUTPUT);
+  pinMode( LED_BUILTIN, OUTPUT );
 
   //eUI setup
-  EUI_LINK(transport_methods);
-  EUI_TRACK(dev_msg_store);
+  EUI_LINK( transport_methods );
+  EUI_TRACK( dev_msg_store );
   setup_identifier("hello many", 10);
 
   //led timers
-  time_on = millis();
-  time_off = millis();
+  led_timer = millis();
 }
-
-uint8_t led_status_counter = 0;
 
 void loop() 
 {
@@ -72,39 +71,30 @@ void loop()
   // Interact with the real world
   if( blink_enable )
   {
-    if( led_state == LOW ) //LED is off
+    // Check if the LED has been on for the configured duration
+    if( millis() - led_timer >= glow_time )
     {
-        if( millis() - time_off > dark_time )
-        {
-            led_state = 1;
-            time_on = millis();
-        }
-    }
-    else  //led is on
-    {
-        if( millis() - time_on > glow_time )
-        {
-            led_state = 0;
-            time_off = millis();
-        }
-    }
+      led_state = !led_state; //invert led state
+      led_timer = millis();
+    }    
   }
 
-  digitalWrite( LED_BUILTIN, led_state );
+  digitalWrite( LED_BUILTIN, led_state ); //update the LED to match the intended state
+
 }
 
 void rx_handler()
 {
   // USB CDC VCP
-  while(Serial.available() > 0)  //rx has data
+  while( Serial.available() > 0 )  //rx has data
   {  
-    parse_packet(Serial.read(), &transport_methods[0]);
+    parse_packet( Serial.read(), &transport_methods[0] );
   }
 
   // Second Serial Port
-  while(Serial1.available() > 0)
+  while( Serial1.available() > 0 )
   {  
-    parse_packet(Serial1.read(), &transport_methods[1]);
+    parse_packet( Serial1.read(), &transport_methods[1] );
   }
 }
 
