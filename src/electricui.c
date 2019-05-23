@@ -514,15 +514,15 @@ send_tracked_message_id_list( void )
 
     uint8_t msgBuffer[ (16)*4 ];
     uint8_t msg_buffer_position  = 0;  //position in buffer
-    uint8_t idlen      = 0;  //length of a single id string
-    uint8_t id_packed_num   = 0;  //count messages packed into buffer
+    uint8_t id_len                = 0;  //length of a single id string
+    uint8_t id_packed_num        = 0;  //count messages packed into buffer
 
     for( eui_variable_count_t i = 0; i < dev_tracked_num; i++ )
     {
         //copy messageID into the buffer, account for null termination characters as delimiter
-        idlen = strlen(p_dev_tracked[i].id) + 1;
-        memcpy(msgBuffer+msg_buffer_position, p_dev_tracked[i].id, idlen);
-        msg_buffer_position += idlen;
+        id_len = strlen(p_dev_tracked[i].id) + 1;
+        memcpy(msgBuffer+msg_buffer_position, p_dev_tracked[i].id, id_len);
+        msg_buffer_position += id_len;
         id_packed_num++;
 
         variables_sent++;

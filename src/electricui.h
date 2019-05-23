@@ -10,10 +10,6 @@ extern "C" {
 #include "eui_types.h"
 
 // Warnings based on configuration flags (depends on compiler support)
-#ifdef EUI_CONF_QUEUE_DISABLE
-    #warning "ElectricUI may have issues with outbound buffer overruns or pre-emptive tasking"
-#endif
-
 #ifdef EUI_CONF_OFFSETS_DISABLED
     #warning "ElectricUI will not handle data larger than PAYLOAD_SIZE_MAX"
 #endif

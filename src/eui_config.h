@@ -18,11 +18,6 @@
 
 //#define PAYLOAD_SIZE_MAX 512
 
-// Disable outbound message queuing
-
-// #define EUI_CONF_COOPERATIVE_DISABLE
-
-
 #ifndef EUI_OVERRIDE_DEFAULT_PROTOCOL
     #include "transports/eui_serial_transport.h"
     #define eui_crc(DATA, CRC)  crc16(DATA, CRC)
