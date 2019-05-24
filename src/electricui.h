@@ -26,45 +26,45 @@ eui_message_t *
 find_tracked_object( const char * search_id );
 
 eui_errors_t
-parse_packet( uint8_t inbound_byte, eui_interface_t *p_link );
+eui_parse( uint8_t inbound_byte, eui_interface_t *p_link );
 
 uint8_t
-send_packet(    callback_data_out_t output_function,
-                eui_message_t       *p_msg_obj,
-                eui_pkt_settings_t  *settings );
+eui_send(   callback_data_out_t output_function,
+            eui_message_t       *p_msg_obj,
+            eui_pkt_settings_t  *settings );
 
 #ifndef EUI_CONF_OFFSETS_DISABLED
     uint8_t
-    send_packet_range(  callback_data_out_t output_function,
-                        eui_message_t       *p_msg_obj,
-                        eui_pkt_settings_t  *settings,
-                        uint16_t            base_addr,
-                        uint16_t            end_addr );
+    eui_send_range( callback_data_out_t output_function,
+                    eui_message_t       *p_msg_obj,
+                    eui_pkt_settings_t  *settings,
+                    uint16_t            base_addr,
+                     uint16_t            end_addr );
 #endif
 
 void
-setup_interface( eui_interface_t *link );
+eui_setup_interface( eui_interface_t *link );
 
 void
-setup_interfaces( eui_interface_t *link_array, uint8_t link_count );
+eui_setup_interfaces( eui_interface_t *link_array, uint8_t link_count );
 
 void
-setup_dev_msg( eui_message_t *msg_array, eui_variable_count_t num_tracked );
+eui_setup_tracked( eui_message_t *msg_array, eui_variable_count_t num_tracked );
 
 void
-setup_identifier( char * uuid, uint8_t bytes );
+eui_setup_identifier( char * uuid, uint8_t bytes );
 
 void
-send_tracked( const char * msg_id );
+eui_send_tracked( const char * msg_id );
 
 void
-send_tracked_on( const char * msg_id, eui_interface_t *interface );
+eui_send_tracked_on( const char * msg_id, eui_interface_t *interface );
 
 void
-send_untracked( eui_message_t *p_msg_obj );
+eui_send_untracked( eui_message_t *p_msg_obj );
 
 void
-send_untracked_on( eui_message_t *p_msg_obj, eui_interface_t *interface );
+eui_send_untracked_on( eui_message_t *p_msg_obj, eui_interface_t *interface );
 
 #ifdef __cplusplus
 }

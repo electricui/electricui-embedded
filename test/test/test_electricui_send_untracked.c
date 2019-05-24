@@ -30,7 +30,7 @@ void setUp(void)
 {
     //run before each test
     mock_interface.output_cb = &stub_output_func;
-    setup_interface(&mock_interface);
+    eui_setup_interface(&mock_interface);
 }
  
 void tearDown(void)
@@ -46,10 +46,10 @@ void test_send_untracked_on( void )
     eui_message_t new_message = { .id = "new", .type = TYPE_UINT8, .size = sizeof(test_data), .payload = &test_data };
 
     encode_packet_simple_ExpectAnyArgsAndReturn(0);
-    send_untracked_on(&new_message, &mock_interface);
+    eui_send_untracked_on(&new_message, &mock_interface);
 
-    send_untracked_on( 0, &mock_interface );
-    send_untracked_on(&new_message, 0 );
+    eui_send_untracked_on( 0, &mock_interface );
+    eui_send_untracked_on(&new_message, 0 );
 }
 
 void test_send_untracked_on_invalid_setup( void )
@@ -58,9 +58,9 @@ void test_send_untracked_on_invalid_setup( void )
 
     // this test is a bit off, we break the interfaces that eUI holds, 
     // but as the function is passed a valid one, things are still ok.
-    setup_interfaces(0, 0);
+    eui_setup_interfaces(0, 0);
     encode_packet_simple_ExpectAnyArgsAndReturn(0);
-    send_untracked_on(&new_message, &mock_interface);
+    eui_send_untracked_on(&new_message, &mock_interface);
 }
 
 void test_send_untracked_auto( void )
@@ -69,15 +69,15 @@ void test_send_untracked_auto( void )
 
     //check the message on the automatic interface
     encode_packet_simple_ExpectAnyArgsAndReturn(0);
-    send_untracked(&new_message);
+    eui_send_untracked(&new_message);
 
-    send_untracked(0);
+    eui_send_untracked(0);
 }
 
 void test_send_untracked_auto_invalid_setup( void )
 {  
     eui_message_t new_message = { .id = "new", .type = TYPE_UINT8, .size = sizeof(test_data), .payload = &test_data };
 
-    setup_interfaces(0, 0);
-    send_untracked(&new_message);
+    eui_setup_interfaces(0, 0);
+    eui_send_untracked(&new_message);
 }

@@ -95,10 +95,10 @@ void setup()
 
     //eUI setup
     serial_comms.output_cb = &tx_putc;
-    setup_interface( &serial_comms );
+    eui_setup_interface( &serial_comms );
 
     EUI_TRACK( dev_msg_store );
-    setup_identifier( "types", 6 );
+    eui_setup_identifier( "types", 6 );
 }
 
 void loop() 
@@ -112,7 +112,7 @@ void uart_rx_handler()
 {
   while(Serial.available() > 0)
   {  
-      parse_packet( Serial.read(), &serial_comms );
+      eui_parse( Serial.read(), &serial_comms );
   }
 }
 

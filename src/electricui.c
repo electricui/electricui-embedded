@@ -85,7 +85,7 @@ auto_output( void )
 }
 
 eui_errors_t
-parse_packet( uint8_t inbound_byte, eui_interface_t *p_link )
+eui_parse( uint8_t inbound_byte, eui_interface_t *p_link )
 {
     eui_errors_t status;
     status.parser = eui_decode(inbound_byte, &p_link->packet);
@@ -243,7 +243,7 @@ handle_packet_query(    eui_interface_t *valid_packet,
         // inverted logic used to keep ifdef disable clean
         if( TYPE_OFFSET_METADATA != header->type )
         {
-            status = send_packet(valid_packet->output_cb, p_msg_obj, &res_header);
+            status = eui_send(valid_packet->output_cb, p_msg_obj, &res_header);
         }
 #ifndef EUI_CONF_OFFSETS_DISABLED
         else
@@ -257,7 +257,7 @@ handle_packet_query(    eui_interface_t *valid_packet,
             end_address  = (uint16_t)valid_packet->packet.data_in[3] << 8;
             end_address |= valid_packet->packet.data_in[2];
 
-            status = send_packet_range( valid_packet->output_cb,
+            status = eui_send_range(    valid_packet->output_cb,
                                         p_msg_obj,
                                         &res_header,
                                         base_address,
@@ -271,9 +271,9 @@ handle_packet_query(    eui_interface_t *valid_packet,
 
 
 uint8_t
-send_packet(    callback_data_out_t output_cbtion,
-                eui_message_t       *p_msg_obj,
-                eui_pkt_settings_t  *settings )
+eui_send(   callback_data_out_t output_cbtion,
+            eui_message_t       *p_msg_obj,
+            eui_pkt_settings_t  *settings )
 {
     uint8_t status = EUI_OUTPUT_ERROR;
 
@@ -293,7 +293,7 @@ send_packet(    callback_data_out_t output_cbtion,
 #ifndef EUI_CONF_OFFSETS_DISABLED
         else
         {
-            status = send_packet_range( output_cbtion,
+            status = eui_send_range( output_cbtion,
                                         p_msg_obj,
                                         settings,
                                         0,
@@ -306,11 +306,11 @@ send_packet(    callback_data_out_t output_cbtion,
 }
 
 uint8_t
-send_packet_range(  callback_data_out_t output_cbtion, 
-                    eui_message_t       *p_msg_obj, 
-                    eui_pkt_settings_t  *settings, 
-                    uint16_t            base_addr, 
-                    uint16_t            end_addr ) 
+eui_send_range( callback_data_out_t output_cbtion, 
+                eui_message_t       *p_msg_obj, 
+                eui_pkt_settings_t  *settings, 
+                uint16_t            base_addr, 
+                uint16_t            end_addr ) 
 {
     uint8_t status = EUI_OUTPUT_ERROR;
 
@@ -364,7 +364,7 @@ send_packet_range(  callback_data_out_t output_cbtion,
 }
 
 void
-send_tracked( const char * msg_id )
+eui_send_tracked( const char * msg_id )
 {
     if( msg_id )
     {
@@ -372,14 +372,14 @@ send_tracked( const char * msg_id )
         temp_header.internal  = MSG_DEV;
         temp_header.response  = MSG_NRESP;
 
-        send_packet(    auto_output(),
-                        find_message_object( msg_id, MSG_DEV ),
-                        &temp_header );
+        eui_send(   auto_output(),
+                    find_message_object( msg_id, MSG_DEV ),
+                    &temp_header );
     }
 }
 
 void
-send_tracked_on(const char * msg_id, eui_interface_t *interface)
+eui_send_tracked_on(const char * msg_id, eui_interface_t *interface)
 {
     if( msg_id && interface )
     {
@@ -387,14 +387,14 @@ send_tracked_on(const char * msg_id, eui_interface_t *interface)
         temp_header.internal  = MSG_DEV;
         temp_header.response  = MSG_NRESP;
 
-        send_packet(    interface->output_cb,
-                        find_message_object( msg_id, MSG_DEV ),
-                        &temp_header );
+        eui_send(   interface->output_cb,
+                    find_message_object( msg_id, MSG_DEV ),
+                    &temp_header );
     }
 }
 
 void
-send_untracked( eui_message_t *p_msg_obj )
+eui_send_untracked( eui_message_t *p_msg_obj )
 {
     if( p_msg_obj )
     {
@@ -402,14 +402,14 @@ send_untracked( eui_message_t *p_msg_obj )
         temp_header.internal  = MSG_DEV;
         temp_header.response  = MSG_NRESP;
 
-        send_packet(    auto_output(),
-                        p_msg_obj,
-                        &temp_header );
+        eui_send(   auto_output(),
+                    p_msg_obj,
+                    &temp_header );
     }
 }
 
 void
-send_untracked_on( eui_message_t *p_msg_obj, eui_interface_t *interface )
+eui_send_untracked_on( eui_message_t *p_msg_obj, eui_interface_t *interface )
 {
     if( p_msg_obj && interface )
     {
@@ -417,29 +417,29 @@ send_untracked_on( eui_message_t *p_msg_obj, eui_interface_t *interface )
         temp_header.internal  = MSG_DEV;
         temp_header.response  = MSG_NRESP;
 
-        send_packet(    interface->output_cb,
-                        p_msg_obj,
-                        &temp_header );
+        eui_send(   interface->output_cb,
+                    p_msg_obj,
+                    &temp_header );
     }
 }
 
 //application layer developer setup helpers
 void
-setup_interface( eui_interface_t *link )
+eui_setup_interface( eui_interface_t *p_dev_interface )
 {
-    setup_interfaces( link, 1 );
+    eui_setup_interfaces( p_dev_interface, 1 );
 }
 
 void
-setup_interfaces( eui_interface_t *link_array, uint8_t link_count )
+eui_setup_interfaces( eui_interface_t *p_developer_if_arr, uint8_t dev_if_num )
 {
-    if( link_array && link_count )
+    if( p_developer_if_arr && dev_if_num )
     {
-        p_interface_arr = link_array;
-        interface_num   = link_count;
+        p_interface_arr = p_developer_if_arr;
+        interface_num   = dev_if_num;
 
         // bootstrap the auto_interface with the 0th interface from the array
-        p_interface_last = link_array;
+        p_interface_last = p_developer_if_arr;
     }
     else
     {
@@ -451,7 +451,7 @@ setup_interfaces( eui_interface_t *link_array, uint8_t link_count )
 }
 
 void
-setup_dev_msg( eui_message_t *msg_array, eui_variable_count_t num_tracked )
+eui_setup_tracked( eui_message_t *msg_array, eui_variable_count_t num_tracked )
 {
     if( msg_array && num_tracked )
     {
@@ -466,7 +466,7 @@ setup_dev_msg( eui_message_t *msg_array, eui_variable_count_t num_tracked )
 }
 
 void
-setup_identifier( char * uuid, uint8_t bytes )
+eui_setup_identifier( char * uuid, uint8_t bytes )
 {
     if( uuid && bytes )
     {
@@ -557,7 +557,7 @@ send_tracked_variables( void )
 
     for(eui_variable_count_t i = 0; i < dev_tracked_num; i++)
     {
-        send_packet( auto_output(), p_dev_tracked + i, &temp_header );
+        eui_send( auto_output(), p_dev_tracked + i, &temp_header );
         sent_variables++;
     }
     return sent_variables;

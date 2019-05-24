@@ -32,5 +32,5 @@ Run a small program which provides the output of a few variables to stdout, and 
 
 Minimal example using $WS_LIBRARY_OF_CHOICE. Mimics the Arduino `intermediate/transport-websocket` example.
 
-One packet per inbound/outboudn websocket transaction, in binary.
+One packet per inbound/outbound websocket transaction, in binary.
 

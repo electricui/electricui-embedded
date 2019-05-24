@@ -52,8 +52,8 @@ void setUp(void)
     test_char = 'a';
     test_uint = 21;
 
-    setup_dev_msg(internal_callback_test_store, ARR_ELEM(internal_callback_test_store));
-    setup_interfaces( multi_interfaces, ARR_ELEM(multi_interfaces));
+    eui_setup_tracked(internal_callback_test_store, ARR_ELEM(internal_callback_test_store));
+    eui_setup_interfaces( multi_interfaces, ARR_ELEM(multi_interfaces));
 }
  
 void tearDown(void)
@@ -66,7 +66,7 @@ void tearDown(void)
 //gives us a pointer to an interface object
 void test_auto_interface_single( void )
 {
-    setup_interface( &multi_interfaces[1] );
+    eui_setup_interface( &multi_interfaces[1] );
 
     //pretend we've had a message come in and have set last_interface
     p_interface_last = &multi_interfaces[1];
@@ -91,7 +91,7 @@ void test_auto_interface_many( void )
 void test_auto_interface_invalid( void )
 {
     //test a 'not setup yet' interface
-    setup_interfaces( 0, 0);
+    eui_setup_interfaces( 0, 0);
     for(uint8_t i = 0; i < ARR_ELEM(multi_interfaces); i++)
     {
         p_interface_last = &multi_interfaces[i];

@@ -58,7 +58,7 @@ void setup()
   //eUI setup
   EUI_LINK( transport_methods );
   EUI_TRACK( dev_msg_store );
-  setup_identifier("hello many", 10);
+  eui_setup_identifier("hello many", 10);
 
   //led timers
   led_timer = millis();
@@ -88,13 +88,13 @@ void rx_handler()
   // USB CDC VCP
   while( Serial.available() > 0 )  //rx has data
   {  
-    parse_packet( Serial.read(), &transport_methods[0] );
+    eui_parse( Serial.read(), &transport_methods[0] );
   }
 
   // Second Serial Port
   while( Serial1.available() > 0 )
   {  
-    parse_packet( Serial1.read(), &transport_methods[1] );
+    eui_parse( Serial1.read(), &transport_methods[1] );
   }
 }
 

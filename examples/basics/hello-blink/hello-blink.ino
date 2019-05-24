@@ -30,13 +30,13 @@ void setup()
   serial_comms.output_cb = &tx_putc;
 
   // Provide the library with the interface we just setup
-  setup_interface( &serial_comms );
+  eui_setup_interface( &serial_comms );
 
   // Provide the tracked variables to the library
   EUI_TRACK( dev_msg_store );
 
   // Provide a identifier to make this board easy to find in the UI
-  setup_identifier( "hello", 5 );
+  eui_setup_identifier( "hello", 5 );
 
 
   led_timer = millis();
@@ -64,7 +64,7 @@ void serial_rx_handler()
   // While we have data, we will pass those bytes to the ElectricUI parser
   while( Serial.available() > 0 )  
   {  
-    parse_packet( Serial.read(), &serial_comms );  // Ingest a byte
+    eui_parse( Serial.read(), &serial_comms );  // Ingest a byte
   }
 }
   

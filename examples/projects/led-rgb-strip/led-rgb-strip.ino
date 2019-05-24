@@ -37,9 +37,9 @@ void setup()
 
     //eUI setup
     serial_comms.output_cb = &tx_putc;
-    setup_interface(&serial_comms);
+    eui_setup_interface(&serial_comms);
     EUI_TRACK(dev_msg_store);
-    setup_identifier("rgbstrip", 8);
+    eui_setup_identifier("rgbstrip", 8);
 
     // LEDs should start off
     strip.begin();
@@ -51,7 +51,7 @@ void loop()
 {
   while( Serial.available() > 0 )
   {  
-      parse_packet( Serial.read(), &serial_comms );
+      eui_parse( Serial.read(), &serial_comms );
   }
 
   //Set each led in the strip

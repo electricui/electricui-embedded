@@ -3,8 +3,8 @@
 
 #define ARR_ELEM(a) (sizeof(a) / sizeof(*a))    //number of elements in array
 
-#define EUI_TRACK( INPUT_ARRAY )    ( setup_dev_msg(INPUT_ARRAY, ARR_ELEM(INPUT_ARRAY)) )
-#define EUI_LINK( INTERFACE_ARRAY ) ( setup_interfaces(INTERFACE_ARRAY, ARR_ELEM(INTERFACE_ARRAY)) )
+#define EUI_TRACK( INPUT_ARRAY )    ( eui_setup_tracked(INPUT_ARRAY, ARR_ELEM(INPUT_ARRAY)) )
+#define EUI_LINK( INTERFACE_ARRAY ) ( eui_setup_interfaces(INTERFACE_ARRAY, ARR_ELEM(INTERFACE_ARRAY)) )
 
 #define EUI_INTERFACE( OUTPUT_PTR ) {               .packet = { 0 }, .output_cb = OUTPUT_PTR, .interface_cb = 0       }
 #define EUI_INTERFACE_CB( OUTPUT_PTR, DEV_CB ) {    .packet = { 0 }, .output_cb = OUTPUT_PTR, .interface_cb = DEV_CB  }

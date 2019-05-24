@@ -40,9 +40,9 @@ void setup()
   comm_interface.interface_cb = &eui_callback;
 
   // Setup as normal
-  setup_interface( &comm_interface );
+  eui_setup_interface( &comm_interface );
   EUI_TRACK( dev_msg_store );
-  setup_identifier( "status", 6 );
+  eui_setup_identifier( "status", 6 );
 
 
   led_timer = millis();
@@ -71,7 +71,7 @@ void serial_rx_handler()
   	uint8_t inbound_byte = Serial.read();
 
   	// The inbound data handler returns status flags indicating errors or successes
-    eui_errors_t parse_status = parse_packet( inbound_byte, &comm_interface );
+    eui_errors_t parse_status = eui_parse( inbound_byte, &comm_interface );
 
     switch( parse_status.parser )
     {

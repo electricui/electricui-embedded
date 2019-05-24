@@ -56,7 +56,7 @@ void setup()
 
   EUI_LINK( transport_methods );
   EUI_TRACK( dev_msg_store );
-  setup_identifier("bluefruit-demo", 14);
+  eui_setup_identifier("bluefruit-demo", 14);
 
   configure_bluetooth();
   bleuart.begin();
@@ -160,19 +160,19 @@ void inbound_data_handler()
   // USB Serial
   while( Serial.available() > 0 )  
   {  
-    parse_packet( Serial.read(), &transport_methods[0] );
+    eui_parse( Serial.read(), &transport_methods[0] );
   }
 
   // Hardware Serial
   while( Serial1.available() > 0 )  
   {  
-    parse_packet( Serial.read(), &transport_methods[1] );
+    eui_parse( Serial.read(), &transport_methods[1] );
   }
 
   // Bluetooth LE "uart"
   while( bleuart.available() )
   {
-    parse_packet( (uint8_t) bleuart.read(), &transport_methods[2] );
+    eui_parse( (uint8_t) bleuart.read(), &transport_methods[2] );
   } 
 }
   

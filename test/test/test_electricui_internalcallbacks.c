@@ -47,9 +47,9 @@ void setUp(void)
     
     // setup_identifier( (char*)"a", 1 );
     
-    setup_dev_msg(internal_callback_test_store, ARR_ELEM(internal_callback_test_store));
+    eui_setup_tracked(internal_callback_test_store, ARR_ELEM(internal_callback_test_store));
     mock_interface.output_cb = &callback_mocked_output;
-    setup_interface( &mock_interface );
+    eui_setup_interface( &mock_interface );
 }
  
 void tearDown(void)
@@ -98,7 +98,7 @@ void test_send_id_list_callback( void )
     ro_expected = 2;
     rw_expected = 2;
     total_expected = ro_expected + rw_expected;
-    setup_dev_msg( ro_rw_testset, ARR_ELEM(ro_rw_testset) );
+    eui_setup_tracked( ro_rw_testset, ARR_ELEM(ro_rw_testset) );
 
     encode_packet_simple_IgnoreAndReturn(0);
 
@@ -113,7 +113,7 @@ void test_send_id_list_callback( void )
     ro_expected = 0;
     rw_expected = 0;
     total_expected = ro_expected + rw_expected;
-    setup_dev_msg( empty_testset, ARR_ELEM(empty_testset) );
+    eui_setup_tracked( empty_testset, ARR_ELEM(empty_testset) );
 
     TEST_ASSERT_EQUAL_INT_MESSAGE(  total_expected, 
                                     send_tracked_message_id_list(), 
@@ -139,7 +139,7 @@ void test_send_id_list_callback( void )
     rw_expected = 6;
     total_expected = ro_expected + rw_expected;
 
-    setup_dev_msg( mixed_testset, ARR_ELEM(mixed_testset) );
+    eui_setup_tracked( mixed_testset, ARR_ELEM(mixed_testset) );
 
     TEST_ASSERT_EQUAL_INT_MESSAGE(  total_expected, 
                                     send_tracked_message_id_list(), 
@@ -169,7 +169,7 @@ void test_send_id_list_callback( void )
     ro_expected = 30;
     rw_expected = 30;
     total_expected = ro_expected + rw_expected;
-    setup_dev_msg( large_testset, ARR_ELEM(large_testset) );
+    eui_setup_tracked( large_testset, ARR_ELEM(large_testset) );
 
     TEST_ASSERT_EQUAL_INT_MESSAGE(  total_expected, 
                                     send_tracked_message_id_list(), 
@@ -201,13 +201,13 @@ void test_setup_identifier( void )
         crc16_ExpectAnyArgs();
     }
 
-    setup_identifier(uuid, sizeof(uuid));
+    eui_setup_identifier(uuid, sizeof(uuid));
 }
 
 void test_setup_identifier_invalids( void )
 {
     //with a non-valid input param, expect no output
-    setup_identifier(0,0);
-    setup_identifier("unique", 0);
-    setup_identifier(0, 3);
+    eui_setup_identifier(0,0);
+    eui_setup_identifier("unique", 0);
+    eui_setup_identifier(0, 3);
 }

@@ -74,9 +74,9 @@ void setup()
   serial_comms.interface_cb = &eui_callback;
 
   // Generic setup
-  setup_interface( &serial_comms );
+  eui_setup_interface( &serial_comms );
   EUI_TRACK( dev_msg_store );
-  setup_identifier( "dev-callbacks", 13 );
+  eui_setup_identifier( "dev-callbacks", 13 );
 
   // User application setup
   pinMode( LED_PIN, OUTPUT );
@@ -87,7 +87,7 @@ void loop()
 {
   while( Serial.available() > 0 )
   {  
-      parse_packet( Serial.read(), &serial_comms );
+      eui_parse( Serial.read(), &serial_comms );
   }
     
   // Simulate changing battery level periodically
@@ -109,7 +109,7 @@ void loop()
 
 void eui_callback( uint8_t message )
 {
-  switch(message)
+  switch( message )
   {
     case EUI_CB_TRACKED:
       // UI recieved a tracked message ID and has completed processing

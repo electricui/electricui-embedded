@@ -51,13 +51,13 @@ void tearDown(void)
 void test_send_packet_small( void )
 {
     encode_packet_simple_ExpectAnyArgsAndReturn(0);
-    send_packet(&stub_output_func, &short_payload, &default_settings );
+    eui_send(&stub_output_func, &short_payload, &default_settings );
 }
 
 void test_send_packet_boundary_length( void )
 {
     encode_packet_simple_ExpectAnyArgsAndReturn(0);
-    send_packet(&stub_output_func, &exact_payload, &default_settings );
+    eui_send(&stub_output_func, &exact_payload, &default_settings );
 }
 
 void test_send_packet_large( void )
@@ -72,6 +72,6 @@ void test_send_packet_large( void )
         encode_packet_ExpectAnyArgsAndReturn(EUI_OUTPUT_OK);
     }
 
-    send_packet(&stub_output_func, &large_payload, &default_settings );
+    eui_send(&stub_output_func, &large_payload, &default_settings );
 }
 

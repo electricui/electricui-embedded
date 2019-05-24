@@ -40,7 +40,7 @@ eui_message_t test_findobject_store[] = {
 void setUp(void)
 {
     //run before each test
-    setup_dev_msg(test_findobject_store, ARR_ELEM(test_findobject_store));
+    eui_setup_tracked( test_findobject_store, ARR_ELEM(test_findobject_store) );
     expecting = 0;
     is_internal = 0;
 }
@@ -151,7 +151,7 @@ void test_find_message_object_non_printable( void )
 
 void test_find_message_devArrayNULL( void )
 {
-    setup_dev_msg( 0, 0);
+    eui_setup_tracked( 0, 0);
 
     const char * test_message = "si8";
 

@@ -57,11 +57,11 @@ void setup()
   retrieve_settings();
 
   serial_comms.output_cb = &tx_putc;
-  setup_interface( &serial_comms );
+  eui_setup_interface( &serial_comms );
   EUI_TRACK( dev_msg_store );
 
   //not going to be random for first use
-  setup_identifier( unique_device_id, 2 );	
+  eui_setup_identifier( unique_device_id, 2 );	
 
   led_timer = millis();
 }
@@ -149,7 +149,7 @@ void serial_rx_handler()
 {
   while( Serial.available() > 0 )  
   {  
-    parse_packet( Serial.read(), &serial_comms );
+    eui_parse( Serial.read(), &serial_comms );
   }
 }
   

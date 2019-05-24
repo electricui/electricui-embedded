@@ -83,7 +83,7 @@ void setup()
 
   EUI_LINK( transport_methods );
   EUI_TRACK( dev_msg_store );
-  setup_identifier("espBLE-demo", 14);
+  eui_setup_identifier("espBLE-demo", 14);
 
   // Create the BLE Device and configure the services
   BLEDevice::init("eUI BLESP");
@@ -151,13 +151,13 @@ void inbound_data_handler()
   // USB Serial
   while( Serial.available() > 0 )  
   {  
-    parse_packet( Serial.read(), &transport_methods[0] );
+    eui_parse( Serial.read(), &transport_methods[0] );
   }
 
   // Hardware Serial
   while( Serial1.available() > 0 )  
   {  
-    parse_packet( Serial.read(), &transport_methods[1] );
+    eui_parse( Serial.read(), &transport_methods[1] );
   }
 
   // BLE inbound data is handled in the callback, not polled

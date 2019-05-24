@@ -62,8 +62,8 @@ void setUp(void)
     test_char = 'a';
     test_uint = 21;
 
-    setup_dev_msg(internal_callback_test_store, ARR_ELEM(internal_callback_test_store));
-    setup_interfaces( multi_interfaces, ARR_ELEM(multi_interfaces));
+    eui_setup_tracked(internal_callback_test_store, ARR_ELEM(internal_callback_test_store));
+    eui_setup_interfaces( multi_interfaces, ARR_ELEM(multi_interfaces));
 
     attempted_interface     = 0;
     attempted_output_times  = 0;
@@ -113,7 +113,7 @@ void test_active_interface_switching_outputs( void )
 
     decode_packet_ExpectAnyArgsAndReturn( EUI_PARSER_OK);
     encode_packet_simple_ExpectAnyArgsAndReturn( EUI_OUTPUT_OK );
-    eui_errors_t status0 = parse_packet( 0x00, &multi_interfaces[0] );
+    eui_errors_t status0 = eui_parse( 0x00, &multi_interfaces[0] );
     TEST_ASSERT_EQUAL_UINT8( EUI_QUERY_OK , status0.query );
     
     // The library tracks it as the 'last valid' and would respond on this interface
@@ -140,7 +140,7 @@ void test_active_interface_switching_outputs( void )
 
     decode_packet_ExpectAnyArgsAndReturn( EUI_PARSER_OK);
     encode_packet_simple_ExpectAnyArgsAndReturn( EUI_OUTPUT_OK );
-    eui_errors_t status1 = parse_packet( 0x00, &multi_interfaces[2] );
+    eui_errors_t status1 = eui_parse( 0x00, &multi_interfaces[2] );
     TEST_ASSERT_EQUAL_UINT8( EUI_QUERY_OK , status1.query );
 
     // The library now uses this interface as the 'last valid' interface

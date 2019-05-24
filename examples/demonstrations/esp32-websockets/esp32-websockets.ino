@@ -170,21 +170,17 @@ void setup()
 {  
     Serial.begin(115200);
 
-    //eUI setup
-    setup_interfaces(comm_links, 2);
-
-    comm_links[0].interface_cb = &eui_callback;
-
     pinMode( LED_BUILTIN, OUTPUT );
 
+    //eUI setup
+    comm_links[0].interface_cb = &eui_callback;
+    eui_setup_interfaces(comm_links, 2);
     EUI_TRACK(dev_msg_store);
-    setup_identifier("esp32", 5);
+    eui_setup_identifier("esp32", 5);
 
     WiFiMulti.addAP(wifi_ssid, wifi_pass);
 
     led_timer = millis();
-
-
 }
 
 void loop() 
@@ -193,7 +189,7 @@ void loop()
 
   while(Serial.available() > 0)
   {  
-    parse_packet(Serial.read(), &comm_links[0]);
+    eui_parse(Serial.read(), &comm_links[0]);
   }
 
   if( blink_enable )
