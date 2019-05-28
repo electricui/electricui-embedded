@@ -12,6 +12,9 @@ eui_message_t internal_msg_store[] =
     EUI_UINT8(      EUI_INTERNAL_HEARTBEAT,     heartbeat           ),
     EUI_UINT8_RO(   EUI_INTERNAL_LIB_VER,       library_version     ),
     EUI_UINT16_RO(  EUI_INTERNAL_BOARD_ID,      board_identifier    ),
+    
+    EUI_UINT8(  EUI_INTERNAL_SESSION_ID,        session_identifier  ),
+    EUI_FUNC(   EUI_INTERNAL_SESSION_BROADCAST, broadcast_session_id),
 
     EUI_FUNC(   EUI_INTERNAL_AM, announce_dev_msg        ),
     EUI_FUNC(   EUI_INTERNAL_AV, send_tracked_variables  ),
@@ -561,6 +564,19 @@ send_tracked_variables( void )
         sent_variables++;
     }
     return sent_variables;
+}
+
+void
+broadcast_session_id( void )
+{
+    // For all interfaces available, send the session ID variable
+    if( p_interface_arr && interface_num )
+    {
+        for( uint8_t interface_to_send = 0; interface_to_send < interface_num; i++ )
+        {
+            eui_send_tracked_on( EUI_INTERNAL_SESSION_ID, p_interface_arr[ interface_to_send ] );
+        }
+    }
 }
 
 // END electricui.c

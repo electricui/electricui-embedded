@@ -41,6 +41,9 @@ send_tracked_message_id_list( void );
 eui_variable_count_t
 send_tracked_variables( void );
 
+void
+broadcast_session_id( void );
+
 //interface management
 eui_interface_t     *p_interface_arr;
 uint8_t             interface_num;
@@ -53,5 +56,6 @@ eui_variable_count_t    dev_tracked_num;
 // eUI variables accessible to developer
 uint8_t     heartbeat;
 uint16_t    board_identifier;
+uint8_t		session_identifier;
 
 #endif //end EUI_PRIVATE_H

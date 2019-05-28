@@ -43,6 +43,9 @@
 #define EUI_INTERNAL_BOARD_ID   "i"
 #define EUI_INTERNAL_HEARTBEAT  "h"
 
+#define EUI_INTERNAL_SESSION_ID 		"r"
+#define EUI_INTERNAL_SESSION_BROADCAST 	"s" //send sessionID to all interfaces
+
 // Used for variable sync during first connection
 #define EUI_INTERNAL_AM      "t" //announce writable ID's 
 #define EUI_INTERNAL_AM_LIST "u" //delimit writable ID
