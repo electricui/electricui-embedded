@@ -572,9 +572,9 @@ broadcast_session_id( void )
     // For all interfaces available, send the session ID variable
     if( p_interface_arr && interface_num )
     {
-        for( uint8_t interface_to_send = 0; interface_to_send < interface_num; i++ )
+        for( uint8_t interface_to_send = 0; interface_to_send < interface_num; interface_to_send++ )
         {
-            eui_send_tracked_on( EUI_INTERNAL_SESSION_ID, p_interface_arr[ interface_to_send ] );
+            eui_send_tracked_on( EUI_INTERNAL_SESSION_ID, &p_interface_arr[ interface_to_send ] );
         }
     }
 }
