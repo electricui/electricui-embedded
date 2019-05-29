@@ -3,12 +3,10 @@
 
 #include "electricui.h"
 
-// Depending on your microcontroller's second UART output, you may need to 
-// enable/disable the SoftwareSerial for the second output.
-// Needs and external UART to USB adaptor or similar for PC connection
-#if defined(ESP32) || defined(ESP8266)
-
-#else
+// Depending on your microcontroller's 'second' UART, you may need to configure
+// SoftwareSerial for the second output, or SERCOM on Atmel 32-bit boards.
+// Needs an external UART to USB adaptor or similar for PC connection
+#if defined (__AVR__) || (__avr__)
   #ifndef HAVE_HWSERIAL1
     #include <SoftwareSerial.h>
 
