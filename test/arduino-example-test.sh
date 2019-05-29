@@ -19,7 +19,8 @@ declare -a target_platforms
 target_platforms[0]="arduino:avr:leonardo esp32-ble.ino esp32-websockets.ino bluefruit-bleuart.ino"
 target_platforms[1]="arduino:avr:uno esp32-ble.ino esp32-websockets.ino bluefruit-bleuart.ino" 
 target_platforms[2]="arduino:avr:mega:cpu=atmega2560 esp32-ble.ino esp32-websockets.ino bluefruit-bleuart.ino"
-target_platforms[3]="esp32:esp32:esp32thing:FlashFreq=80,UploadSpeed=921600 persistence-eeprom.ino bluefruit-bleuart.ino"
+target_platforms[3]="arduino:samd:mzero_bl persistence-eeprom.ino esp32-ble.ino esp32-websockets.ino bluefruit-bleuart.ino"
+target_platforms[4]="esp32:esp32:esp32thing:FlashFreq=80,UploadSpeed=921600 persistence-eeprom.ino bluefruit-bleuart.ino"
 
 # track test progress
 tests_run=0
