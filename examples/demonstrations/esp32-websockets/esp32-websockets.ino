@@ -87,7 +87,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
         case WStype_BIN:
             while( iter < end )
             {
-                parse_packet(*iter++, &comm_links[1]);
+                eui_parse(*iter++, &comm_links[1]);
             }
             break;
             
@@ -149,7 +149,7 @@ void eui_callback( uint8_t message )
       // UI passed in an untracked message ID
       // Grab parts of the inbound packet which are are useful
       eui_header_t header   = comm_links[0].packet.header;
-      uint8_t      *name_rx = comm_links[0].packet.msgid_in;
+      uint8_t      *name_rx = comm_links[0].packet.id_in;
       void         *payload = comm_links[0].packet.data_in;
 
       // See if the inbound packet name matches our intended variable

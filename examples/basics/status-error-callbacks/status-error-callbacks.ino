@@ -148,7 +148,7 @@ void eui_callback( uint8_t message )
       void         *payload = comm_interface.packet.data_in;
 
       // See if the inbound packet name matches our intended variable
-      if( strcmp( name_rx, "test" ) == 0 )
+      if( strcmp( (char*)name_rx, "test" ) == 0 )
       {
         // Ensure the UI is sending a variable of the right type
         if( header.type == TYPE_UINT16 )

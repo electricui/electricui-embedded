@@ -29,7 +29,7 @@ uint8_t   led_state    = 0;
 uint16_t  glow_time    = 200;
 uint32_t  led_timer    = 0;
 
-char device_name[16]     = "persistent-blink";
+char device_name[17]     = "persistent-blink";
 
 // Standard interface and tracked variables
 eui_interface_t serial_comms; 
@@ -61,7 +61,7 @@ void setup()
   EUI_TRACK( dev_msg_store );
 
   //not going to be random for first use
-  eui_setup_identifier( unique_device_id, 2 );	
+  eui_setup_identifier( (char*)unique_device_id, 2 );	
 
   led_timer = millis();
 }
@@ -97,7 +97,7 @@ void retrieve_settings( void )
 			if(    dev_msg_store[i].type != TYPE_CALLBACK 
 				&& dev_msg_store[i].type >> 7 != READ_ONLY_FLAG )
 			{
-				uint8_t *variable_ptr = dev_msg_store[i].payload;
+				uint8_t *variable_ptr = (uint8_t*)dev_msg_store[i].payload;
 
 				for( uint16_t j = 0; j < dev_msg_store[i].size; j++)
 				{
@@ -126,7 +126,7 @@ void save_settings( void )
 		if(    dev_msg_store[i].type != TYPE_CALLBACK 
 			&& dev_msg_store[i].type >> 7 != READ_ONLY_FLAG )
 		{
-			uint8_t *variable_ptr = dev_msg_store[i].payload;
+			uint8_t *variable_ptr = (uint8_t*)dev_msg_store[i].payload;
 			for( uint16_t j = 0; j < dev_msg_store[i].size; j++)
 			{
 				EEPROM.write(eeprom_address, variable_ptr[j] );

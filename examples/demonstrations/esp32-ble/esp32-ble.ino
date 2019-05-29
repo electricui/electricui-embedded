@@ -68,7 +68,7 @@ class ble_characteristic_callbacks: public BLECharacteristicCallbacks
     {
       for (int i = 0; i < rxValue.length(); i++)
       {
-        parse_packet( (uint8_t)rxValue[i], &transport_methods[2] );
+        eui_parse( (uint8_t)rxValue[i], &transport_methods[2] );
       }
     }
   }

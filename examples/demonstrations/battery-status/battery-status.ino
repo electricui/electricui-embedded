@@ -122,15 +122,19 @@ void eui_callback( uint8_t message )
       // Grab parts of the inbound packet which are are useful
       eui_header_t header   = serial_comms.packet.header;
       uint8_t      *name_rx = serial_comms.packet.id_in;
-      void         *payload = serial_comms.packet.data_in;
+      uint8_t      *payload = (uint8_t*)serial_comms.packet.data_in;
 
       // See if the inbound packet name matches our intended variable
-      if( strcmp( name_rx, "load_adj" ) == 0 )
+      if( strcmp( (char*)name_rx, "load_adj" ) == 0 )
       {
         // Ensure the UI is sending a variable of the right type
         if( header.type == TYPE_UINT16 )
         {
-          system_v_draw_mV = (uint16_t)payload;
+          // Grab the data using pointer defererencing
+          system_v_draw_mV = *(uint16_t*)payload;
+
+          // Grab the data by grabing both bytes and shifting them together
+          // system_v_draw_mV = (payload[0] << 8) | payload[1];
         }
       }
     }
