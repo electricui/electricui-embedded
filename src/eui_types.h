@@ -106,7 +106,11 @@ typedef struct {
     const char*   id;
     uint8_t       type;
     uint16_t      size;
-    void          *payload;
+
+    union {
+        void        *payload;
+        eui_cb_t    callback;
+    } ptr;
 } eui_message_t;
 
 #endif //end EUI_TYPES

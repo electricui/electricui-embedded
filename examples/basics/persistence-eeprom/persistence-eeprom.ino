@@ -97,7 +97,7 @@ void retrieve_settings( void )
 			if(    dev_msg_store[i].type != TYPE_CALLBACK 
 				&& dev_msg_store[i].type >> 7 != READ_ONLY_FLAG )
 			{
-				uint8_t *variable_ptr = (uint8_t*)dev_msg_store[i].payload;
+				uint8_t *variable_ptr = (uint8_t*)dev_msg_store[i].ptr.payload;
 
 				for( uint16_t j = 0; j < dev_msg_store[i].size; j++)
 				{
@@ -126,7 +126,7 @@ void save_settings( void )
 		if(    dev_msg_store[i].type != TYPE_CALLBACK 
 			&& dev_msg_store[i].type >> 7 != READ_ONLY_FLAG )
 		{
-			uint8_t *variable_ptr = (uint8_t*)dev_msg_store[i].payload;
+			uint8_t *variable_ptr = (uint8_t*)dev_msg_store[i].ptr.payload;
 			for( uint16_t j = 0; j < dev_msg_store[i].size; j++)
 			{
 				EEPROM.write(eeprom_address, variable_ptr[j] );
