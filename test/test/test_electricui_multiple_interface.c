@@ -40,8 +40,8 @@ void callback_mocked_output_2( uint8_t *data, uint16_t len )
 
 //developer-space messages
 eui_message_t internal_callback_test_store[] = {
-    { .id = "chw",   .type = TYPE_CHAR,    .size = sizeof(test_char),    .payload = &test_char   },
-    { .id = "u8w",   .type = TYPE_INT8,    .size = sizeof(test_uint),    .payload = &test_uint   },
+    { .id = "chw",   .type = TYPE_CHAR,    .size = sizeof(test_char),    {.payload = &test_char}   },
+    { .id = "u8w",   .type = TYPE_INT8,    .size = sizeof(test_uint),    {.payload = &test_uint}   },
 };
 
 eui_interface_t multi_interfaces[] = {
