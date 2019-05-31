@@ -108,7 +108,7 @@ typedef struct {
     uint16_t      size;
 
     union {
-        void        *payload;
+        void        *data;
         eui_cb_t    callback;
     } ptr;
 } eui_message_t;

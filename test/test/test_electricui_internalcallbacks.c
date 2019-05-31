@@ -18,11 +18,11 @@ uint8_t   test_uint    = 21;
 
 //developer-space messages
 eui_message_t internal_callback_test_store[] = {
-    { .id = "chw",   .type = TYPE_CHAR,    .size = sizeof(test_char),    {.payload = &test_char}   },
-    { .id = "u8w",   .type = TYPE_INT8,    .size = sizeof(test_uint),    {.payload = &test_uint}   },
+    { .id = "chw",   .type = TYPE_CHAR,    .size = sizeof(test_char),    {.data = &test_char}   },
+    { .id = "u8w",   .type = TYPE_INT8,    .size = sizeof(test_uint),    {.data = &test_uint}   },
     
-    { .id = "chr",   .type = TYPE_CHAR|READ_ONLY_MASK,    .size = sizeof(test_char),    {.payload = &test_char}   },
-    { .id = "u8r",   .type = TYPE_INT8|READ_ONLY_MASK,    .size = sizeof(test_uint),    {.payload = &test_uint}   },
+    { .id = "chr",   .type = TYPE_CHAR|READ_ONLY_MASK,    .size = sizeof(test_char),    {.data = &test_char}   },
+    { .id = "u8r",   .type = TYPE_INT8|READ_ONLY_MASK,    .size = sizeof(test_uint),    {.data = &test_uint}   },
 };
 
 const uint16_t number_ro_expected = 2;
@@ -155,14 +155,14 @@ void test_send_id_list_callback( void )
             large_testset[i].id = "cw";
             large_testset[i].type = TYPE_CHAR;
             large_testset[i].size = 1;
-            large_testset[i].ptr.payload = &test_char;
+            large_testset[i].ptr.data = &test_char;
         }
         else
         {
             large_testset[i].id = "cr";
             large_testset[i].type = TYPE_CHAR|READ_ONLY_MASK;
             large_testset[i].size = 1;
-            large_testset[i].ptr.payload = &test_char;
+            large_testset[i].ptr.data = &test_char;
         }
     }
 

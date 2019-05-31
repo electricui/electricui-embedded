@@ -180,7 +180,7 @@ handle_packet_action(   eui_interface_t *valid_packet,
             if( is_writable && 
                 (valid_packet->packet.offset_in + header->data_len) <= p_msg_obj->size )
             {
-                memcpy( (uint8_t *)p_msg_obj->ptr.payload + valid_packet->packet.offset_in,
+                memcpy( (uint8_t *)p_msg_obj->ptr.data + valid_packet->packet.offset_in,
                         valid_packet->packet.data_in,
                         header->data_len );
             }
@@ -219,7 +219,7 @@ handle_packet_ack(  eui_interface_t *valid_packet,
                                 &ack_header,
                                 p_msg_obj->id,
                                 valid_packet->packet.offset_in,
-                                p_msg_obj->ptr.payload );
+                                p_msg_obj->ptr.data );
 
     }
 
@@ -288,7 +288,7 @@ eui_send(   callback_data_out_t output_cbtion,
                                         settings,
                                         p_msg_obj->id,
                                         p_msg_obj->size,
-                                        p_msg_obj->ptr.payload );
+                                        p_msg_obj->ptr.data );
         }
 #ifndef EUI_CONF_OFFSETS_DISABLED
         else
@@ -357,7 +357,7 @@ eui_send_range( callback_data_out_t output_cbtion,
                                 &tmp_header,
                                 p_msg_obj->id,
                                 end_addr,
-                                p_msg_obj->ptr.payload );
+                                p_msg_obj->ptr.data );
     }
 
     return status;

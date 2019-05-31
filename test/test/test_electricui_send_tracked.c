@@ -14,7 +14,7 @@ void stub_output_func( uint8_t *data, uint16_t len );
 // PRIVATE DATA
 uint8_t test_data[10] = { 0xFF };
 
-eui_message_t test_message = { .id = "test", .type = TYPE_UINT8, .size = sizeof(test_data), {.payload = &test_data} };
+eui_message_t test_message = { .id = "test", .type = TYPE_UINT8, .size = sizeof(test_data), {.data = &test_data} };
 
 eui_interface_t mock_interface = { 0 };
 
