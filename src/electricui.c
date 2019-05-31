@@ -152,7 +152,7 @@ handle_packet_action(   eui_interface_t *valid_packet,
 
     uint8_t inbound_type_matches = (p_msg_obj->type & 0x0F) == header->type;
 
-    if ( inbound_type_matches )
+    if( inbound_type_matches )
     {
         uint8_t is_callback = (p_msg_obj->type & 0x0F) == TYPE_CALLBACK;
         uint8_t is_writable = !(p_msg_obj->type >> 7);
@@ -205,7 +205,7 @@ handle_packet_ack(  eui_interface_t *valid_packet,
 {
     uint8_t status = EUI_ACK_OK;
 
-    if( header->acknum )
+    if( header->acknum && header->response )
     {
         eui_header_t ack_header = { .internal   = header->internal,
                                     .response   = MSG_NRESP,
@@ -233,7 +233,7 @@ handle_packet_query(    eui_interface_t *valid_packet,
 {
     uint8_t status = EUI_QUERY_OK;
 
-    if ( header->response && !header->acknum )
+    if( header->response && !header->acknum )
     {
         // Respond with data to fufil query behaviour
         eui_pkt_settings_t res_header = { .internal = header->internal,
