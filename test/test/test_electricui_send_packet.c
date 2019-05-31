@@ -15,9 +15,9 @@ uint8_t small_data[10] = { 0xFF };
 uint8_t exact_data[PAYLOAD_SIZE_MAX] = { 0xFF };
 uint8_t large_data[4096] = { 0xFF };
 
-eui_message_t short_payload = { .id = "short", .type = TYPE_UINT8, .size = sizeof(small_data), .payload = &small_data };
-eui_message_t exact_payload = { .id = "exact", .type = TYPE_UINT8, .size = sizeof(exact_data), .payload = &exact_data };
-eui_message_t large_payload = { .id = "large", .type = TYPE_UINT8, .size = sizeof(large_data), .payload = &large_data };
+eui_message_t short_payload = { .id = "short", .type = TYPE_UINT8, .size = sizeof(small_data), {.data = &small_data} };
+eui_message_t exact_payload = { .id = "exact", .type = TYPE_UINT8, .size = sizeof(exact_data), {.data = &exact_data} };
+eui_message_t large_payload = { .id = "large", .type = TYPE_UINT8, .size = sizeof(large_data), {.data = &large_data} };
 
 eui_pkt_settings_t default_settings = 
 {   

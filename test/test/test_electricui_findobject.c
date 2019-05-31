@@ -23,14 +23,14 @@ uint8_t is_internal = 0;
 //developer-space messages
 eui_message_t test_findobject_store[] = {
     //simple objects with mostly garbage data, we only care about the ID's
-    { .id = "a",    .type = TYPE_CHAR,    .size = sizeof(testfind_char),     .payload = &testfind_char      },
-    { .id = "si8",   .type = TYPE_INT8,    .size = sizeof(testfind_int8),     .payload = &testfind_int8     },
+    { .id = "a",    .type = TYPE_CHAR,    .size = sizeof(testfind_char),     {.data = &testfind_char}    },
+    { .id = "si8",  .type = TYPE_INT8,    .size = sizeof(testfind_int8),     {.data = &testfind_int8}    },
     
     { .id = "abcdefghijklmno", 
-                        .type = TYPE_UINT8,   .size = sizeof(testfind_uint8),    .payload = &testfind_uint8     },
+                    .type = TYPE_UINT8,   .size = sizeof(testfind_uint8),    {.data = &testfind_uint8}   },
     
-    { .id = "\x01",  .type = TYPE_UINT8,     .size = sizeof(testfind_int8),  .payload = &testfind_int8   },
-    { .id = "",      .type = TYPE_UINT8,     .size = sizeof(testfind_uint8), .payload = &testfind_uint8   },
+    { .id = "\x01",  .type = TYPE_UINT8,     .size = sizeof(testfind_int8),  {.data = &testfind_int8}    },
+    { .id = "",      .type = TYPE_UINT8,     .size = sizeof(testfind_uint8), {.data = &testfind_uint8}   },
 };
 
 // PRIVATE FUNCTIONS

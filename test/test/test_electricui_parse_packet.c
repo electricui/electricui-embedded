@@ -30,12 +30,12 @@ uint8_t test_array[250] = { 20 };
 
 eui_message_t test_dev_msg[] = {
     //simple objects with mostly garbage data, we only care about the ID's
-    { .id = "data", .type = TYPE_UINT8,      .size = sizeof(test_uint),  .payload = &test_uint   },
-    { .id = "cb",   .type = TYPE_CALLBACK,   .size = 1,                  .payload = &test_cb     },
-    { .id = "nocb", .type = TYPE_CALLBACK,   .size = 1,                  .payload = 0     },
-    { .id = "ofst", .type = TYPE_UINT8,      .size = sizeof(test_array), .payload = &test_array  },
+    { .id = "data", .type = TYPE_UINT8,      .size = sizeof(test_uint),  {.data = &test_uint}    },
+    { .id = "cb",   .type = TYPE_CALLBACK,   .size = 1,                  {.data = &test_cb}      },
+    { .id = "nocb", .type = TYPE_CALLBACK,   .size = 1,                  {.data = 0}             },
+    { .id = "ofst", .type = TYPE_UINT8,      .size = sizeof(test_array), {.data = &test_array}   },
    
-    { .id = "dataro", .type = TYPE_UINT8|READ_ONLY_MASK, .size = sizeof(test_uint),  .payload = &test_uint },
+    { .id = "dataro", .type = TYPE_UINT8|READ_ONLY_MASK, .size = sizeof(test_uint),  {.data = &test_uint} },
 };
 
 eui_interface_t test_interface = { 0 };

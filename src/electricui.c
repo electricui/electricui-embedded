@@ -162,7 +162,7 @@ handle_packet_action(   eui_interface_t *valid_packet,
             if( (header->response && header->acknum) || (!header->response && !header->acknum) )
             {
                 // Create a function to call from the internal stored pointer
-                eui_cb_t cb_packet_h = p_msg_obj->payload;
+                eui_cb_t cb_packet_h = p_msg_obj->ptr.callback;
 
                 if( cb_packet_h )
                 {
@@ -180,7 +180,7 @@ handle_packet_action(   eui_interface_t *valid_packet,
             if( is_writable && 
                 (valid_packet->packet.offset_in + header->data_len) <= p_msg_obj->size )
             {
-                memcpy( (uint8_t *)p_msg_obj->payload + valid_packet->packet.offset_in,
+                memcpy( (uint8_t *)p_msg_obj->ptr.data + valid_packet->packet.offset_in,
                         valid_packet->packet.data_in,
                         header->data_len );
             }
@@ -219,7 +219,7 @@ handle_packet_ack(  eui_interface_t *valid_packet,
                                 &ack_header,
                                 p_msg_obj->id,
                                 valid_packet->packet.offset_in,
-                                p_msg_obj->payload );
+                                p_msg_obj->ptr.data );
 
     }
 
@@ -288,7 +288,7 @@ eui_send(   callback_data_out_t output_cbtion,
                                         settings,
                                         p_msg_obj->id,
                                         p_msg_obj->size,
-                                        p_msg_obj->payload );
+                                        p_msg_obj->ptr.data );
         }
 #ifndef EUI_CONF_OFFSETS_DISABLED
         else
@@ -357,7 +357,7 @@ eui_send_range( callback_data_out_t output_cbtion,
                                 &tmp_header,
                                 p_msg_obj->id,
                                 end_addr,
-                                p_msg_obj->payload );
+                                p_msg_obj->ptr.data );
     }
 
     return status;
@@ -546,10 +546,9 @@ send_tracked_message_id_list( void )
     return variables_sent;
 }
 
-eui_variable_count_t
+void
 send_tracked_variables( void )
 {
-    eui_variable_count_t    sent_variables = 0;
     eui_pkt_settings_t      temp_header = { 0 };
 
     temp_header.internal    = MSG_DEV;
@@ -558,9 +557,7 @@ send_tracked_variables( void )
     for(eui_variable_count_t i = 0; i < dev_tracked_num; i++)
     {
         eui_send( auto_output(), p_dev_tracked + i, &temp_header );
-        sent_variables++;
     }
-    return sent_variables;
 }
 
 // END electricui.c

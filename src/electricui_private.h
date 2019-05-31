@@ -38,7 +38,7 @@ announce_dev_vars( void );
 eui_variable_count_t
 send_tracked_message_id_list( void );
 
-eui_variable_count_t
+void
 send_tracked_variables( void );
 
 //interface management

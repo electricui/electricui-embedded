@@ -43,7 +43,7 @@ void tearDown(void)
 void test_send_untracked_on( void )
 {
     //check the manually defined interface
-    eui_message_t new_message = { .id = "new", .type = TYPE_UINT8, .size = sizeof(test_data), .payload = &test_data };
+    eui_message_t new_message = { .id = "new", .type = TYPE_UINT8, .size = sizeof(test_data), {.data = &test_data} };
 
     encode_packet_simple_ExpectAnyArgsAndReturn(0);
     eui_send_untracked_on(&new_message, &mock_interface);
@@ -54,7 +54,7 @@ void test_send_untracked_on( void )
 
 void test_send_untracked_on_invalid_setup( void )
 {
-    eui_message_t new_message = { .id = "new", .type = TYPE_UINT8, .size = sizeof(test_data), .payload = &test_data };
+    eui_message_t new_message = { .id = "new", .type = TYPE_UINT8, .size = sizeof(test_data), {.data = &test_data} };
 
     // this test is a bit off, we break the interfaces that eUI holds, 
     // but as the function is passed a valid one, things are still ok.
@@ -65,7 +65,7 @@ void test_send_untracked_on_invalid_setup( void )
 
 void test_send_untracked_auto( void )
 {  
-    eui_message_t new_message = { .id = "new", .type = TYPE_UINT8, .size = sizeof(test_data), .payload = &test_data };
+    eui_message_t new_message = { .id = "new", .type = TYPE_UINT8, .size = sizeof(test_data), {.data = &test_data} };
 
     //check the message on the automatic interface
     encode_packet_simple_ExpectAnyArgsAndReturn(0);
@@ -76,7 +76,7 @@ void test_send_untracked_auto( void )
 
 void test_send_untracked_auto_invalid_setup( void )
 {  
-    eui_message_t new_message = { .id = "new", .type = TYPE_UINT8, .size = sizeof(test_data), .payload = &test_data };
+    eui_message_t new_message = { .id = "new", .type = TYPE_UINT8, .size = sizeof(test_data), {.data = &test_data} };
 
     eui_setup_interfaces(0, 0);
     eui_send_untracked(&new_message);
