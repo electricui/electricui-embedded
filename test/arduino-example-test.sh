@@ -2,11 +2,41 @@
 # Compiles each of the Arduino example sketches in electricui-embedded/examples
 
 # Setup the various paths to the installed location, user's sketchbook and the library/board manager cache
-bin_path=/opt/arduino
-user_sketchbook=~/Arduino
-user_hidden_path=~/.arduino15
+# This is different between Linux, macOS etc, so try and detect where possible.
+bin_path="arduino-builder tool directory"
+user_sketchbook="sketchbook directory"
+user_hidden_path="arduino15 directory"
 
-# Other bits we want helpers for
+os_name="unsupported"
+
+unameu="$(tr '[:lower:]' '[:upper:]' <<<$(uname))"
+if [[ $unameu == *DARWIN* ]]; then
+	os_name="darwin"
+
+	bin_path=/Applications/Arduino.app/Contents/Java
+	user_sketchbook=~/Documents/Arduino
+	user_hidden_path=~/Library/Arduino15
+
+elif [[ $unameu == *LINUX* ]];then
+	os_name="linux"
+
+	bin_path=/opt/arduino
+	user_sketchbook=~/Arduino
+	user_hidden_path=~/.arduino15
+
+elif [[ $unameu == *WIN* || $unameu == MSYS* ]]; then
+	# Should catch cygwin
+	os_name="windows"
+
+	bin_path="todo find correct windows arduino-builder path"
+	user_sketchbook="todo find correct user sketchbook path"
+	user_hidden_path="todo find correct arduino15 path"
+else
+	echo "Aborted, unsupported or unknown environment"
+	return 6
+fi
+
+# Other bits we want paths for
 hardware_path=$bin_path/hardware
 tool_arg=$bin_path/tools-builder
 toolchain=arduino-builder
