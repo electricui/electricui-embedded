@@ -2,7 +2,7 @@
  * This example shows how to add persistence to variables using EEPROM.
  * 
  * Only works with microcontrollers which are supported by Arduino's bundled
- * EEPROM library such as 8-bit AVR boards. ARM boards commonly need flash-emulation.
+ * EEPROM library, typically 8-bit AVR boards.
  * 
  * 1. Load data from EEPROM storage into variables at startup.
  * 2. Save variables into EEPROM when the UI requests a save action.
@@ -29,11 +29,11 @@ uint8_t   led_state    = 0;
 uint16_t  glow_time    = 200;
 uint32_t  led_timer    = 0;
 
-char device_name[17]     = "persistent-blink";
+char device_name[17]   = "persistent-blink";
 
 // Standard interface and tracked variables
-eui_interface_t serial_comms; 
-eui_message_t 	dev_msg_store[] = 
+eui_interface_t serial_comms = EUI_INTERFACE( &serial_write ); 
+eui_message_t 	tracked_data[] = 
 {
   EUI_UINT8(  "led_blink",  blink_enable ),
   EUI_UINT8(  "led_state",  led_state ),
@@ -56,11 +56,10 @@ void setup()
   // Fetch any saved variables from EEPROM
   retrieve_settings();
 
-  serial_comms.output_cb = &tx_putc;
   eui_setup_interface( &serial_comms );
-  EUI_TRACK( dev_msg_store );
+  EUI_TRACK( tracked_data );
 
-  //not going to be random for first use
+  // Not going to be random for first use
   eui_setup_identifier( (char*)unique_device_id, 2 );	
 
   led_timer = millis();
@@ -79,7 +78,7 @@ void loop()
     }    
   }
 
-  digitalWrite( LED_BUILTIN, led_state ); //update the LED to match the intended state
+  digitalWrite( LED_BUILTIN, led_state );
 }
 
 // Pull the saved settings from eeprom into tracked variables where suitable
@@ -91,15 +90,15 @@ void retrieve_settings( void )
 	{
 		eeprom_address++;
 
-		for( uint8_t i = 0; i < ARR_ELEM(dev_msg_store); i++ )
+		for( uint8_t i = 0; i < ARR_ELEM(tracked_data); i++ )
 		{
 			// we haven't saved immutable data, so don't try and fetch it
-			if(    dev_msg_store[i].type != TYPE_CALLBACK 
-				&& dev_msg_store[i].type >> 7 != READ_ONLY_FLAG )
+			if(    tracked_data[i].type != TYPE_CALLBACK 
+				&& tracked_data[i].type >> 7 != READ_ONLY_FLAG )
 			{
-				uint8_t *variable_ptr = (uint8_t*)dev_msg_store[i].ptr.data;
+				uint8_t *variable_ptr = (uint8_t*)tracked_data[i].ptr.data;
 
-				for( uint16_t j = 0; j < dev_msg_store[i].size; j++)
+				for( uint16_t j = 0; j < tracked_data[i].size; j++)
 				{
 					variable_ptr[j] = EEPROM.read(eeprom_address);
 					eeprom_address++;
@@ -120,14 +119,14 @@ void save_settings( void )
 	eeprom_address++;
 
 	//write the payloads into memory from each of the tracked objects in order
-	for( uint8_t i = 0; i < ARR_ELEM(dev_msg_store); i++ )
+	for( uint8_t i = 0; i < ARR_ELEM(tracked_data); i++ )
 	{
 		// we don't want to save immutable data
-		if(    dev_msg_store[i].type != TYPE_CALLBACK 
-			&& dev_msg_store[i].type >> 7 != READ_ONLY_FLAG )
+		if(    tracked_data[i].type != TYPE_CALLBACK 
+			&& tracked_data[i].type >> 7 != READ_ONLY_FLAG )
 		{
-			uint8_t *variable_ptr = (uint8_t*)dev_msg_store[i].ptr.data;
-			for( uint16_t j = 0; j < dev_msg_store[i].size; j++)
+			uint8_t *variable_ptr = (uint8_t*)tracked_data[i].ptr.data;
+			for( uint16_t j = 0; j < tracked_data[i].size; j++)
 			{
 				EEPROM.write(eeprom_address, variable_ptr[j] );
 				eeprom_address++;
@@ -153,7 +152,7 @@ void serial_rx_handler()
   }
 }
   
-void tx_putc( uint8_t *data, uint16_t len )
+void serial_write( uint8_t *data, uint16_t len )
 {
   Serial.write( data, len );
 }

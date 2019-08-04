@@ -16,18 +16,17 @@
 
 
 // Simple variables to modify the LED behaviour
-uint8_t   blink_enable = 1; //if the blinker should be running
-uint8_t   led_state  = 0;   //track if the LED is illuminated
-uint16_t  glow_time  = 200; //in milliseconds
+uint8_t   blink_enable = 1; // if the blinker should be running
+uint8_t   led_state  = 0;   // track if the LED is illuminated
+uint16_t  glow_time  = 200; // in milliseconds
 
-// Keep track of when the light turns on or off
-uint32_t led_timer = 0;
+uint32_t  led_timer  = 0;   // track when the light turned on or off
 
 char demo_string[] = "HelloMultiple";
 
 // Function declarations for the serial output callbacks
-void serial0_tx( uint8_t *data, uint16_t len );
-void serial1_tx( uint8_t *data, uint16_t len );
+void serial0_write( uint8_t *data, uint16_t len );
+void serial1_write( uint8_t *data, uint16_t len );
 
 // Tracked variables
 eui_message_t dev_msg_store[] = 
@@ -40,8 +39,8 @@ eui_message_t dev_msg_store[] =
 
 // List of interfaces passed to Electric UI with the output pointers
 eui_interface_t transport_methods[] = {
-    EUI_INTERFACE( &serial0_tx ),
-    EUI_INTERFACE( &serial1_tx ),
+    EUI_INTERFACE( &serial0_write ),
+    EUI_INTERFACE( &serial1_write ),
 };
 
 void setup() 
@@ -64,7 +63,7 @@ void setup()
 
 void loop() 
 {
-  rx_handler();  //check serial rx fifo
+  serial_rx_handler();
 
   // Interact with the real world
   if( blink_enable )
@@ -77,11 +76,11 @@ void loop()
     }    
   }
 
-  digitalWrite( LED_BUILTIN, led_state ); //update the LED to match the intended state
+  digitalWrite( LED_BUILTIN, led_state );
 
 }
 
-void rx_handler()
+void serial_rx_handler()
 {
   // USB CDC VCP
   while( Serial.available() > 0 )  //rx has data
@@ -96,13 +95,13 @@ void rx_handler()
   }
 }
 
-void serial0_tx( uint8_t *data, uint16_t len )
+void serial0_write( uint8_t *data, uint16_t len )
 {
   // Output over main serial connection
   Serial.write( data, len );
 }
 
-void serial1_tx( uint8_t *data, uint16_t len )
+void serial1_write( uint8_t *data, uint16_t len )
 {
   // Write to second serial port (or software serial on 10/11 if none exists)
   Serial1.write( data, len );

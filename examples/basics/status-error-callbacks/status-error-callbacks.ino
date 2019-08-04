@@ -17,10 +17,10 @@ uint32_t  led_timer    = 0;
 
 char device_name[] = "hello-errors";
 
+// Use the EUI_INTERFACE_CB macro to include the diagnostics callback 
+eui_interface_t serial_interface = EUI_INTERFACE_CB( &serial_write, &eui_callback ); 
 
-eui_interface_t comm_interface; 
-
-eui_message_t dev_msg_store[] = 
+eui_message_t tracked_variables[] = 
 {
   EUI_UINT8(  "led_blink",  blink_enable ),
   EUI_UINT8(  "led_state",  led_state ),
@@ -33,17 +33,10 @@ void setup()
   Serial.begin( 115200 );
   pinMode( LED_BUILTIN, OUTPUT );
 
-  // Provide Electric UI with the output callback
-  comm_interface.output_cb = &tx_putc;
-
-  // Provide Electric UI with the interface status callback 
-  comm_interface.interface_cb = &eui_callback;
-
   // Setup as normal
-  eui_setup_interface( &comm_interface );
-  EUI_TRACK( dev_msg_store );
+  eui_setup_interface( &serial_interface );
+  EUI_TRACK( tracked_variables );
   eui_setup_identifier( "status", 6 );
-
 
   led_timer = millis();
 }
@@ -71,7 +64,7 @@ void serial_rx_handler()
   	uint8_t inbound_byte = Serial.read();
 
   	// The inbound data handler returns status flags indicating errors or successes
-    eui_errors_t parse_status = eui_parse( inbound_byte, &comm_interface );
+    eui_errors_t parse_status = eui_parse( inbound_byte, &serial_interface );
 
     switch( parse_status.parser )
     {
@@ -124,7 +117,7 @@ void serial_rx_handler()
   }
 }
   
-void tx_putc( uint8_t *data, uint16_t len )
+void serial_write( uint8_t *data, uint16_t len )
 {
   Serial.write( data, len );
 }
@@ -143,9 +136,9 @@ void eui_callback( uint8_t message )
       // UI passed in an untracked message ID
 
       // Grab parts of the inbound packet which are are useful
-      eui_header_t header   = comm_interface.packet.header;
-      uint8_t      *name_rx = comm_interface.packet.id_in;
-      void         *payload = comm_interface.packet.data_in;
+      eui_header_t header   = serial_interface.packet.header;
+      uint8_t      *name_rx = serial_interface.packet.id_in;
+      void         *payload = serial_interface.packet.data_in;
 
       // See if the inbound packet name matches our intended variable
       if( strcmp( (char*)name_rx, "test" ) == 0 )

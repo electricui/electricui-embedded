@@ -2,18 +2,17 @@
 #include "electricui.h"
 
 // Simple variables to modify the LED behaviour
-uint8_t   blink_enable = 1; //if the blinker should be running
-uint8_t   led_state  = 0;   //track if the LED is illuminated
-uint16_t  glow_time  = 200; //in milliseconds
+uint8_t   blink_enable = 1; // if the blinker should be running
+uint8_t   led_state  = 0;   // track if the LED is illuminated
+uint16_t  glow_time  = 200; // in milliseconds
 
-// Keep track of when the light turns on or off
-uint32_t led_timer = 0;
+uint32_t  led_timer  = 0;   // track when the light turned on or off
 
 // Instantiate the communication interface's management object
-eui_interface_t serial_comms; 
+eui_interface_t serial_comms = EUI_INTERFACE( &serial_write ); 
 
 // Electric UI manages variables referenced in this array
-eui_message_t dev_msg_store[] = 
+eui_message_t tracked_variables[] = 
 {
   EUI_UINT8(  "led_blink",  blink_enable ),
   EUI_UINT8(  "led_state",  led_state ),
@@ -26,18 +25,14 @@ void setup()
   Serial.begin( 115200 );
   pinMode( LED_BUILTIN, OUTPUT );
 
-  // Each communications interface uses a settable output function
-  serial_comms.output_cb = &tx_putc;
-
   // Provide the library with the interface we just setup
   eui_setup_interface( &serial_comms );
 
   // Provide the tracked variables to the library
-  EUI_TRACK( dev_msg_store );
+  EUI_TRACK( tracked_variables );
 
   // Provide a identifier to make this board easy to find in the UI
   eui_setup_identifier( "hello", 5 );
-
 
   led_timer = millis();
 }
@@ -68,7 +63,7 @@ void serial_rx_handler()
   }
 }
   
-void tx_putc( uint8_t *data, uint16_t len )
+void serial_write( uint8_t *data, uint16_t len )
 {
   Serial.write( data, len ); //output on the main serial port
 }
