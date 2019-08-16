@@ -1,3 +1,9 @@
+/* Copyright (c) 2016-2019 Electric UI
+ * MIT Licenced - see LICENCE for details.
+ *
+ * 
+ */
+
 #include <string.h>
 #include "eui_serial_transport.h"
 #include "../utilities/eui_crc.h"

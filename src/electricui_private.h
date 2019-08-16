@@ -1,3 +1,9 @@
+/* Copyright (c) 2016-2019 Electric UI
+ * MIT Licenced - see LICENCE for details.
+ *
+ * 
+ */
+
 #ifndef EUI_PRIVATE_H
 #define EUI_PRIVATE_H
 

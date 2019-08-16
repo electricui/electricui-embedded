@@ -10,9 +10,28 @@ See the docs or website for more information.
 
 1. Ensure the Arduino IDE is installed (version >1.6.X tested ok) and the standard Arduino Blink.ino sketch compiles/flashes to the dev board.
 
-2. Clone or download the electricui-embedded repo onto your computer. Put it whereever you like and use symbolic links, or copy the contents into "*/arduino/libraries/electricui*" folder as typically done with Arduino libraries. 
+2. Clone or download the electricui-embedded repo onto your computer. Libraries are typically put in your "*/arduino/libraries/electricui*" folder or similar. 
 
-Symbolic folder links are a nice way to separate the library from the Arduino IDE install if you are planning on editing the libraries.
+	If you plan on developing electricui-embedded, read the development section in this readme.
+
+3. In the Arduino IDE, simply click *File > Examples > electricui > Examples > Basics > hello-blink* to load an example sketch.
+
+4. Test building and flashing the firmware to the board, and boot up an interface to play with.
+
+### Other Microcontrollers 
+
+1. Just clone the repo and use the electricui files. Import into your project as normal `#include "electricui.h"` and ensure the minimum setup functions are called.
+
+2. The library assumes that you will provide a pointer to a function which accepts a byte array, this function will then call your system's putc() or write_bytes() function.
+
+3. For for more detail, follow the docs or example Arduino code which shows the minimum setup and usage examples.
+
+
+# Developing electricui-embedded
+
+## Editing the library
+
+If you are planning on developing `electricui-embedded`, we generally suggest cloning it somewhere useful and using symlinks into your project or Arduino libraries folder.
 
 Unix (your Arduino sketchbook location may vary by OS/install):
 
@@ -22,25 +41,7 @@ sudo ln -s ~/projects/electricui-embedded/ ~/Arduino/libraries/electricui
 
 Windows/Arduino can demonstrate issues with symbolic links across drives (ExFAT doesn't support them).
 
-If you don't plan on developing electricui-embedded, copy or clone it straight into your libraries folder.
-
-3. In the Arduino IDE, one can simply click *File > Examples > electricui > Examples > Basics > hello-blink* to load an example sketch.
-
-4. If using the ElectricUI helloboard, set the board with *Tools > Board > "Arduino Leonardo"*
-
-5. Test building and flashing the firmware to the board!
-
-
-### Other Microcontrollers 
-
-1. Just clone the repo and use the electricui files. Import into your project as normal `#include "electricui.h"` and ensure the minimum setup functions are called.
-
-2. The library assumes that you will provide a pointer to the serial tx function which accepts a byte, this could be putc() or similar single byte uart_tx_write(uint8) function.
-
-3. For for more detail, follow the docs or example Arduino code which shows the minimum setup and usage examples.
-
-
-# Running tests
+## Running tests
 
 Testing uses the [Ceedling](http://www.throwtheswitch.org/ceedling/) (Ruby/rake) based testing framework.
 

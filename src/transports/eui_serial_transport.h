@@ -1,3 +1,9 @@
+/* Copyright (c) 2016-2019 Electric UI
+ * MIT Licenced - see LICENCE for details.
+ *
+ * 
+ */
+
 #ifndef EUI_SERIAL_TRANSPORT_H
 #define EUI_SERIAL_TRANSPORT_H
 

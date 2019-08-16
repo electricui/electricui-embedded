@@ -1,3 +1,9 @@
+/* Copyright (c) 2016-2019 Electric UI
+ * MIT Licenced - see LICENCE for details.
+ *
+ * 
+ */
+
 #ifndef EUI_H
 #define EUI_H
 
@@ -39,7 +45,7 @@ eui_send(   callback_data_out_t output_function,
                     eui_message_t       *p_msg_obj,
                     eui_pkt_settings_t  *settings,
                     uint16_t            base_addr,
-                     uint16_t            end_addr );
+                    uint16_t            end_addr );
 #endif
 
 void

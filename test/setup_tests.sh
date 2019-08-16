@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Copyright (c) 2016-2019 Electric UI
+# MIT Licenced - see LICENCE for details.
+
 echo "Checking if ceedling already exists on the system..."
 
 # Check the ruby gem ceedling is installed
