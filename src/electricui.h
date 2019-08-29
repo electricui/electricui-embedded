@@ -20,7 +20,7 @@ extern "C" {
     #warning "ElectricUI will not handle data larger than PAYLOAD_SIZE_MAX"
 #endif
 
-#define EUI_LIBRARY_VERSION 008 
+#define EUI_LIBRARY_VERSION 8
 
 typedef struct {
     eui_packet_t        packet;
