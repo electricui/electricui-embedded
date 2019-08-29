@@ -166,13 +166,13 @@ void tearDown(void)
 
 void test_array_element_count( void )
 {
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 0,   ARR_ELEM(no_array),         "Null array elements incorrectly counted." );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 1,   ARR_ELEM(small_array),      "Small array elements incorrectly counted." );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 40,  ARR_ELEM(standard_array),   "Standard array elements incorrectly counted." );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 350, ARR_ELEM(large_array),      "Large array elements incorrectly counted." );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0,   EUI_ARR_ELEM(no_array),         "Null array elements incorrectly counted." );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 1,   EUI_ARR_ELEM(small_array),      "Small array elements incorrectly counted." );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 40,  EUI_ARR_ELEM(standard_array),   "Standard array elements incorrectly counted." );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 350, EUI_ARR_ELEM(large_array),      "Large array elements incorrectly counted." );
 
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 21, ARR_ELEM(macro_object_array),    "Macro array elements incorrectly counted." );
-    TEST_ASSERT_EQUAL_INT_MESSAGE( 21, ARR_ELEM(expected_object_array), "Ground-truth array elements incorrectly counted." );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 21, EUI_ARR_ELEM(macro_object_array),    "Macro array elements incorrectly counted." );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 21, EUI_ARR_ELEM(expected_object_array), "Ground-truth array elements incorrectly counted." );
 }
 
 void test_readwrite( void )
@@ -188,6 +188,6 @@ void test_readonly( void )
     TEST_ASSERT_EQUAL_MEMORY_ARRAY_MESSAGE( expected_object_array_read_only, 
                                             macro_object_array_read_only, 
                                             sizeof(eui_message_t), 
-                                            ARR_ELEM(expected_object_array_read_only), 
+                                            EUI_ARR_ELEM(expected_object_array_read_only), 
                                             "Read only macros != ground truth array"); 
 }

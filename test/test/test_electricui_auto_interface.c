@@ -52,8 +52,8 @@ void setUp(void)
     test_char = 'a';
     test_uint = 21;
 
-    eui_setup_tracked(internal_callback_test_store, ARR_ELEM(internal_callback_test_store));
-    eui_setup_interfaces( multi_interfaces, ARR_ELEM(multi_interfaces));
+    eui_setup_tracked(internal_callback_test_store, EUI_ARR_ELEM(internal_callback_test_store));
+    eui_setup_interfaces( multi_interfaces, EUI_ARR_ELEM(multi_interfaces));
 }
  
 void tearDown(void)
@@ -80,7 +80,7 @@ void test_auto_interface_many( void )
     TEST_ASSERT_EQUAL_PTR(&multi_interfaces[0], auto_interface());
 
     //test return of changing interface
-    for(uint8_t i = 0; i < ARR_ELEM(multi_interfaces); i++)
+    for(uint8_t i = 0; i < EUI_ARR_ELEM(multi_interfaces); i++)
     {
         p_interface_last = &multi_interfaces[i];
         TEST_ASSERT_EQUAL_PTR( &multi_interfaces[i], auto_interface() );
@@ -92,7 +92,7 @@ void test_auto_interface_invalid( void )
 {
     //test a 'not setup yet' interface
     eui_setup_interfaces( 0, 0);
-    for(uint8_t i = 0; i < ARR_ELEM(multi_interfaces); i++)
+    for(uint8_t i = 0; i < EUI_ARR_ELEM(multi_interfaces); i++)
     {
         p_interface_last = &multi_interfaces[i];
         TEST_ASSERT_NULL( auto_interface() );
@@ -102,7 +102,7 @@ void test_auto_interface_invalid( void )
     p_interface_arr = &multi_interfaces[1];
     interface_num   = 0;
 
-    for(uint8_t i = 0; i < ARR_ELEM(multi_interfaces); i++)
+    for(uint8_t i = 0; i < EUI_ARR_ELEM(multi_interfaces); i++)
     {
         p_interface_last = &multi_interfaces[i];
         TEST_ASSERT_NULL( auto_interface() );
@@ -111,7 +111,7 @@ void test_auto_interface_invalid( void )
     p_interface_arr = 0;
     interface_num   = 3;
 
-    for(uint8_t i = 0; i < ARR_ELEM(multi_interfaces); i++)
+    for(uint8_t i = 0; i < EUI_ARR_ELEM(multi_interfaces); i++)
     {
         p_interface_last = &multi_interfaces[i];
         TEST_ASSERT_NULL( auto_interface() );

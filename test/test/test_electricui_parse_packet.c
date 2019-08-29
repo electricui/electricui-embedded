@@ -68,7 +68,7 @@ void setUp(void)
     test_interface.output_cb  = &stub_output_func;
     test_interface.interface_cb = &stub_user_cb;
     test_pk_ptr = &test_interface.packet;
-    eui_setup_tracked(test_dev_msg, ARR_ELEM(test_dev_msg));
+    eui_setup_tracked(test_dev_msg, EUI_ARR_ELEM(test_dev_msg));
 
     eui_setup_interface( &test_interface );
 

@@ -40,7 +40,7 @@ eui_message_t test_findobject_store[] = {
 void setUp(void)
 {
     //run before each test
-    eui_setup_tracked( test_findobject_store, ARR_ELEM(test_findobject_store) );
+    eui_setup_tracked( test_findobject_store, EUI_ARR_ELEM(test_findobject_store) );
     expecting = 0;
     is_internal = 0;
 }

@@ -11,7 +11,7 @@
 #include "utilities/eui_offset_validation.h"
 
 //internal eUI tracked variables
-uint8_t library_version = LIBRARY_VERSION;
+uint8_t library_version = EUI_LIBRARY_VERSION;
 
 eui_message_t internal_msg_store[] = 
 {
@@ -51,12 +51,12 @@ find_message_object( const char * search_id, uint8_t is_internal )
     else if( MSG_INTERNAL == is_internal && search_id)
     {
         //search the internal array for matching messageID
-        for(eui_variable_count_t i = 0; i < ARR_ELEM( internal_msg_store ); i++)
+        for(eui_variable_count_t i = 0; i < EUI_ARR_ELEM( internal_msg_store ); i++)
         {
             if( strcmp( search_id, internal_msg_store[i].id ) == 0 )
             {
                 found_obj_ptr = &internal_msg_store[i];
-                i = ARR_ELEM( internal_msg_store );
+                i = EUI_ARR_ELEM( internal_msg_store );
             }
         }
     }
@@ -111,12 +111,12 @@ eui_parse( uint8_t inbound_byte, eui_interface_t *p_link )
             // Respond to a request for ack if the action completed successfully
             if( status.action == EUI_ACTION_OK )
             {
-                status.ack = handle_packet_ack( p_link, &header_in, p_msglocal );           
+                status.ack = handle_packet_ack( p_link, &header_in, p_msglocal );
             }
 
             // Respond to queries 
             // this includes invalid inbound header types, as we provide 'correct' type info
-            status.query = handle_packet_query( p_link, &header_in, p_msglocal );          
+            status.query = handle_packet_query( p_link, &header_in, p_msglocal );
 
             // Notify the developer of the tracked message
             if( p_link->interface_cb )
@@ -241,7 +241,7 @@ handle_packet_query(    eui_interface_t *valid_packet,
 
     if( header->response && !header->acknum )
     {
-        // Respond with data to fufil query behaviour
+        // Respond with data to fulfil query behaviour
         eui_pkt_settings_t res_header = { .internal = header->internal,
                                           .response = MSG_NRESP, 
                                           .type     = p_msg_obj->type };
@@ -312,11 +312,11 @@ eui_send(   callback_data_out_t output_cbtion,
 }
 
 uint8_t
-eui_send_range( callback_data_out_t output_cbtion, 
-                eui_message_t       *p_msg_obj, 
-                eui_pkt_settings_t  *settings, 
-                uint16_t            base_addr, 
-                uint16_t            end_addr ) 
+eui_send_range( callback_data_out_t output_cbtion,
+                eui_message_t       *p_msg_obj,
+                eui_pkt_settings_t  *settings,
+                uint16_t            base_addr,
+                uint16_t            end_addr )
 {
     uint8_t status = EUI_OUTPUT_ERROR;
 
@@ -520,7 +520,7 @@ send_tracked_message_id_list( void )
 
     uint8_t msgBuffer[ (16)*4 ];
     uint8_t msg_buffer_position  = 0;  //position in buffer
-    uint8_t id_len                = 0;  //length of a single id string
+    uint8_t id_len                = 0; //length of a single id string
     uint8_t id_packed_num        = 0;  //count messages packed into buffer
 
     for( eui_variable_count_t i = 0; i < dev_tracked_num; i++ )

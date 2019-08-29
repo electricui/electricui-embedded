@@ -8,17 +8,20 @@ eui_pkt_settings_t	KEYWORD1
 eui_header_t	KEYWORD1
 eui_variable_count_t	KEYWORD1
 
-
 # Methods and Functions (KEYWORD2)
 
-setup_dev_msg	KEYWORD2
-parse_packet	KEYWORD2
-setup_identifier	KEYWORD2
+eui_parse	KEYWORD2
+eui_setup_interface	KEYWORD2
+eui_setup_interfaces	KEYWORD2
+eui_setup_tracked	KEYWORD2
+eui_setup_identifier	KEYWORD2
 
-send_tracked	KEYWORD2
-send_tracked_on	KEYWORD2
-send_untracked	KEYWORD2
-send_untracked_on	KEYWORD2
+eui_send	KEYWORD2 
+eui_send_tracked	KEYWORD2
+eui_send_tracked_on	KEYWORD2
+eui_send_untracked	KEYWORD2
+eui_send_untracked_on	KEYWORD2
+
 
 EUI_INTERFACE	KEYWORD2
 EUI_INTERFACE_CB	KEYWORD2

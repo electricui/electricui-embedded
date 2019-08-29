@@ -90,7 +90,7 @@ void retrieve_settings( void )
 	{
 		eeprom_address++;
 
-		for( uint8_t i = 0; i < ARR_ELEM(tracked_data); i++ )
+		for( uint8_t i = 0; i < EUI_ARR_ELEM(tracked_data); i++ )
 		{
 			// we haven't saved immutable data, so don't try and fetch it
 			if(    tracked_data[i].type != TYPE_CALLBACK 
@@ -119,7 +119,7 @@ void save_settings( void )
 	eeprom_address++;
 
 	//write the payloads into memory from each of the tracked objects in order
-	for( uint8_t i = 0; i < ARR_ELEM(tracked_data); i++ )
+	for( uint8_t i = 0; i < EUI_ARR_ELEM(tracked_data); i++ )
 	{
 		// we don't want to save immutable data
 		if(    tracked_data[i].type != TYPE_CALLBACK 

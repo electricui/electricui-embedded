@@ -62,8 +62,8 @@ void setUp(void)
     test_char = 'a';
     test_uint = 21;
 
-    eui_setup_tracked(internal_callback_test_store, ARR_ELEM(internal_callback_test_store));
-    eui_setup_interfaces( multi_interfaces, ARR_ELEM(multi_interfaces));
+    eui_setup_tracked(internal_callback_test_store, EUI_ARR_ELEM(internal_callback_test_store));
+    eui_setup_interfaces( multi_interfaces, EUI_ARR_ELEM(multi_interfaces));
 
     attempted_interface     = 0;
     attempted_output_times  = 0;

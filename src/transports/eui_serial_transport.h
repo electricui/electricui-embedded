@@ -15,7 +15,7 @@ enum parseStates {
     exp_frame_offset = 0,
     exp_header_b1,
     exp_header_b2,
-    exp_header_b3,   
+    exp_header_b3,
     exp_message_id,
     exp_offset_b1,
     exp_offset_b2,
