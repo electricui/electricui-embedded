@@ -26,30 +26,40 @@ encode_packet_simple(   callback_data_out_t output_function,
     expanded_header.id_len     = strlen(msg_id);
     expanded_header.data_len   = payload_len;
 
-    return encode_packet( output_function, &expanded_header, msg_id, 0x00, payload );
+    return encode_packet( output_function, &expanded_header, msg_id, 0x0000, payload );
 }
 
 uint8_t
 encode_header( eui_header_t *header, uint8_t *buffer )
 {
+    // Header is 3 bytes total, inserted directly into the outgoing buffer
     uint8_t bytes_written = 0;
 
     if( header && buffer )
     {
-        // Header is 3 bytes
-        // payload length 10b, internal 1b, offset 1b, idlen 4b, response 1b, acknum 3b
-        buffer[bytes_written] = header->data_len & 0xFF;
+        // payload length - 10b
+        buffer[bytes_written]  = (uint8_t)( (uint16_t)header->data_len & 0xFFu );
         bytes_written++;
-        
-        buffer[bytes_written] |= header->data_len >> 8;
-        buffer[bytes_written] |= (header->type     & 0x0F) << 2;
-        buffer[bytes_written] |= header->internal  << 6;
-        buffer[bytes_written] |= header->offset    << 7;
+        buffer[bytes_written] |= (uint8_t)( (uint16_t)header->data_len >> 8u );
+
+        // Payload Type - 4b
+        buffer[bytes_written] |= (uint8_t)( ((uint8_t)header->type & 0x0Fu) << 2u );
+
+        // Internal message - 1b
+        buffer[bytes_written] |= (uint8_t)( (uint8_t)header->internal << 6u );
+
+        // Offset message flag - 1b
+        buffer[bytes_written] |= (uint8_t)( (uint8_t)header->offset << 7u );
         bytes_written++;
 
-        buffer[bytes_written] |= (header->id_len & 0x0F);
-        buffer[bytes_written] |= header->response  << 4;
-        buffer[bytes_written] |= header->acknum    << 5;
+        // Message ID length - 4b
+        buffer[bytes_written] |= (uint8_t)( (uint8_t)header->id_len & 0x0Fu );
+
+        // Response Flag - 1b
+        buffer[bytes_written] |= (uint8_t)( (uint8_t)header->response << 4u );
+
+        // Ack number - 3b
+        buffer[bytes_written] |= (uint8_t)( (uint8_t)header->acknum << 5u );
         bytes_written++;
     }
 
@@ -65,14 +75,14 @@ encode_framing( uint8_t *buffer, uint16_t buf_size )
     {
         uint8_t bytes_since = i - previous_null;
 
-        if( buffer[i] == 0x00 )
+        if( buffer[i] == 0x00u )
         {
             buffer[previous_null] = bytes_since;
             previous_null = i;
         } 
-        else if( bytes_since == 0xFF )
+        else if( bytes_since == 0xFFu )
         {
-            buffer[previous_null] = 0xFF;
+            buffer[previous_null] = 0xFFu;
 
             // ripple the buffer of data back one byte to make room
             // this 'extra' new byte is now the offset
@@ -81,7 +91,7 @@ encode_framing( uint8_t *buffer, uint16_t buf_size )
                 buffer[ buf_size-j ] = buffer[ buf_size-j-1 ];
             }
 
-            buffer[i] = 0xEE;
+            buffer[i] = 0xEEu;
             previous_null = i;
         }
     }
@@ -110,7 +120,7 @@ encode_packet(  callback_data_out_t out_char,
 
         //message ID
         memcpy( &pk_tmp[pk_i], msg_id, header->id_len );
-        pk_i += header->id_len;
+        pk_i += (uint8_t)header->id_len;
 
 #ifndef EUI_CONF_OFFSETS_DISABLED
         if( header->offset )
@@ -122,10 +132,10 @@ encode_packet(  callback_data_out_t out_char,
 
         //payload data copy
         memcpy( &pk_tmp[pk_i], (uint8_t *)payload + offset, header->data_len );
-        pk_i += header->data_len;
+        pk_i += (uint16_t)header->data_len;
 
         //calculate and write CRC
-        uint16_t outbound_crc = 0xFFFF;
+        uint16_t outbound_crc = 0xFFFFu;
         for( uint16_t i = 2; i < pk_i; i++ )
         {
             crc16( pk_tmp[i], &outbound_crc );
@@ -163,30 +173,29 @@ decode_packet(uint8_t byte_in, eui_packet_t *p_link_in)
 {
     uint8_t status = EUI_PARSER_IDLE;
     
-    if( 0x00 == byte_in )
+    if( 0x00u == byte_in )
     {
         //reset
-        p_link_in->parser.state = 0;
-        p_link_in->crc_in = 0xFFFF;
+        p_link_in->parser.state = 0u;
+        p_link_in->crc_in = 0xFFFFu;
     }
     else
     {
         if( 0x01 < p_link_in->parser.frame_offset )
         {
             //we are now one byte closer to the next offset
-            p_link_in->parser.frame_offset -= 1;
+            p_link_in->parser.frame_offset -= 1u;
         }
         else
         {
             //offset has expired, this inbound byte should be the next data framing byte
             p_link_in->parser.frame_offset = byte_in;
-            byte_in = 0x00; //replace with pre-COBS byte.
+            byte_in = 0x00u; //replace with pre-COBS byte.
         }
 
         //CRC data up to the packet's CRC
-        // todo work out a way to remove this check
-        if( (exp_crc_b1 > p_link_in->parser.state) 
-            && (exp_frame_offset < p_link_in->parser.state) )   
+        if( (exp_crc_b1 > (uint8_t)p_link_in->parser.state)
+            && (exp_frame_offset < (uint8_t)p_link_in->parser.state) )
         {
             crc16( byte_in, &(p_link_in->crc_in)) ; 
         }
@@ -203,11 +212,10 @@ parse_decoded_packet( uint8_t byte_in, eui_packet_t *p_link_in )
     uint8_t parse_status = EUI_PARSER_IDLE;
 
     //parse the byte into the inbound packet buffers
-    switch( p_link_in->parser.state )
+    switch( (uint8_t)p_link_in->parser.state )
     {
         case exp_frame_offset:
             //first byte is the first offset
-            //todo fix/rework this poor handling of 'offset with no underlying data'
             p_link_in->parser.state = exp_header_b1;
         break;
 
@@ -218,18 +226,18 @@ parse_decoded_packet( uint8_t byte_in, eui_packet_t *p_link_in )
 
         case exp_header_b2:
             //'last' two length bits at start of this byte
-            p_link_in->header.data_len |= ((uint16_t)byte_in << 8) & 0x0300;
-            p_link_in->header.type      = (byte_in >> 2) & 0x0F;
-            p_link_in->header.internal  = (byte_in >> 6) & 0x01;
-            p_link_in->header.offset    = (byte_in >> 7) & 0x01;
+            p_link_in->header.data_len |= (uint16_t)((uint16_t)byte_in << 8u) & 0x0300u;
+            p_link_in->header.type      = (uint8_t)(byte_in >> 2u) & 0x0Fu;
+            p_link_in->header.internal  = (uint8_t)(byte_in >> 6u) & 0x01u;
+            p_link_in->header.offset    = (uint8_t)(byte_in >> 7u) & 0x01u;
             
             p_link_in->parser.state     = exp_header_b3;
         break;
 
         case exp_header_b3:
-            p_link_in->header.id_len    = (byte_in     ) & 0x0F;
-            p_link_in->header.response  = (byte_in >> 4) & 0x01;
-            p_link_in->header.acknum    = (byte_in >> 5);
+            p_link_in->header.id_len    = (uint8_t)(byte_in      ) & 0x0Fu;
+            p_link_in->header.response  = (uint8_t)(byte_in >> 4u) & 0x01u;
+            p_link_in->header.acknum    = (uint8_t)(byte_in >> 5u);
             
             p_link_in->parser.state     = exp_message_id;
         break;   
@@ -239,10 +247,10 @@ parse_decoded_packet( uint8_t byte_in, eui_packet_t *p_link_in )
             p_link_in->id_in[p_link_in->parser.id_bytes_in] = byte_in;
             p_link_in->parser.id_bytes_in++;
 
-            if( p_link_in->parser.id_bytes_in >= p_link_in->header.id_len )
+            if( (uint8_t)p_link_in->parser.id_bytes_in >= (uint8_t)p_link_in->header.id_len )
             {
                 //terminate msgID string if shorter than max size
-                if( MSGID_SIZE > p_link_in->parser.id_bytes_in )
+                if( MSGID_SIZE > (uint8_t)p_link_in->parser.id_bytes_in )
                 {
                     p_link_in->id_in[p_link_in->parser.id_bytes_in] = '\0';
                 }
@@ -273,12 +281,12 @@ parse_decoded_packet( uint8_t byte_in, eui_packet_t *p_link_in )
 
 #ifndef EUI_CONF_OFFSETS_DISABLED
         case exp_offset_b1:
-            p_link_in->offset_in    = byte_in;
+            p_link_in->offset_in    = (uint16_t)byte_in;
             p_link_in->parser.state = exp_offset_b2;
         break;
 
         case exp_offset_b2:
-            p_link_in->offset_in     |= ((uint16_t)byte_in << 8);
+            p_link_in->offset_in     |= (uint16_t)((uint16_t)byte_in << 8u);
             p_link_in->parser.state  = exp_data;
         break;
 #endif
@@ -288,8 +296,8 @@ parse_decoded_packet( uint8_t byte_in, eui_packet_t *p_link_in )
             p_link_in->data_in[p_link_in->parser.data_bytes_in] = byte_in;
             p_link_in->parser.data_bytes_in++;
 
-            if( (p_link_in->parser.data_bytes_in >= p_link_in->header.data_len) 
-                || (p_link_in->parser.data_bytes_in >= PAYLOAD_SIZE_MAX) )
+            if( (  (uint16_t)p_link_in->parser.data_bytes_in >= (uint16_t)p_link_in->header.data_len )
+                || ( (uint16_t)p_link_in->parser.data_bytes_in >= PAYLOAD_SIZE_MAX) )
             {
                 p_link_in->parser.state = exp_crc_b1;
             }
@@ -297,7 +305,7 @@ parse_decoded_packet( uint8_t byte_in, eui_packet_t *p_link_in )
         
         case exp_crc_b1:
         {
-            uint8_t crc_low_byte = (p_link_in->crc_in & 0xFF);
+            uint8_t crc_low_byte = (p_link_in->crc_in & 0xFFu);
             
             if( byte_in == crc_low_byte )
             {
@@ -311,7 +319,7 @@ parse_decoded_packet( uint8_t byte_in, eui_packet_t *p_link_in )
         break;
 
         case exp_crc_b2:
-            if( byte_in == (p_link_in->crc_in >> 8) )
+            if( byte_in == (p_link_in->crc_in >> 8u) )
             {
                 parse_status = EUI_PARSER_OK;
             }

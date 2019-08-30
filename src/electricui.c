@@ -156,16 +156,17 @@ handle_packet_action(   eui_interface_t *valid_packet,
 {
     uint8_t status = EUI_ACTION_OK;
 
-    uint8_t inbound_type_matches = (p_msg_obj->type & 0x0F) == header->type;
+    uint8_t inbound_type_matches = ((uint8_t)p_msg_obj->type & 0x0Fu) == (uint8_t)header->type;
 
     if( inbound_type_matches )
     {
-        uint8_t is_callback = (p_msg_obj->type & 0x0F) == TYPE_CALLBACK;
-        uint8_t is_writable = !(p_msg_obj->type >> 7);
+        uint8_t is_callback = ((uint8_t)p_msg_obj->type & 0x0Fu) == TYPE_CALLBACK;
+        uint8_t is_writable = !((uint8_t)p_msg_obj->type >> 7u);
 
         if( is_callback )
         {
-            if( (header->response && header->acknum) || (!header->response && !header->acknum) )
+            if(    ((uint8_t)header->response && (uint8_t)header->acknum)
+                || (!(uint8_t)header->response && !(uint8_t)header->acknum) )
             {
                 // Create a function to call from the internal stored pointer
                 eui_cb_t cb_packet_h = p_msg_obj->ptr.callback;
@@ -184,7 +185,7 @@ handle_packet_action(   eui_interface_t *valid_packet,
         {
             // Ensure data won't exceed bounds with invalid offsets/lengths
             if( is_writable && 
-                (valid_packet->packet.offset_in + header->data_len) <= p_msg_obj->size )
+                (valid_packet->packet.offset_in + (uint16_t)header->data_len) <= p_msg_obj->size )
             {
                 memcpy( (uint8_t *)p_msg_obj->ptr.data + valid_packet->packet.offset_in,
                         valid_packet->packet.data_in,
@@ -196,7 +197,7 @@ handle_packet_action(   eui_interface_t *valid_packet,
             }
         }
     }
-    else if( header->type != TYPE_OFFSET_METADATA )
+    else if( TYPE_OFFSET_METADATA != (uint8_t)header->type )
     {
         status = EUI_ACTION_TYPE_MISMATCH_ERROR;
     }
@@ -211,7 +212,7 @@ handle_packet_ack(  eui_interface_t *valid_packet,
 {
     uint8_t status = EUI_ACK_OK;
 
-    if( header->acknum && header->response )
+    if( (uint8_t)header->acknum && (uint8_t)header->response )
     {
         eui_header_t ack_header = { .internal   = header->internal,
                                     .response   = MSG_NRESP,
@@ -239,7 +240,7 @@ handle_packet_query(    eui_interface_t *valid_packet,
 {
     uint8_t status = EUI_QUERY_OK;
 
-    if( header->response && !header->acknum )
+    if( (uint8_t)header->response && !header->acknum )
     {
         // Respond with data to fulfil query behaviour
         eui_pkt_settings_t res_header = { .internal = header->internal,
@@ -247,7 +248,7 @@ handle_packet_query(    eui_interface_t *valid_packet,
                                           .type     = p_msg_obj->type };
 
         // inverted logic used to keep ifdef disable clean
-        if( TYPE_OFFSET_METADATA != header->type )
+        if( TYPE_OFFSET_METADATA != (uint8_t)header->type )
         {
             status = eui_send(valid_packet->output_cb, p_msg_obj, &res_header);
         }
@@ -257,10 +258,10 @@ handle_packet_query(    eui_interface_t *valid_packet,
             uint16_t base_address = 0;
             uint16_t end_address  = 0;
             
-            base_address  = (uint16_t)valid_packet->packet.data_in[1] << 8;
+            base_address  = (uint16_t)valid_packet->packet.data_in[1] << 8u;
             base_address |= valid_packet->packet.data_in[0];
 
-            end_address  = (uint16_t)valid_packet->packet.data_in[3] << 8;
+            end_address  = (uint16_t)valid_packet->packet.data_in[3] << 8u;
             end_address |= valid_packet->packet.data_in[2];
 
             status = eui_send_range(    valid_packet->output_cb,
@@ -323,7 +324,7 @@ eui_send_range( callback_data_out_t output_cbtion,
     uint16_t data_range[2]  = { 0 };
     validate_offset_range(  base_addr,
                             end_addr,
-                            (p_msg_obj->type & 0x0F),
+                            (p_msg_obj->type & 0x0Fu),
                             p_msg_obj->size,
                             &data_range[0],
                             &data_range[1]);
@@ -357,7 +358,7 @@ eui_send_range( callback_data_out_t output_cbtion,
         }
         
         //the current position through the buffer in bytes is also the end offset
-        end_addr -= tmp_header.data_len;  
+        end_addr -= (uint16_t)tmp_header.data_len;
 
         status = eui_encode(    output_cbtion,
                                 &tmp_header,
@@ -519,9 +520,9 @@ send_tracked_message_id_list( void )
     temp_header.type      = TYPE_CUSTOM;
 
     uint8_t msgBuffer[ (16)*4 ];
-    uint8_t msg_buffer_position  = 0;  //position in buffer
-    uint8_t id_len                = 0; //length of a single id string
-    uint8_t id_packed_num        = 0;  //count messages packed into buffer
+    uint8_t msg_buffer_position  = 0;  // position in buffer
+    uint8_t id_len               = 0;  // length of a single id string
+    uint8_t id_packed_num        = 0;  // count messages packed into buffer
 
     for( eui_variable_count_t i = 0; i < dev_tracked_num; i++ )
     {

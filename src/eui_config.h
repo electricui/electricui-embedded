@@ -33,16 +33,16 @@
 #endif
 
 
-#define READ_ONLY_MASK 0x80
-#define READ_ONLY_FLAG 0x01
-#define WRITABLE_FLAG 0x00
+#define READ_ONLY_MASK 0x80u
+#define READ_ONLY_FLAG 0x01u
+#define WRITABLE_FLAG 0x00u
 
-#define MSG_INTERNAL        1
-#define MSG_DEV             0
-#define MSG_RESP            1
-#define MSG_NRESP           0
-#define MSG_OFFSET_PACKET   1
-#define MSG_STANDARD_PACKET 0
+#define MSG_INTERNAL        1u
+#define MSG_DEV             0u
+#define MSG_RESP            1u
+#define MSG_NRESP           0u
+#define MSG_OFFSET_PACKET   1u
+#define MSG_STANDARD_PACKET 0u
 
 // Configure internal message ID strings
 #define EUI_INTERNAL_LIB_VER    "o"
