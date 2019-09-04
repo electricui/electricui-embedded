@@ -53,7 +53,7 @@ uint32_t  large_int_array[] =
   90, 91, 92, 93, 94, 95, 96, 97, 98, 99,
 };
 
-eui_message_t dev_msg_store[] = 
+eui_message_t tracked_vars[] = 
 {
     // Track a variable - Provide an ID string (up to 16 characters) which is also used in the UI
     EUI_UINT8(    "u8", example_uint8 ),
@@ -84,20 +84,19 @@ eui_message_t dev_msg_store[] =
     EUI_UINT8_ARRAY( "u8-arr", example_uint8_arr ),
     EUI_UINT32_ARRAY( "big-arr", large_int_array ),
 
-    EUI_CHAR_ARRAY( "name", demo_string),
+    // Arrays can also be read-only
+    EUI_CHAR_RO_ARRAY( "name", demo_string),
 };
 
-eui_interface_t serial_comms;
+eui_interface_t serial_comms = EUI_INTERFACE( &serial_write );
 
 void setup() 
 {
     Serial.begin(115200);
 
     //eUI setup
-    serial_comms.output_cb = &tx_putc;
     eui_setup_interface( &serial_comms );
-
-    EUI_TRACK( dev_msg_store );
+    EUI_TRACK( tracked_vars );
     eui_setup_identifier( "types", 6 );
 }
 
@@ -116,7 +115,7 @@ void uart_rx_handler()
   }
 }
 
-void tx_putc( uint8_t *data, uint16_t len )
+void serial_write( uint8_t *data, uint16_t len )
 {
   Serial.write( data, len );
 }

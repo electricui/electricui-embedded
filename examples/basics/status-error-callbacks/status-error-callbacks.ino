@@ -5,6 +5,8 @@
  *  
  *  Interface callbacks can be used to handle untracked messages, flag an event while 
  *  tracked data is processed, or inspect the inbound buffer when an error was flagged.
+ *
+ *  report_error( ... ) demonstrates runtime variable creation for sending arbitrary strings.
 */
 
 #include "electricui.h"
@@ -78,6 +80,7 @@ void serial_rx_handler()
 
       case EUI_PARSER_ERROR:
       // The parser encountered an error or failure, e.g. CRC check fails, invalid packet formats
+      report_error("Parser Fail");
       break;
     }
 
@@ -85,15 +88,18 @@ void serial_rx_handler()
     {
       case EUI_ACTION_CALLBACK_ERROR:
       // Couldn't call a developer tracked callback function due to null pointer reference
+      report_error("Callback Fail");
       break;
 
       case EUI_ACTION_WRITE_ERROR:
       // Inbound packet has invalid offset data or invalid length which would result in 
       // out-of-bounds data operations. When this occurs, data is not written
+      report_error("Write Fail");
       break;
 
       case EUI_ACTION_TYPE_MISMATCH_ERROR:
       // Data type in the inbound packet doesn't match the internal type
+      report_error("Type Fail");
       break;
     }
 
@@ -106,20 +112,30 @@ void serial_rx_handler()
     switch( parse_status.query )
     {
       case EUI_QUERY_SEND_ERROR:
-        // Couldn't reply to the query
+      // Couldn't reply to the query
+      report_error("Query Fail");
       break;
 
       case EUI_QUERY_SEND_OFFSET_ERROR:
-        // Couldn't reply to the ranged query
+      // Couldn't reply to the ranged query
+      report_error("Offset Query Fail");
       break;
     }
 
   }
 }
-  
-void serial_write( uint8_t *data, uint16_t len )
+
+// Send the text to the UI for display to user
+// this message is generated on the fly to match the string length
+void report_error( char * error_string )
 {
-  Serial.write( data, len );
+  eui_message_t err_message = { .id = "err",
+                                .type = TYPE_CHAR,
+                                .size = strlen( error_string ),
+                              { .data = error_string }       };
+
+  eui_send_untracked( &err_message );
+
 }
 
 void eui_callback( uint8_t message )
@@ -147,7 +163,7 @@ void eui_callback( uint8_t message )
         if( header.type == TYPE_UINT16 )
         {
         	// Do something with the inbound payload here
-
+          report_error("u16 Test CB");
         }
       }
     }
@@ -158,4 +174,10 @@ void eui_callback( uint8_t message )
 
     break;
   }
+}
+
+// EUI output over serial
+void serial_write( uint8_t *data, uint16_t len )
+{
+  Serial.write( data, len );
 }

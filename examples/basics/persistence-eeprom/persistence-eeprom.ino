@@ -20,8 +20,8 @@
 
 void save_settings();			// Define the callback used to save data
 void erase_settings();			// Define the callback for flash erase
-uint16_t unique_device_id = 0;	// Persistent UUID useful for device identification
 
+uint16_t unique_device_id = 0;	// Persistent UUID useful for device identification
 
 // Same as hello-blink.ino example
 uint8_t   blink_enable = 1;
