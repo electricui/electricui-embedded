@@ -7,6 +7,13 @@
 #ifndef EUI_PRIVATE_H
 #define EUI_PRIVATE_H
 
+/**
+ * @file electricui_private.h
+ * @brief Internal functions and variables
+ *
+ * Private functionality extracted into this header for optional includes in unit tests and better readability.
+ */
+
 #include "eui_types.h"
 
 // Private functions

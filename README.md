@@ -41,6 +41,12 @@ sudo ln -s ~/projects/electricui-embedded/ ~/Arduino/libraries/electricui
 
 Windows/Arduino can demonstrate issues with symbolic links across drives (ExFAT doesn't support them).
 
+## Documentation
+
+The library has Doxygen formatted inline comments which provide explanation of both the internal and external API surfaces. This documentation is intended to improve developer experience while using compatible IDE's, and an intermediate is used to provide documentation [on the website](https://electricui.com/docs/).
+
+To generate documentation artifacts (html), call `doxygen Doxyfile` and then open `docs/index.html`.
+
 ## Running tests
 
 Testing uses the [Ceedling](http://www.throwtheswitch.org/ceedling/) (Ruby/rake) based testing framework.
