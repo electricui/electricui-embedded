@@ -7,6 +7,14 @@
 #ifndef EUI_CONF_H
 #define EUI_CONF_H
 
+/**
+ * @file eui_config.h
+ * @brief Configuration defines and function remapping
+ *
+ * Developer configurable defines to modify internal datastructure sizing, limits, or override the bundled protocol implementation.
+ * Also includes list of internal message identifiers.
+ */
+
 #include <stdint.h>
 
 // Increase supported variable count to 65535

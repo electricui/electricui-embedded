@@ -8,7 +8,7 @@
 #define EUI_CRC_H
 
 /**
- * @file eui_types.h
+ * @file eui_crc.h
  * @brief CRC16 Helper function
  *
  */
