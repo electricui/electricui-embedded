@@ -7,6 +7,12 @@
 #ifndef EUI_MACRO_H
 #define EUI_MACRO_H
 
+/**
+ * @file eui_macro.h
+ * @brief Macros to simplify variable and interface instantiation
+ *
+ */
+
 #define EUI_ARR_ELEM(a) (sizeof(a) / sizeof(*a))    //number of elements in array
 
 #define EUI_TRACK( INPUT_ARRAY )    ( eui_setup_tracked(INPUT_ARRAY, EUI_ARR_ELEM(INPUT_ARRAY)) )
