@@ -82,16 +82,16 @@ eui_message_t macro_object_array_read_only[] = {
     EUI_DOUBLE_RO(  "double",   macro_double ),
     EUI_CUSTOM_RO(  "custom",   macro_trifloat ),
 
-    EUI_CHAR_RO_ARRAY(      "arr_char",     macro_char_arr ),
-    EUI_INT8_RO_ARRAY(      "arr_int8",     macro_int8_arr ),
-    EUI_INT16_RO_ARRAY(     "arr_int16",    macro_int16_arr ),
-    EUI_INT32_RO_ARRAY(     "arr_int32",    macro_int32_arr ),
-    EUI_UINT8_RO_ARRAY(     "arr_uint8",    macro_uint8_arr ),
-    EUI_UINT16_RO_ARRAY(    "arr_uint16",   macro_uint16_arr ),
-    EUI_UINT32_RO_ARRAY(    "arr_uint32",   macro_uint32_arr ),
-    EUI_FLOAT_RO_ARRAY(     "arr_float",    macro_float_arr ),
-    EUI_DOUBLE_RO_ARRAY(    "arr_double",   macro_double_arr ),
-    EUI_CUSTOM_RO_ARRAY(    "arr_custom",   macro_trifloat ),
+    EUI_CHAR_ARRAY_RO(      "arr_char",     macro_char_arr ),
+    EUI_INT8_ARRAY_RO(      "arr_int8",     macro_int8_arr ),
+    EUI_INT16_ARRAY_RO(     "arr_int16",    macro_int16_arr ),
+    EUI_INT32_ARRAY_RO(     "arr_int32",    macro_int32_arr ),
+    EUI_UINT8_ARRAY_RO(     "arr_uint8",    macro_uint8_arr ),
+    EUI_UINT16_ARRAY_RO(    "arr_uint16",   macro_uint16_arr ),
+    EUI_UINT32_ARRAY_RO(    "arr_uint32",   macro_uint32_arr ),
+    EUI_FLOAT_ARRAY_RO(     "arr_float",    macro_float_arr ),
+    EUI_DOUBLE_ARRAY_RO(    "arr_double",   macro_double_arr ),
+    EUI_CUSTOM_ARRAY_RO(    "arr_custom",   macro_trifloat ),
 };
 
 eui_message_t expected_object_array[] = {

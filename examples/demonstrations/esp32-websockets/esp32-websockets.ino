@@ -50,7 +50,7 @@ eui_message_t dev_msg_store[] = {
     EUI_UINT16( "i16", example_uint16 ),
     EUI_UINT32( "i32", example_uint32 ),
     EUI_FLOAT(  "fPI", example_float ),
-    EUI_CHAR_RO_ARRAY( "name", demo_string ),
+    EUI_CHAR_ARRAY_RO( "name", demo_string ),
 };
 
 WiFiMulti WiFiMulti;

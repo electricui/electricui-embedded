@@ -85,7 +85,7 @@ eui_message_t tracked_vars[] =
     EUI_UINT32_ARRAY( "big-arr", large_int_array ),
 
     // Arrays can also be read-only
-    EUI_CHAR_RO_ARRAY( "name", demo_string),
+    EUI_CHAR_ARRAY_RO( "name", demo_string),
 };
 
 eui_interface_t serial_comms = EUI_INTERFACE( &serial_write );

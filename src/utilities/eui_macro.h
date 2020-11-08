@@ -62,15 +62,15 @@
 #define EUI_DOUBLE_ARRAY( ID, DATA ) { .id = ID, .type = TYPE_DOUBLE, .size = sizeof(DATA),  {.data = &DATA} }
 
 // Array of read-only typed variables
-#define EUI_CUSTOM_RO_ARRAY( ID, DATA ) { .id = ID, .type = TYPE_CUSTOM|READ_ONLY_MASK, .size = sizeof(DATA), {.data = &DATA} }
-#define EUI_CHAR_RO_ARRAY(   ID, DATA ) { .id = ID, .type = TYPE_CHAR|READ_ONLY_MASK,   .size = sizeof(DATA), {.data = &DATA} }
-#define EUI_INT8_RO_ARRAY(   ID, DATA ) { .id = ID, .type = TYPE_INT8|READ_ONLY_MASK,   .size = sizeof(DATA), {.data = &DATA} }
-#define EUI_INT16_RO_ARRAY(  ID, DATA ) { .id = ID, .type = TYPE_INT16|READ_ONLY_MASK,  .size = sizeof(DATA), {.data = &DATA} }
-#define EUI_INT32_RO_ARRAY(  ID, DATA ) { .id = ID, .type = TYPE_INT32|READ_ONLY_MASK,  .size = sizeof(DATA), {.data = &DATA} }
-#define EUI_UINT8_RO_ARRAY(  ID, DATA ) { .id = ID, .type = TYPE_UINT8|READ_ONLY_MASK,  .size = sizeof(DATA), {.data = &DATA} }
-#define EUI_UINT16_RO_ARRAY( ID, DATA ) { .id = ID, .type = TYPE_UINT16|READ_ONLY_MASK, .size = sizeof(DATA), {.data = &DATA} }
-#define EUI_UINT32_RO_ARRAY( ID, DATA ) { .id = ID, .type = TYPE_UINT32|READ_ONLY_MASK, .size = sizeof(DATA), {.data = &DATA} }
-#define EUI_FLOAT_RO_ARRAY(  ID, DATA ) { .id = ID, .type = TYPE_FLOAT|READ_ONLY_MASK,  .size = sizeof(DATA), {.data = &DATA} }
-#define EUI_DOUBLE_RO_ARRAY( ID, DATA ) { .id = ID, .type = TYPE_DOUBLE|READ_ONLY_MASK, .size = sizeof(DATA), {.data = &DATA} }
+#define EUI_CUSTOM_ARRAY_RO( ID, DATA ) { .id = ID, .type = TYPE_CUSTOM|READ_ONLY_MASK, .size = sizeof(DATA), {.data = &DATA} }
+#define EUI_CHAR_ARRAY_RO(   ID, DATA ) { .id = ID, .type = TYPE_CHAR|READ_ONLY_MASK,   .size = sizeof(DATA), {.data = &DATA} }
+#define EUI_INT8_ARRAY_RO(   ID, DATA ) { .id = ID, .type = TYPE_INT8|READ_ONLY_MASK,   .size = sizeof(DATA), {.data = &DATA} }
+#define EUI_INT16_ARRAY_RO(  ID, DATA ) { .id = ID, .type = TYPE_INT16|READ_ONLY_MASK,  .size = sizeof(DATA), {.data = &DATA} }
+#define EUI_INT32_ARRAY_RO(  ID, DATA ) { .id = ID, .type = TYPE_INT32|READ_ONLY_MASK,  .size = sizeof(DATA), {.data = &DATA} }
+#define EUI_UINT8_ARRAY_RO(  ID, DATA ) { .id = ID, .type = TYPE_UINT8|READ_ONLY_MASK,  .size = sizeof(DATA), {.data = &DATA} }
+#define EUI_UINT16_ARRAY_RO( ID, DATA ) { .id = ID, .type = TYPE_UINT16|READ_ONLY_MASK, .size = sizeof(DATA), {.data = &DATA} }
+#define EUI_UINT32_ARRAY_RO( ID, DATA ) { .id = ID, .type = TYPE_UINT32|READ_ONLY_MASK, .size = sizeof(DATA), {.data = &DATA} }
+#define EUI_FLOAT_ARRAY_RO(  ID, DATA ) { .id = ID, .type = TYPE_FLOAT|READ_ONLY_MASK,  .size = sizeof(DATA), {.data = &DATA} }
+#define EUI_DOUBLE_ARRAY_RO( ID, DATA ) { .id = ID, .type = TYPE_DOUBLE|READ_ONLY_MASK, .size = sizeof(DATA), {.data = &DATA} }
 
 #endif //end EUI_MACRO_H
