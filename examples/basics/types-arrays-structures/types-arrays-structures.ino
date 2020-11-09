@@ -53,6 +53,8 @@ uint32_t  large_int_array[] =
   90, 91, 92, 93, 94, 95, 96, 97, 98, 99,
 };
 
+void call_me_from_ui( void );
+
 eui_message_t tracked_vars[] = 
 {
     // Track a variable - Provide an ID string (up to 16 characters) which is also used in the UI
@@ -86,6 +88,9 @@ eui_message_t tracked_vars[] =
 
     // Arrays can also be read-only
     EUI_CHAR_ARRAY_RO( "name", demo_string),
+
+    // Functions on the microcontroller can be called by the UI 
+    EUI_FUNC( "func", call_me_from_ui ),
 };
 
 eui_interface_t serial_comms = EUI_INTERFACE( &serial_write );
@@ -105,6 +110,13 @@ void loop()
     uart_rx_handler();
 
     delay(1); // limit the loop rate
+}
+
+void call_me_from_ui( void )
+{
+  // The UI triggered this function call.
+  // Change a variable so we can see that it worked
+  example_uint8 = 42;
 }
 
 void uart_rx_handler()
