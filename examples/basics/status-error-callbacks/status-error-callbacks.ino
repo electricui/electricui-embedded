@@ -92,9 +92,21 @@ void serial_rx_handler()
       break;
 
       case EUI_ACTION_WRITE_ERROR:
+      {
       // Inbound packet has invalid offset data or invalid length which would result in 
       // out-of-bounds data operations. When this occurs, data is not written
-      report_error("Write Fail");
+      eui_header_t header   = serial_interface.packet.header;
+      uint8_t      *name_rx = serial_interface.packet.id_in;
+      eui_message_t *tracked = find_tracked_object( (char *)name_rx );
+      uint8_t size_expected = tracked->size;
+
+
+      char error_buf[50] = { 0 };
+      snprintf(error_buf, 50, "Write Err: got %d, exp %d", header.data_len, size_expected );
+
+      report_error( error_buf );
+
+      }
       break;
 
       case EUI_ACTION_TYPE_MISMATCH_ERROR:
