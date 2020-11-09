@@ -2,7 +2,7 @@
 
 Provides a default binary serial protocol, and the higher level handling functionality for use on embedded microcontrollers or other C/C++ compatible platforms. Intended for use with a ElectricUI compatible UI or device.
 
-See the docs or website for more information.
+See the [website for more information](https://electricui.com/docs/).
 
 ## Getting Started
 
@@ -22,9 +22,9 @@ See the docs or website for more information.
 
 1. Just clone the repo and use the electricui files. Import into your project as normal `#include "electricui.h"` and ensure the minimum setup functions are called.
 
-2. The library assumes that you will provide a pointer to a function which accepts a byte array, this function will then call your system's putc() or write_bytes() function.
+2. The library assumes that you will provide a pointer to a function which accepts a byte array, this function should then call your system's putc() or write_bytes() function.
 
-3. For for more detail, follow the docs or example Arduino code which shows the minimum setup and usage examples.
+3. For for more detail, [follow the docs](https://electricui.com/docs/hardware/) or example Arduino code which shows the minimum setup and usage examples.
 
 
 # Developing electricui-embedded
@@ -95,7 +95,7 @@ From `/test/fuzz`, run `make all` and it will build an instrumented test program
 
 # Overheads and Benchmarks
 
-The library has a reasonably small footprint, around 280 bytes of RAM and around 2.8k of codespace.  
+The library has a reasonably small footprint, around 280 bytes of RAM and around 2.8k of codespace.
 Using the tracked variable functionality uses 3 bytes and 2 pointers per tracked variable (so 8 bytes on your Arduino Uno).
 
 These numbers will vary based on your target architecture, word alignment and compiler settings.

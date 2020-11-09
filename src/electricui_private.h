@@ -41,7 +41,7 @@ handle_packet_query( 	eui_interface_t *valid_packet,
                         eui_header_t    *header,
                         eui_message_t   *p_msg_obj );
 
-//application layer functionality
+// Application layer functionality accessed via UI callback
 void
 announce_dev_msg( void );
 
@@ -54,12 +54,12 @@ send_tracked_message_id_list( void );
 void
 send_tracked_variables( void );
 
-//interface management
+// Communication Interfaces management
 eui_interface_t     *p_interface_arr;
 uint8_t             interface_num;
 eui_interface_t 	*p_interface_last;
 
-//dev interface
+// Application developer's managed messages
 eui_message_t           *p_dev_tracked;
 eui_variable_count_t    dev_tracked_num;
 

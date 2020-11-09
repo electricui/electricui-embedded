@@ -15,7 +15,7 @@ encode_packet_simple(   callback_data_out_t output_function,
                         uint16_t            payload_len,
                         void*               payload )
 {
-    //just call the full one with default ack# and offset values
+    // Call the full encode with default ack# and offset values
     eui_header_t expanded_header;
 
     expanded_header.internal   = settings->internal;
@@ -84,8 +84,8 @@ encode_framing( uint8_t *buffer, uint16_t buf_size )
         {
             buffer[previous_null] = 0xFFu;
 
-            // ripple the buffer of data back one byte to make room
-            // this 'extra' new byte is now the offset
+            // Ripple the buffer of data back one byte to make room
+            // This 'extra' new byte is now the offset
             for( uint16_t j = 1; j < (buf_size-i); j++ )
             {
                 buffer[ buf_size-j ] = buffer[ buf_size-j-1 ];
@@ -113,12 +113,12 @@ encode_packet(  callback_data_out_t out_char,
     if( out_char && header && msg_id && payload )
     {  
         uint8_t pk_tmp[ 1 + PACKET_BASE_SIZE + MSGID_SIZE + PAYLOAD_SIZE_MAX + 4 ] = { 0 };
-        uint16_t pk_i = 2; //leave room for the 0x00 and framing byte
+        uint16_t pk_i = 2; // Leave room for the 0x00 and framing offset byte
 
-        // write header bytes into the buffer
+        // Write header bytes into the buffer
         pk_i += encode_header( header, &pk_tmp[pk_i] );
 
-        //message ID
+        // Message ID
         memcpy( &pk_tmp[pk_i], msg_id, header->id_len );
         pk_i += (uint8_t)header->id_len;
 
@@ -130,11 +130,11 @@ encode_packet(  callback_data_out_t out_char,
         }
 #endif
 
-        //payload data copy
+        // Payload data copy
         memcpy( &pk_tmp[pk_i], (uint8_t *)payload + offset, header->data_len );
         pk_i += (uint16_t)header->data_len;
 
-        //calculate and write CRC
+        // Calculate and write CRC
         uint16_t outbound_crc = 0xFFFFu;
         for( uint16_t i = 2; i < pk_i; i++ )
         {
@@ -144,7 +144,7 @@ encode_packet(  callback_data_out_t out_char,
         memcpy( &pk_tmp[pk_i], &outbound_crc, sizeof(outbound_crc) );
         pk_i += sizeof(outbound_crc);
         
-        //Apply Consistent Overhead Byte Stuffing (COBS) for framing/sync
+        // Apply Consistent Overhead Byte Stuffing (COBS) for framing/sync
         pk_i += 1;  // +1 to account for null byte at end
         encode_framing( pk_tmp, pk_i);    
 
@@ -183,17 +183,17 @@ decode_packet(uint8_t byte_in, eui_packet_t *p_link_in)
     {
         if( 0x01 < p_link_in->parser.frame_offset )
         {
-            //we are now one byte closer to the next offset
+            // One byte closer to the next offset
             p_link_in->parser.frame_offset -= 1u;
         }
         else
         {
-            //offset has expired, this inbound byte should be the next data framing byte
+            // Offset has expired, this inbound byte should be the next data framing byte
             p_link_in->parser.frame_offset = byte_in;
-            byte_in = 0x00u; //replace with pre-COBS byte.
+            byte_in = 0x00u; // Replace with pre-COBS byte.
         }
 
-        //CRC data up to the packet's CRC
+        // CRC data up to the packet's CRC
         if( (exp_crc_b1 > (uint8_t)p_link_in->parser.state)
             && (exp_frame_offset < (uint8_t)p_link_in->parser.state) )
         {
@@ -211,11 +211,11 @@ parse_decoded_packet( uint8_t byte_in, eui_packet_t *p_link_in )
 {
     uint8_t parse_status = EUI_PARSER_IDLE;
 
-    //parse the byte into the inbound packet buffers
+    // Parse the byte into the inbound packet buffers
     switch( (uint8_t)p_link_in->parser.state )
     {
         case exp_frame_offset:
-            //first byte is the first offset
+            // First byte is the first offset
             p_link_in->parser.state = exp_header_b1;
         break;
 
@@ -225,7 +225,7 @@ parse_decoded_packet( uint8_t byte_in, eui_packet_t *p_link_in )
         break;
 
         case exp_header_b2:
-            //'last' two length bits at start of this byte
+            // The 'last' two length bits at start of this byte
             p_link_in->header.data_len |= (uint16_t)((uint16_t)byte_in << 8u) & 0x0300u;
             p_link_in->header.type      = (uint8_t)(byte_in >> 2u) & 0x0Fu;
             p_link_in->header.internal  = (uint8_t)(byte_in >> 6u) & 0x01u;
@@ -243,25 +243,24 @@ parse_decoded_packet( uint8_t byte_in, eui_packet_t *p_link_in )
         break;   
         
         case exp_message_id:
-            //Bytes are messageID until we hit the length specified in the header
+            // Bytes are messageID until we hit the length specified in the header
             p_link_in->id_in[p_link_in->parser.id_bytes_in] = byte_in;
             p_link_in->parser.id_bytes_in++;
 
             if( (uint8_t)p_link_in->parser.id_bytes_in >= (uint8_t)p_link_in->header.id_len )
             {
-                //terminate msgID string if shorter than max size
+                // Terminate msgID string if shorter than max size
                 if( MSGID_SIZE > (uint8_t)p_link_in->parser.id_bytes_in )
                 {
                     p_link_in->id_in[p_link_in->parser.id_bytes_in] = '\0';
                 }
 
-                //start reading in the offset or data based on header guide
+                // Start reading in the offset or data based on header guide
                 if( p_link_in->header.offset )
                 {
 #ifndef EUI_CONF_OFFSETS_DISABLED
                     p_link_in->parser.state = exp_offset_b1;
 #else
-                    //add a error code for 'doesn't support offsets
                     parse_status = EUI_PARSER_ERROR;
 #endif
                 }
@@ -292,7 +291,7 @@ parse_decoded_packet( uint8_t byte_in, eui_packet_t *p_link_in )
 #endif
         
         case exp_data:
-            //we know the payload length, parse until we've eaten those bytes
+            // Payload length is known from the header, parse until we've eaten those bytes
             p_link_in->data_in[p_link_in->parser.data_bytes_in] = byte_in;
             p_link_in->parser.data_bytes_in++;
 
@@ -311,7 +310,7 @@ parse_decoded_packet( uint8_t byte_in, eui_packet_t *p_link_in )
             {
                 p_link_in->parser.state = exp_crc_b2;
             }
-            else  //first byte didn't match CRC, fail early
+            else  // First byte didn't match CRC, fail early
             {
                 parse_status = EUI_PARSER_ERROR;
             }
@@ -331,7 +330,7 @@ parse_decoded_packet( uint8_t byte_in, eui_packet_t *p_link_in )
         break;
 
         default:
-            //shouldn't have unexpected parser state
+            // Shouldn't have unexpected parser state
             parse_status = EUI_PARSER_ERROR;
         break;
     }
