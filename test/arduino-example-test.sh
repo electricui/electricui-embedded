@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2016-2019 Electric UI
+# Copyright (c) 2016-2020 Electric UI
 # MIT Licenced - see LICENCE for details.
 # Compiles each of the Arduino example sketches in electricui-embedded/examples
 

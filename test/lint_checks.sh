@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2016-2019 Electric UI
+# Copyright (c) 2016-2020 Electric UI
 # MIT Licenced - see LICENCE for details.
 
 # Point to the linter directly if not added to bashrc
