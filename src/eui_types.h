@@ -17,6 +17,16 @@
 #include <stdint.h>
 
 /**
+ * @brief Default maximum message identifier length
+ *
+ * Default ID are up to 16 bytes in length. Can be reduced to save parser buffer bytes in RAM constrained systems.
+ * 
+ * @warning Extending msgID length beyond 16B requires rework of the header structure and codecs, as only 4-bits are assigned for ID length.
+ */
+#define EUI_MAX_MSGID_SIZE (16u)
+
+
+/**
  * @brief Default Supported Message Types
  *
  *  Used to indicate the type of underlying payload data, or intended message functionality.

@@ -38,14 +38,6 @@
     #define PAYLOAD_SIZE_MAX  120   //default inbound buffer size
 #endif
 
-/**
- * @brief Default maximum message identifier length
- *
- * Default ID are up to 16 bytes in length. Can be reduced to save parser buffer bytes in RAM constrained systems.
- * 
- * @warning Extending msgID length beyond 16B requires rework of the header structure and codecs, as only 4-bits are assigned for ID length.
- */
-#define MSGID_SIZE 16
 
 /**
  * @brief Inbound Parsing statemachine data
@@ -68,7 +60,8 @@ typedef struct {
 typedef struct {
     eui_parser_state_t parser;                  ///< Parser statemachine data to track ingest progress
     eui_header_t header;                        ///< Storage for inbound header bytes
-    uint8_t     id_in[16];                      ///< Storage buffer for the inbound message identifier string
+    
+    uint8_t     id_in[EUI_MAX_MSGID_SIZE];      ///< Storage buffer for the inbound message identifier string
 
 #ifndef EUI_CONF_OFFSETS_DISABLED
     uint16_t    offset_in;                      ///< Payload offset information for split packets

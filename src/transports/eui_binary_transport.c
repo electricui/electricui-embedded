@@ -112,7 +112,7 @@ encode_packet(  callback_data_out_t out_char,
 
     if( out_char && header && msg_id && payload )
     {  
-        uint8_t pk_tmp[ 1 + PACKET_BASE_SIZE + MSGID_SIZE + PAYLOAD_SIZE_MAX + 4 ] = { 0 };
+        uint8_t pk_tmp[ 1 + PACKET_BASE_SIZE + EUI_MAX_MSGID_SIZE + PAYLOAD_SIZE_MAX + 4 ] = { 0 };
         uint16_t pk_i = 2; // Leave room for the 0x00 and framing offset byte
 
         // Write header bytes into the buffer

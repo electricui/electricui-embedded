@@ -518,7 +518,7 @@ send_tracked_message_id_list( void )
     temp_header.response  = MSG_NRESP;
     temp_header.type      = TYPE_CUSTOM;
 
-    uint8_t msgBuffer[ (16)*4 ];
+    uint8_t msgBuffer[ EUI_MAX_MSGID_SIZE*4 ];       // Can fit at least 4 full-size msgID
     uint8_t msg_buffer_position  = 0;  // position in buffer
     uint8_t id_len               = 0;  // length of a single id string
     uint8_t id_packed_num        = 0;  // count messages packed into buffer
