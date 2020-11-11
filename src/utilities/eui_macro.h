@@ -23,7 +23,7 @@
 
 
 //Helper macros to simplify eUI object array declaration in user-code
-#define EUI_FUNC(   ID, CB ) { .id = ID, .type = TYPE_CALLBACK|READ_ONLY_MASK, .size = 1, {.callback = &CB} }
+#define EUI_FUNC(   ID, CB ) { .id = ID, .type = TYPE_CALLBACK|READ_ONLY_MASK, .size = 0, {.callback = &CB} }
 
 // Typed RW Variables
 #define EUI_CUSTOM( ID, DATA ) { .id = ID, .type = TYPE_CUSTOM, .size = sizeof(DATA),    {.data = &DATA} }

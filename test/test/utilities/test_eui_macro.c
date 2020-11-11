@@ -95,7 +95,7 @@ eui_message_t macro_object_array_read_only[] = {
 };
 
 eui_message_t expected_object_array[] = {
-    { .id = "func",   .type = TYPE_CALLBACK|READ_ONLY_MASK,  .size = 1,      {.callback = &macro_callback}  },
+    { .id = "func",   .type = TYPE_CALLBACK|READ_ONLY_MASK,  .size = 0,      {.callback = &macro_callback}  },
 
     { .id = "char",   .type = TYPE_CHAR,     .size = 1,  {.data = &macro_char}     },
     { .id = "int8",   .type = TYPE_INT8,     .size = 1,  {.data = &macro_int8}     },
