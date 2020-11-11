@@ -33,11 +33,14 @@
 //#define PAYLOAD_SIZE_MAX 512
 
 #ifndef EUI_OVERRIDE_DEFAULT_PROTOCOL
-    #include "transports/eui_serial_transport.h"
+    #include "transports/eui_binary_transport.h"
     #define eui_crc(DATA, CRC)  crc16(DATA, CRC)
     #define eui_encode_simple(OUTFN, SETTINGS, MSGID, LENGTH, PAYLOAD)  encode_packet_simple(OUTFN, SETTINGS, MSGID, LENGTH, PAYLOAD)
     #define eui_encode(OUTFN, HEADER, MSGID, OFFSET, PAYLOAD)  encode_packet(OUTFN, HEADER, MSGID, OFFSET, PAYLOAD)
     #define eui_decode(DATA, INTERFACE)  decode_packet(DATA, INTERFACE)
+#else
+// Define custom transport function calls via macro
+
 #endif
 
 

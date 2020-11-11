@@ -4,7 +4,7 @@
 // MODULE UNDER TEST
 #include "electricui.h"
 #include "electricui_private.h"
-#include "mock_eui_serial_transport.h"
+#include "mock_eui_binary_transport.h"
 #include "mock_eui_utilities.h"
 
 // DEFINITIONS 

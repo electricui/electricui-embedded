@@ -4,11 +4,11 @@
  * 
  */
 
-#ifndef EUI_SERIAL_TRANSPORT_H
-#define EUI_SERIAL_TRANSPORT_H
+#ifndef EUI_BINARY_TRANSPORT_H
+#define EUI_BINARY_TRANSPORT_H
 
 /**
- * @file eui_serial_transport.h
+ * @file eui_binary_transport.h
  * @brief Bundled implementation of a binary protocol
  *
  * Intended for use with serial connections, this included protocol implementation provides encoding and decoding
@@ -133,4 +133,4 @@ decode_packet(uint8_t inbound_byte, eui_packet_t *p_link_in);
 uint8_t
 parse_decoded_packet(uint8_t byte_in, eui_packet_t *p_link_in);
 
-#endif //end EUI_SERIAL_TRANSPORT_H
+#endif //end EUI_BINARY_TRANSPORT_H

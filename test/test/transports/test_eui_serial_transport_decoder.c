@@ -2,7 +2,7 @@
 #include <stdlib.h>
  
 // MODULE UNDER TEST
-#include "eui_serial_transport.h"
+#include "eui_binary_transport.h"
 #include "eui_utilities.h"
 
 // DEFINITIONS 

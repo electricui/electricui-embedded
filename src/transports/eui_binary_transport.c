@@ -5,7 +5,7 @@
  */
 
 #include <string.h>
-#include "eui_serial_transport.h"
+#include "eui_binary_transport.h"
 #include "../eui_utilities.h"
 
 uint8_t
