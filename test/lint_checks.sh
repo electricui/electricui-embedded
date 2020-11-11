@@ -16,9 +16,8 @@ RULES="-disable-rule PreferEarlyExit"
 
 # Source files to check
 SOURCES="$BASE_PATH/electricui.c"
-SOURCES="$SOURCES $BASE_PATH/transports/eui_serial_transport.c"
-SOURCES="$SOURCES $BASE_PATH/utilities/eui_crc.c"
-SOURCES="$SOURCES $BASE_PATH/utilities/eui_offset_validation.c"
+SOURCES="$SOURCES $BASE_PATH/transports/eui_binary_transport.c"
+SOURCES="$SOURCES $BASE_PATH/eui_utilities.c"
 
 
 # Run the linter with loaded arguments etc
