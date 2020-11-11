@@ -18,9 +18,16 @@
 #define EUI_TRACK( INPUT_ARRAY )    ( eui_setup_tracked(INPUT_ARRAY, EUI_ARR_ELEM(INPUT_ARRAY)) )
 #define EUI_LINK( INTERFACE_ARRAY ) ( eui_setup_interfaces(INTERFACE_ARRAY, EUI_ARR_ELEM(INTERFACE_ARRAY)) )
 
-#define EUI_INTERFACE( OUTPUT_PTR ) {               .packet = { 0 }, .output_cb = OUTPUT_PTR, .interface_cb = 0       }
-#define EUI_INTERFACE_CB( OUTPUT_PTR, DEV_CB ) {    .packet = { 0 }, .output_cb = OUTPUT_PTR, .interface_cb = DEV_CB  }
+// Helper macro to statically init a eui_packet_t, used in eui_interface_t static init
+// as recursive sub-struct {0} isn't cross-compiler compatible
+#ifndef EUI_CONF_OFFSETS_DISABLED
+#define EUI_PACKET_EMPTY { {0}, {0}, {0}, 0, {0}, 0 }
+#else
+#define EUI_PACKET_EMPTY { {0}, {0}, {0}, {0}, 0 }
+#endif
 
+#define EUI_INTERFACE( OUTPUT_PTR ) {               .packet = EUI_PACKET_EMPTY, .output_cb = OUTPUT_PTR, .interface_cb = 0       }
+#define EUI_INTERFACE_CB( OUTPUT_PTR, DEV_CB ) {    .packet = EUI_PACKET_EMPTY, .output_cb = OUTPUT_PTR, .interface_cb = DEV_CB  }
 
 //Helper macros to simplify eUI object array declaration in user-code
 #define EUI_FUNC(   ID, CB ) { .id = ID, .type = TYPE_CALLBACK|READ_ONLY_MASK, .size = 0, {.callback = &CB} }
