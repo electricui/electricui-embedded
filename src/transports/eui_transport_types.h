@@ -68,14 +68,14 @@ typedef struct {
 typedef struct {
     eui_parser_state_t parser;                  ///< Parser statemachine data to track ingest progress
     eui_header_t header;                        ///< Storage for inbound header bytes
-    uint8_t     id_in[15];                      ///< Storage buffer for the inbound message identifier string
+    uint8_t     id_in[16];                      ///< Storage buffer for the inbound message identifier string
 
 #ifndef EUI_CONF_OFFSETS_DISABLED
     uint16_t    offset_in;                      ///< Payload offset information for split packets
 #endif
     
-    uint8_t     data_in[PAYLOAD_SIZE_MAX];      ///< Storage buffer of ingested payload data
     uint16_t    crc_in;                         ///< CRC value decoded from the packet
+    uint8_t     data_in[PAYLOAD_SIZE_MAX];      ///< Storage buffer of ingested payload data
 } eui_packet_t;
 
 #endif //end EUI_TRANSPORT_TYPES_H

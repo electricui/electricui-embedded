@@ -18,7 +18,7 @@
 /**
  * @brief CRC16-CCITT-FALSE calculation
  *
- * Provides a per-byte CRC16-CCITT-FALSE implementation which mutates a 'running CRC' intermedate variable.
+ * Provides a per-byte CRC16-CCITT-FALSE implementation which mutates a 'running CRC' intermediate variable.
  * CRC is seeded with 0xFFFF by default.
  *
  * This allows a temporary CRC value to be held, and data included as it's processed, rather than in a block.

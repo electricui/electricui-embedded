@@ -249,12 +249,9 @@ parse_decoded_packet( uint8_t byte_in, eui_packet_t *p_link_in )
 
             if( (uint8_t)p_link_in->parser.id_bytes_in >= (uint8_t)p_link_in->header.id_len )
             {
-                // Terminate msgID string if shorter than max size
-                if( MSGID_SIZE > (uint8_t)p_link_in->parser.id_bytes_in )
-                {
-                    p_link_in->id_in[p_link_in->parser.id_bytes_in] = '\0';
-                }
-
+                // Null-terminate msgID string if shorter than max size
+                p_link_in->id_in[p_link_in->parser.id_bytes_in] = '\0';
+                
                 // Start reading in the offset or data based on header guide
                 if( p_link_in->header.offset )
                 {

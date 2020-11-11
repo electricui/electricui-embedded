@@ -21,9 +21,9 @@
 // Helper macro to statically init a eui_packet_t, used in eui_interface_t static init
 // as recursive sub-struct {0} isn't cross-compiler compatible
 #ifndef EUI_CONF_OFFSETS_DISABLED
-#define EUI_PACKET_EMPTY { {0}, {0}, {0}, 0, {0}, 0 }
+#define EUI_PACKET_EMPTY { {0}, {0}, {0}, 0, 0, {0} }
 #else
-#define EUI_PACKET_EMPTY { {0}, {0}, {0}, {0}, 0 }
+#define EUI_PACKET_EMPTY { {0}, {0}, {0}, 0 , {0} }
 #endif
 
 #define EUI_INTERFACE( OUTPUT_PTR ) {               .packet = EUI_PACKET_EMPTY, .output_cb = OUTPUT_PTR, .interface_cb = 0       }
