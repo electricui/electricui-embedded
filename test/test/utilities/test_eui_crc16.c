@@ -2,7 +2,7 @@
 #include <stdlib.h>
  
 // MODULE UNDER TEST
-#include "eui_crc.h"
+#include "eui_utilities.h"
  
 // DEFINITIONS 
 #define CRC_DIVISOR 0xFFFF

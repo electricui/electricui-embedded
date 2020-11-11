@@ -5,8 +5,7 @@
 #include "electricui.h"
 #include "electricui_private.h"
 #include "mock_eui_serial_transport.h"
-#include "mock_eui_crc.h"
-#include "eui_offset_validation.h"
+#include "mock_eui_utilities.h"
 
 // DEFINITIONS 
 void stub_output_func( uint8_t *data, uint16_t len );
@@ -472,14 +471,19 @@ void test_ingest_response_packet_offset_query_only( void )
     test_pk_ptr->offset_in = 0;
     test_pk_ptr->crc_in = 0xfefe;
 
-    // our data is 350 element uint8 array, lets ask for values between the 40th and 190th values
+    // our data is 250 element uint8 array, lets ask for values between the 40th and 190th values
     test_pk_ptr->data_in[0] = 40; //base address uint16
     test_pk_ptr->data_in[1] = 0;
     test_pk_ptr->data_in[2] = 190; //end address uint16
     test_pk_ptr->data_in[3] = 0;
 
+
     decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_PARSER_OK);
-    //we include the actual validation function, mocking that is busy-work
+
+    // Expect the mock offset validation to be called (but ignore the args for the start/end pointers)
+    validate_offset_range_Expect( 40, 190, TYPE_UINT8 & 0x0Fu, 250, NULL, NULL );          
+    validate_offset_range_IgnoreArg_start();
+    validate_offset_range_IgnoreArg_end();
 
     //offset outbound has 1x meta-message, + 150bytes into 120b messages for 2x data packets
     for(uint16_t i = 0; i < 3; i++)
@@ -517,14 +521,17 @@ void test_ingest_response_packet_offset_query_failure( void )
     test_pk_ptr->offset_in = 0;
     test_pk_ptr->crc_in = 0xfefe;
 
-    // our data is 350 element uint8 array, lets ask for values between the 40th and 190th values
+    // our data is 250 element uint8 array, lets ask for values between the 40th and 190th values
     test_pk_ptr->data_in[0] = 40; //base address uint16
     test_pk_ptr->data_in[1] = 0;
     test_pk_ptr->data_in[2] = 190; //end address uint16
     test_pk_ptr->data_in[3] = 0;
 
     decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_PARSER_OK);
-    //we include the actual validation function, mocking that is busy-work
+
+    validate_offset_range_Expect( 40, 190, TYPE_UINT8 & 0x0Fu, 250, NULL, NULL );          
+    validate_offset_range_IgnoreArg_start();
+    validate_offset_range_IgnoreArg_end();
 
     //offset outbound has 1x meta-message, + 150bytes into 120b messages for 2x data packets
     // as we fail the outbound metadata packet, it doesn't try the other two data packets

@@ -6,7 +6,7 @@
 
 #include <string.h>
 #include "eui_serial_transport.h"
-#include "../utilities/eui_crc.h"
+#include "../eui_utilities.h"
 
 uint8_t
 encode_packet_simple(   callback_data_out_t output_function,

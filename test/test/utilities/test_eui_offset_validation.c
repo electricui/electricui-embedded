@@ -1,8 +1,9 @@
 #include "unity.h"
  
 // MODULE UNDER TEST
-#include "eui_offset_validation.h"
+#include "eui_utilities.h"
 #include "eui_config.h"
+
 // DEFINITIONS 
  
 // PRIVATE TYPES

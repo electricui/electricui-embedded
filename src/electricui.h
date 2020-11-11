@@ -22,7 +22,7 @@ extern "C" {
 #endif
 
 #include "eui_config.h"
-#include "utilities/eui_macro.h"
+#include "eui_macro.h"
 #include "eui_types.h"
 
 // Warnings based on configuration flags (depends on compiler support)

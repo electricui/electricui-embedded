@@ -3,7 +3,7 @@
  
 // MODULE UNDER TEST
 #include "eui_serial_transport.h"
-#include "eui_crc.h"
+#include "eui_utilities.h"
 
 // DEFINITIONS 
  

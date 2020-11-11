@@ -7,8 +7,7 @@
 #include <string.h>
 #include "electricui.h"
 #include "electricui_private.h"
-#include "utilities/eui_crc.h"
-#include "utilities/eui_offset_validation.h"
+#include "eui_utilities.h"
 
 //internal eUI tracked variables
 uint8_t library_version = EUI_LIBRARY_VERSION;

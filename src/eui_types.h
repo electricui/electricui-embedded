@@ -173,4 +173,4 @@ typedef struct {
     } ptr;                      ///< Union provides the pointer to either data, or a callback in a typesafe manner.
 } eui_message_t;
 
-#endif //end EUI_TYPES
+#endif //end EUI_TYPES_H

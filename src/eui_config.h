@@ -63,4 +63,4 @@
 #define EUI_INTERNAL_AM_END  "v" // End of writable ID's
 #define EUI_INTERNAL_AV      "w" // Send writable variables
 
-#endif //end EUI_CONF
+#endif //end EUI_CONF_H
