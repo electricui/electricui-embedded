@@ -36,56 +36,56 @@ eui_interface_t serial_comms;
 
 eui_message_t dev_msg_store[] = 
 {
-    EUI_INT8( "target_t", target_temperature ),
-    
-    // User configurable gains for PID controller
-    EUI_INT32( "gain_p",  kp ),
-    EUI_INT32( "gain_i",  ki ),
-    EUI_INT32( "gain_d",  kd ),
+  EUI_INT8( "target_t", target_temperature ),
 
-    // Data coming back from the system
-    EUI_FLOAT_RO(   "water_t",  measured_temp  ),
-    EUI_UINT8_RO(   "heater_d", heater_duty  ),
-    EUI_UINT16_RO(  "heater_w", heater_power_w  ),
-    
-    EUI_FLOAT_RO( "effort", output_effort),
+  // User configurable gains for PID controller
+  EUI_INT32( "gain_p",  kp ),
+  EUI_INT32( "gain_i",  ki ),
+  EUI_INT32( "gain_d",  kd ),
+
+  // Data coming back from the system
+  EUI_FLOAT_RO(   "water_t",  measured_temp  ),
+  EUI_UINT8_RO(   "heater_d", heater_duty  ),
+  EUI_UINT16_RO(  "heater_w", heater_power_w  ),
+
+  EUI_FLOAT_RO( "effort", output_effort),
 };
 
 void setup() 
 {
-    Serial.begin(115200);
+  Serial.begin(115200);
 
-    //eUI setup
-    serial_comms.output_cb = &tx_putc;
-    eui_setup_interface(&serial_comms);
+  //eUI setup
+  serial_comms.output_cb = &tx_putc;
+  eui_setup_interface(&serial_comms);
 
-    EUI_TRACK(dev_msg_store);
-    eui_setup_identifier("types", 8);
+  EUI_TRACK(dev_msg_store);
+  eui_setup_identifier("types", 8);
 }
 
 void loop() 
 {
-    while( Serial.available() > 0 )
-    {  
-        eui_parse( Serial.read(), &serial_comms );
-    }
-    
-    simulate_water();
+  while( Serial.available() > 0 )
+  {  
+    eui_parse( Serial.read(), &serial_comms );
+  }
+  
+  simulate_water();
 
-    // Measure the water temperature, run the control process, and modify the output
-    measured_temp = sample_temperature();
-    output_effort = pid_controller( (float)target_temperature, measured_temp );
+  // Measure the water temperature, run the control process, and modify the output
+  measured_temp = sample_temperature();
+  output_effort = pid_controller( (float)target_temperature, measured_temp );
 
-    if( output_effort > 0 )
-    {
-        control_heater( output_effort / 10 );   //scaling
-    }
-    else
-    {
-        control_heater( 0 );
-    }
+  if( output_effort > 0 )
+  {
+    control_heater( output_effort / 10 );   //scaling
+  }
+  else
+  {
+    control_heater( 0 );
+  }
 
-    delay(5);
+  delay(5);
 }
 
 // Simple PID controller
@@ -99,7 +99,7 @@ float pid_controller( float setpoint, float input )
    float error           = setpoint - input;
    error_accumulated    += error * control_time_delta;
    float error_deriv    = (error - last_error) / control_time_delta;
-    
+  
    // Maintain state info for next step to calculate derivative error and timing
    last_error = error;
    timestamp_previous = timestamp_now;
@@ -113,46 +113,46 @@ float pid_controller( float setpoint, float input )
 
 float scale_gain( int32_t gain )
 {
-    return (float)gain/100;
+  return (float)gain/100;
 }
 
 // Simulate a temperature sensor in a tank of water (with some noise)
 float sample_temperature()
 {
-    return simulated_water_c + ( (float)(random(0, 10)-5) / 1000 );
+  return simulated_water_c + ( (float)(random(0, 10)-5) / 1000 );
 }
 
 // Simulate thermal source in a tank of water
 void control_heater( uint8_t duty_cycle )
 {
-    // Assume a heater's dutycycle maps linearly to the power rating
-    heater_duty    = duty_cycle;
-    heater_power_w = map( duty_cycle, 0, 100, 0, HEATER_RATING_W);
+  // Assume a heater's dutycycle maps linearly to the power rating
+  heater_duty    = duty_cycle;
+  heater_power_w = map( duty_cycle, 0, 100, 0, HEATER_RATING_W);
 }
 
 // Perform naive simulation of water temperature based on heater and losses
 void simulate_water()
 {
-    // Calculate the amount of energy (in cal) added to the fluid since last sim step
-    float energy_in  = heater_power_w * ( millis()-prev_water_sim ) * WATT_TO_CALORIES; 
+  // Calculate the amount of energy (in cal) added to the fluid since last sim step
+  float energy_in  = heater_power_w * ( millis()-prev_water_sim ) * WATT_TO_CALORIES; 
 
-    // Q = m * c * dT means we use dT = Q / m*c to calculate thermal increase due to heating
-    float heater_temp_increase = 0;
-    
-    if( energy_in > 0.0001 )   //avoid division by zero
-    {
-        heater_temp_increase = energy_in / (float)( WATER_VOLUME_ML * WATER_SPECIFIC_HEAT );
-    }
-    
-    // Fudge a environmental loss to let the pot cool down naturally
-    float environment_losses   = 0.05f;
+  // Q = m * c * dT means we use dT = Q / m*c to calculate thermal increase due to heating
+  float heater_temp_increase = 0;
+  
+  if( energy_in > 0.0001 )   //avoid division by zero
+  {
+    heater_temp_increase = energy_in / (float)( WATER_VOLUME_ML * WATER_SPECIFIC_HEAT );
+  }
+  
+  // Fudge a environmental loss to let the pot cool down naturally
+  float environment_losses   = 0.05f;
 
-    simulated_water_c += heater_temp_increase - environment_losses;
+  simulated_water_c += heater_temp_increase - environment_losses;
 
-    prev_water_sim = millis();   //timestamp current time
+  prev_water_sim = millis();   //timestamp current time
 }
 
 void tx_putc( uint8_t *data, uint16_t len )
 {
-    Serial.write( data, len );
+  Serial.write( data, len );
 }

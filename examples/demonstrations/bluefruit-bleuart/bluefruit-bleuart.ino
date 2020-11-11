@@ -33,18 +33,17 @@ void ble_tx(  uint8_t *data, uint16_t len );
 char central_name[32] = { 0 };
 
 eui_message_t dev_msg_store[] = {
-
-    EUI_UINT8( "led_blink",  blink_enable ),
-    EUI_UINT8( "led_state",  led_state ),
-    EUI_UINT16("lit_time",   glow_time ),
-    EUI_UINT32("time",   led_timer ),
-    EUI_CHAR_ARRAY( "central", central_name ),
+  EUI_UINT8( "led_blink",  blink_enable ),
+  EUI_UINT8( "led_state",  led_state ),
+  EUI_UINT16("lit_time",   glow_time ),
+  EUI_UINT32("time",   led_timer ),
+  EUI_CHAR_ARRAY( "central", central_name ),
 };
 
 eui_interface_t transport_methods[] = {
-    EUI_INTERFACE( &usb_tx ),
-    EUI_INTERFACE( &uart_tx ),
-    EUI_INTERFACE( &ble_tx ),
+  EUI_INTERFACE( &usb_tx ),
+  EUI_INTERFACE( &uart_tx ),
+  EUI_INTERFACE( &ble_tx ),
 };
 
 void setup()
@@ -108,7 +107,7 @@ void start_advertisements(void)
 
   Bluefruit.Advertising.addData(BLE_GAP_AD_TYPE_MANUFACTURER_SPECIFIC_DATA, manf_data, sizeof(manf_data));
 
-// getMcuUniqueID()
+  // getMcuUniqueID()
 
   /* Start Advertising
    * - Enable auto advertising if disconnected

@@ -19,14 +19,14 @@
 char * wifi_ssid = "ssid";
 char * wifi_pass = "password";
 
-uint8_t ws_connected 	= 0;	//state indication
-uint8_t ws_port 		= 80;
-char 	ws_path[] 		= "ws(s)://255.255.255.255:81";
+uint8_t ws_connected  = 0;  //state indication
+uint8_t ws_port       = 80;
+char  ws_path[]       = "ws(s)://255.255.255.255:81";
 
 // Simple variables to modify the LED behaviour
 uint8_t   blink_enable = 1; //if the blinker should be running
-uint8_t   led_state  = 0;   //track if the LED is illuminated
-uint16_t  glow_time  = 200; //in milliseconds
+uint8_t   led_state    = 0;   //track if the LED is illuminated
+uint16_t  glow_time    = 200; //in milliseconds
 
 // Keep track of when the light turns on or off
 uint32_t led_timer = 0;
@@ -36,21 +36,21 @@ uint8_t   example_uint8   = 21;
 uint16_t  example_uint16  = 321;
 uint32_t  example_uint32  = 654321;
 float     example_float   = 3.141592;
-char 	  demo_string[] = "ESP32 Test Board";
+char      demo_string[]   = "ESP32 Test Board";
 
 eui_message_t dev_msg_store[] = {
-    EUI_UINT8( "wsc", ws_connected),
-    EUI_CHAR_ARRAY( "ws", ws_path ),
+  EUI_UINT8( "wsc", ws_connected),
+  EUI_CHAR_ARRAY( "ws", ws_path ),
 
-    EUI_UINT8(  "led_blink",  blink_enable ),
-    EUI_UINT8(  "led_state",  led_state ),
-    EUI_UINT16( "lit_time",   glow_time ),
-    
-    EUI_UINT8(  "ui8", example_uint8 ),
-    EUI_UINT16( "i16", example_uint16 ),
-    EUI_UINT32( "i32", example_uint32 ),
-    EUI_FLOAT(  "fPI", example_float ),
-    EUI_CHAR_ARRAY_RO( "name", demo_string ),
+  EUI_UINT8(  "led_blink",  blink_enable ),
+  EUI_UINT8(  "led_state",  led_state ),
+  EUI_UINT16( "lit_time",   glow_time ),
+  
+  EUI_UINT8(  "ui8", example_uint8 ),
+  EUI_UINT16( "i16", example_uint16 ),
+  EUI_UINT32( "i32", example_uint32 ),
+  EUI_FLOAT(  "fPI", example_float ),
+  EUI_CHAR_ARRAY_RO( "name", demo_string ),
 };
 
 WiFiMulti WiFiMulti;
@@ -96,42 +96,42 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
         case WStype_FRAGMENT_BIN_START:
         case WStype_FRAGMENT:
         case WStype_FRAGMENT_FIN:
-        	ws_connected = 4;
-        	break;
+          ws_connected = 4;
+          break;
     }
 }
 
 void wifi_handle()
 {
-    if( WiFiMulti.run() == WL_CONNECTED ) 
+  if( WiFiMulti.run() == WL_CONNECTED ) 
+  {
+    //we have a wifi connection
+    if(!ws_connected)
     {
-    	//we have a wifi connection
-    	if(!ws_connected)
-    	{
-	    	webSocket.begin();
-	    	webSocket.onEvent(webSocketEvent);
-	    	ws_connected = 1;
+      webSocket.begin();
+      webSocket.onEvent(webSocketEvent);
+      ws_connected = 1;
 
-		    // The hint is formatted like ws://255.255.255.255:81
-		    memset( ws_path, 0, sizeof(ws_path) );	//clear the string first
-			snprintf(ws_path, sizeof(ws_path), "ws://%s:%d", WiFi.localIP().toString().c_str(), ws_port);
+      // The hint is formatted like ws://255.255.255.255:81
+      memset( ws_path, 0, sizeof(ws_path) );  //clear the string first
+      snprintf(ws_path, sizeof(ws_path), "ws://%s:%d", WiFi.localIP().toString().c_str(), ws_port);
 
-            glow_time = 200;
+      glow_time = 200;
 
-			// Using Arduino Strings
-		    // String ws_path_string = "ws://" + WiFi.localIP().toString().c_str() + ":" + String(ws_port);
-		    // ws_path_string.toCharArray(ws_path, sizeof(ws_path));
-    	}
-    	else
-    	{
-    		webSocket.loop();
-    	}
+      // Using Arduino Strings
+      // String ws_path_string = "ws://" + WiFi.localIP().toString().c_str() + ":" + String(ws_port);
+      // ws_path_string.toCharArray(ws_path, sizeof(ws_path));
     }
     else
     {
-        //no connection, try again later
-    	ws_connected = 0;
+      webSocket.loop();
     }
+  }
+  else
+  {
+    //no connection, try again later
+    ws_connected = 0;
+  }
 }
 
 
@@ -168,19 +168,19 @@ void eui_callback( uint8_t message )
 
 void setup() 
 {  
-    Serial.begin(115200);
+  Serial.begin(115200);
 
-    pinMode( LED_BUILTIN, OUTPUT );
+  pinMode( LED_BUILTIN, OUTPUT );
 
-    //eUI setup
-    comm_links[0].interface_cb = &eui_callback;
-    eui_setup_interfaces(comm_links, 2);
-    EUI_TRACK(dev_msg_store);
-    eui_setup_identifier("esp32", 5);
+  //eUI setup
+  comm_links[0].interface_cb = &eui_callback;
+  eui_setup_interfaces(comm_links, 2);
+  EUI_TRACK(dev_msg_store);
+  eui_setup_identifier("esp32", 5);
 
-    WiFiMulti.addAP(wifi_ssid, wifi_pass);
+  WiFiMulti.addAP(wifi_ssid, wifi_pass);
 
-    led_timer = millis();
+  led_timer = millis();
 }
 
 void loop() 

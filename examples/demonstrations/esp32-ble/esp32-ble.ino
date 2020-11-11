@@ -24,16 +24,16 @@ void ble_tx(  uint8_t *data, uint16_t len );
 
 eui_message_t dev_msg_store[] = 
 {
-    EUI_UINT8( "led_blink",  blink_enable ),
-    EUI_UINT8( "led_state",  led_state ),
-    EUI_UINT16("lit_time",   glow_time ),
+  EUI_UINT8( "led_blink",  blink_enable ),
+  EUI_UINT8( "led_state",  led_state ),
+  EUI_UINT16("lit_time",   glow_time ),
 };
 
 eui_interface_t transport_methods[] = 
 {
-    EUI_INTERFACE( &usb_tx ),
-    EUI_INTERFACE( &uart_tx ),
-    EUI_INTERFACE( &ble_tx ),
+  EUI_INTERFACE( &usb_tx ),
+  EUI_INTERFACE( &uart_tx ),
+  EUI_INTERFACE( &ble_tx ),
 };
 
 // UART characteristic (matches the bluefruit-bleuart example sketch)

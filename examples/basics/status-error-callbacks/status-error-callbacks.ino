@@ -1,7 +1,7 @@
 /*
  *	Error handling and status returns are provided by the parser function,
  *	catching and handling these error cases is typically not required, but can aid debugging
- *  or allow for custom functionality to sit ontop the existing protocol and library.
+ *  or allow for custom functionality to sit onto the existing protocol and library.
  *  
  *  Interface callbacks can be used to handle untracked messages, flag an event while 
  *  tracked data is processed, or inspect the inbound buffer when an error was flagged.
@@ -155,7 +155,7 @@ void eui_callback( uint8_t message )
   switch(message)
   {
     case EUI_CB_TRACKED:
-      // UI recieved a tracked message ID and has completed processing
+      // UI received a tracked message ID and has completed processing
 
     break;
 
@@ -174,7 +174,7 @@ void eui_callback( uint8_t message )
         // Ensure the UI is sending a variable of the right type
         if( header.type == TYPE_UINT16 )
         {
-        	// Do something with the inbound payload here
+          // Do something with the inbound payload here
           report_error("u16 Test CB");
         }
       }

@@ -112,7 +112,7 @@ void eui_callback( uint8_t message )
   switch( message )
   {
     case EUI_CB_TRACKED:
-      // UI recieved a tracked message ID and has completed processing
+      // UI received a tracked message ID and has completed processing
 
     break;
 
@@ -133,7 +133,7 @@ void eui_callback( uint8_t message )
           // Grab the data using pointer defererencing
           system_v_draw_mV = *(uint16_t*)payload;
 
-          // Grab the data by grabing both bytes and shifting them together
+          // Grab the data by grabbing both bytes and shifting them together
           // system_v_draw_mV = (payload[0] << 8) | payload[1];
         }
       }

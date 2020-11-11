@@ -15,13 +15,13 @@
 #include "electricui.h"
 #include <EEPROM.h>
 
-#define EEPROM_BASE_ADDR 	0x00
-#define EEPROM_MAGIC_WORD 	0x42
+#define EEPROM_BASE_ADDR  0x00
+#define EEPROM_MAGIC_WORD   0x42
 
-void save_settings();			// Define the callback used to save data
-void erase_settings();			// Define the callback for flash erase
+void save_settings();     // Define the callback used to save data
+void erase_settings();      // Define the callback for flash erase
 
-uint16_t unique_device_id = 0;	// Persistent UUID useful for device identification
+uint16_t unique_device_id = 0;  // Persistent UUID useful for device identification
 
 // Same as hello-blink.ino example
 uint8_t   blink_enable = 1;
@@ -33,15 +33,15 @@ char device_name[17]   = "persistent-blink";
 
 // Standard interface and tracked variables
 eui_interface_t serial_comms = EUI_INTERFACE( &serial_write ); 
-eui_message_t 	tracked_data[] = 
+eui_message_t   tracked_data[] = 
 {
   EUI_UINT8(  "led_blink",  blink_enable ),
   EUI_UINT8(  "led_state",  led_state ),
   EUI_UINT16( "lit_time",   glow_time ),
-  EUI_CHAR_ARRAY("name", 	device_name ),
+  EUI_CHAR_ARRAY("name",  device_name ),
 
   // Add a callback the UI can use to request a save
-  EUI_FUNC("save", 	save_settings ),
+  EUI_FUNC("save",  save_settings ),
   EUI_FUNC("clear", erase_settings ),
 
   EUI_UINT16( "uuid",   unique_device_id ),
@@ -60,7 +60,7 @@ void setup()
   EUI_TRACK( tracked_data );
 
   // Not going to be random for first use
-  eui_setup_identifier( (char*)unique_device_id, 2 );	
+  eui_setup_identifier( (char*)unique_device_id, 2 ); 
 
   led_timer = millis();
 }
@@ -84,64 +84,64 @@ void loop()
 // Pull the saved settings from eeprom into tracked variables where suitable
 void retrieve_settings( void )
 {
-	uint16_t eeprom_address = EEPROM_BASE_ADDR;
+  uint16_t eeprom_address = EEPROM_BASE_ADDR;
 
-	if( EEPROM.read( eeprom_address ) == EEPROM_MAGIC_WORD )
-	{
-		eeprom_address++;
+  if( EEPROM.read( eeprom_address ) == EEPROM_MAGIC_WORD )
+  {
+    eeprom_address++;
 
-		for( uint8_t i = 0; i < EUI_ARR_ELEM(tracked_data); i++ )
-		{
-			// we haven't saved immutable data, so don't try and fetch it
-			if(    tracked_data[i].type != TYPE_CALLBACK 
-				&& tracked_data[i].type >> 7 != READ_ONLY_FLAG )
-			{
-				uint8_t *variable_ptr = (uint8_t*)tracked_data[i].ptr.data;
+    for( uint8_t i = 0; i < EUI_ARR_ELEM(tracked_data); i++ )
+    {
+      // we haven't saved immutable data, so don't try and fetch it
+      if(    tracked_data[i].type != TYPE_CALLBACK 
+        && tracked_data[i].type >> 7 != READ_ONLY_FLAG )
+      {
+        uint8_t *variable_ptr = (uint8_t*)tracked_data[i].ptr.data;
 
-				for( uint16_t j = 0; j < tracked_data[i].size; j++)
-				{
-					variable_ptr[j] = EEPROM.read(eeprom_address);
-					eeprom_address++;
-					Serial.print(variable_ptr[j], HEX);
-				}
-			}
-		}
-	}
+        for( uint16_t j = 0; j < tracked_data[i].size; j++)
+        {
+          variable_ptr[j] = EEPROM.read(eeprom_address);
+          eeprom_address++;
+          Serial.print(variable_ptr[j], HEX);
+        }
+      }
+    }
+  }
 }
 
 // Save the mutable variable data
 void save_settings( void )
 {
-	uint16_t eeprom_address = EEPROM_BASE_ADDR;
+  uint16_t eeprom_address = EEPROM_BASE_ADDR;
 
-	//write a magic word at the base address which indicates data is written
-	EEPROM.write(eeprom_address, 0x42 );
-	eeprom_address++;
+  //write a magic word at the base address which indicates data is written
+  EEPROM.write(eeprom_address, 0x42 );
+  eeprom_address++;
 
-	//write the payloads into memory from each of the tracked objects in order
-	for( uint8_t i = 0; i < EUI_ARR_ELEM(tracked_data); i++ )
-	{
-		// we don't want to save immutable data
-		if(    tracked_data[i].type != TYPE_CALLBACK 
-			&& tracked_data[i].type >> 7 != READ_ONLY_FLAG )
-		{
-			uint8_t *variable_ptr = (uint8_t*)tracked_data[i].ptr.data;
-			for( uint16_t j = 0; j < tracked_data[i].size; j++)
-			{
-				EEPROM.write(eeprom_address, variable_ptr[j] );
-				eeprom_address++;
-			}
-		}
-	}
+  //write the payloads into memory from each of the tracked objects in order
+  for( uint8_t i = 0; i < EUI_ARR_ELEM(tracked_data); i++ )
+  {
+    // we don't want to save immutable data
+    if(    tracked_data[i].type != TYPE_CALLBACK 
+      && tracked_data[i].type >> 7 != READ_ONLY_FLAG )
+    {
+      uint8_t *variable_ptr = (uint8_t*)tracked_data[i].ptr.data;
+      for( uint16_t j = 0; j < tracked_data[i].size; j++)
+      {
+        EEPROM.write(eeprom_address, variable_ptr[j] );
+        eeprom_address++;
+      }
+    }
+  }
 }
 
 void erase_settings( void )
 {
-	// Zero out the eeprom
-	for (int i = 0 ; i < EEPROM.length() ; i++) 
-	{
-    	EEPROM.write(i, 0);
-  	}
+  // Zero out the eeprom
+  for (int i = 0 ; i < EEPROM.length() ; i++) 
+  {
+      EEPROM.write(i, 0);
+    }
 }
 
 void serial_rx_handler()

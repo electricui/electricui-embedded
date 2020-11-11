@@ -114,7 +114,7 @@ encode_packet(  callback_data_out_t out_char,
 /**
  * @brief Decodes inbound bytestream to separate data from COBS framing
  *
- * @param inbound_byte The most recently recieved byte to ingest for parsing
+ * @param inbound_byte The most recently received byte to ingest for parsing
  * @param p_link_in pointer to the transport link object
  * @return uint8_t Parser status codes
  * @see eui_parse_errors for status return codes

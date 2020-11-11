@@ -6,9 +6,9 @@
 
 #include "electricui.h"
 
-#define MECHANISM_POS_OPEN 		580
-#define MECHANISM_POS_CLOSED 	40
-#define MOTOR_STEP_SPEED 		1
+#define MECHANISM_POS_OPEN    580
+#define MECHANISM_POS_CLOSED  40
+#define MOTOR_STEP_SPEED    1
 
 typedef enum
 {
@@ -43,14 +43,14 @@ eui_interface_t serial_comms;
 
 eui_message_t dev_msg_store[] = 
 {
-	EUI_UINT8(    "request", 	request_state   ),
-	EUI_UINT8_RO( "state", 		control_state   ),
+  EUI_UINT8(    "request",  request_state   ),
+  EUI_UINT8_RO( "state",    control_state   ),
 
-	EUI_UINT8_RO( "sw_up", 		limit_sw_open   ),
-	EUI_UINT8_RO( "sw_down", 	limit_sw_closed ),
-	EUI_UINT8_RO( "motor", 		motor_speed     ),
+  EUI_UINT8_RO( "sw_up",    limit_sw_open   ),
+  EUI_UINT8_RO( "sw_down",  limit_sw_closed ),
+  EUI_UINT8_RO( "motor",    motor_speed     ),
 
-	EUI_UINT16_RO( "position", 	mechanism_position_sim ),
+  EUI_UINT16_RO( "position",  mechanism_position_sim ),
 
 };
 
@@ -68,124 +68,124 @@ void setup()
 
 void loop() 
 {
-    while( Serial.available() > 0 )
-    {  
-        eui_parse( Serial.read(), &serial_comms );
-    }
+  while( Serial.available() > 0 )
+  {  
+    eui_parse( Serial.read(), &serial_comms );
+  }
 
-	simulate_door_mechanism();
+  simulate_door_mechanism();
 
-	door_controller();
+  door_controller();
 
-	delay( 10 );	//crudely limit the loop rate to 100hz
+  delay( 10 );  //crudely limit the loop rate to 100hz
 }
 
 void door_controller( void )
 {
-	switch( control_state )
-	{
-		case DOOR_UNKNOWN:
-			// Door is in an unknown state, recover to the 'failsave' state
-			drive_motor( MOTOR_STOP );
-			control_state = DOOR_CLOSING;
-		break;
+  switch( control_state )
+  {
+    case DOOR_UNKNOWN:
+      // Door is in an unknown state, recover to the 'failsafe' state
+      drive_motor( MOTOR_STOP );
+      control_state = DOOR_CLOSING;
+    break;
 
-		case DOOR_OPENING:
+    case DOOR_OPENING:
 
-			drive_motor( MOTOR_CW );
+      drive_motor( MOTOR_CW );
 
-			if( is_door_open() )
-			{
-				control_state = DOOR_OPEN;
-			}
+      if( is_door_open() )
+      {
+        control_state = DOOR_OPEN;
+      }
 
-			if( request_state == DOOR_CLOSED )
-			{
-				control_state = DOOR_CLOSING;
-			}
-		break;
+      if( request_state == DOOR_CLOSED )
+      {
+        control_state = DOOR_CLOSING;
+      }
+    break;
 
-		case DOOR_OPEN:
+    case DOOR_OPEN:
 
-			drive_motor( MOTOR_STOP );
+      drive_motor( MOTOR_STOP );
 
-			if( request_state == DOOR_CLOSED )
-			{
-				control_state = DOOR_CLOSING;
-			}
-		break;
+      if( request_state == DOOR_CLOSED )
+      {
+        control_state = DOOR_CLOSING;
+      }
+    break;
 
-		case DOOR_CLOSING:
+    case DOOR_CLOSING:
 
-			drive_motor( MOTOR_CCW );
+      drive_motor( MOTOR_CCW );
 
-			if( is_door_closed() )
-			{
-				control_state = DOOR_CLOSED;
-			}
+      if( is_door_closed() )
+      {
+        control_state = DOOR_CLOSED;
+      }
 
-			if( request_state == DOOR_OPEN )
-			{
-				control_state = DOOR_OPENING;
-			}
-		break;
+      if( request_state == DOOR_OPEN )
+      {
+        control_state = DOOR_OPENING;
+      }
+    break;
 
-		case DOOR_CLOSED:
+    case DOOR_CLOSED:
 
-			drive_motor( MOTOR_STOP );
+      drive_motor( MOTOR_STOP );
 
-			if( request_state == DOOR_OPEN )
-			{
-				control_state = DOOR_OPENING;
-			}
-		break;
+      if( request_state == DOOR_OPEN )
+      {
+        control_state = DOOR_OPENING;
+      }
+    break;
 
-		default:
-			// Handle invalid state errors here
-		break;
-	}
+    default:
+      // Handle invalid state errors here
+    break;
+  }
 }
 
 void drive_motor( MotorDir_t direction )
 {
-	if( direction == MOTOR_CW )
-	{
-		motor_speed = MOTOR_STEP_SPEED;
-	}
-	else if( direction == MOTOR_CCW )
-	{
-		motor_speed = -1 * MOTOR_STEP_SPEED;
-	}
-	else // stop the motor (includes MOTOR_STOP in this same state)
-	{
-		motor_speed = 0;
-	}
+  if( direction == MOTOR_CW )
+  {
+    motor_speed = MOTOR_STEP_SPEED;
+  }
+  else if( direction == MOTOR_CCW )
+  {
+    motor_speed = -1 * MOTOR_STEP_SPEED;
+  }
+  else // stop the motor (includes MOTOR_STOP in this same state)
+  {
+    motor_speed = 0;
+  }
 }
 
 // Return the limit switch state (active or not).
 // Commented line shows how a simple switch would be read as part of this check
 bool is_door_open()
 {
-	// limit_sw_open = digitalRead( SWITCH_1_PIN ); 
-	return limit_sw_open;
+  // limit_sw_open = digitalRead( SWITCH_1_PIN ); 
+  return limit_sw_open;
 }
 
 bool is_door_closed()
 {
-	// limit_sw_closed = digitalRead( SWITCH_2_PIN ); 
-	return limit_sw_closed;
+  // limit_sw_closed = digitalRead( SWITCH_2_PIN ); 
+  return limit_sw_closed;
 }
 
 void simulate_door_mechanism()
 {
-	mechanism_position_sim += motor_speed;
+  mechanism_position_sim += motor_speed;
 
-	// Simulate the limit switches indicating if the mechanism is at the end of travel
-	limit_sw_open   = ( mechanism_position_sim > MECHANISM_POS_OPEN   );
-	limit_sw_closed = ( mechanism_position_sim < MECHANISM_POS_CLOSED );
+  // Simulate the limit switches indicating if the mechanism is at the end of travel
+  limit_sw_open   = ( mechanism_position_sim > MECHANISM_POS_OPEN   );
+  limit_sw_closed = ( mechanism_position_sim < MECHANISM_POS_CLOSED );
 }
 
 void tx_putc( uint8_t *data, uint16_t len )
 {
-    Serial.write( data, len );
+  Serial.write( data, len );
 }
