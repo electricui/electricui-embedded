@@ -10,6 +10,9 @@
  * This example builds off the baseline hello-blink flashing light example 
  * where the blink timing and enabled state are preserved across reboots.
  * Electric UI's tracked variables provide useful boilerplate reducing write/read complexity.
+ *
+ * Because the tracked_data array shape is used blindly to arrange data in EEPROM, changes to
+ * the tracked variable sizes or orders would not be compatible with existing saves.
 */
 
 #include "electricui.h"
@@ -53,7 +56,7 @@ void setup()
   Serial.begin( 115200 );
   pinMode( LED_BUILTIN, OUTPUT );
 
-  // Fetch any saved variables from EEPROM
+  // Fetch saved variables from EEPROM
   retrieve_settings();
 
   eui_setup_interface( &serial_comms );
@@ -92,7 +95,7 @@ void retrieve_settings( void )
 
     for( uint8_t i = 0; i < EUI_ARR_ELEM(tracked_data); i++ )
     {
-      // we haven't saved immutable data, so don't try and fetch it
+      // Immutable tracked variables (read-only) aren't saved, so don't read them
       if(    tracked_data[i].type != TYPE_CALLBACK 
         && tracked_data[i].type >> 7 != READ_ONLY_FLAG )
       {
@@ -102,7 +105,6 @@ void retrieve_settings( void )
         {
           variable_ptr[j] = EEPROM.read(eeprom_address);
           eeprom_address++;
-          Serial.print(variable_ptr[j], HEX);
         }
       }
     }
@@ -114,18 +116,19 @@ void save_settings( void )
 {
   uint16_t eeprom_address = EEPROM_BASE_ADDR;
 
-  //write a magic word at the base address which indicates data is written
+  // Write a magic word at the base address which indicates data is written
   EEPROM.write(eeprom_address, 0x42 );
   eeprom_address++;
 
-  //write the payloads into memory from each of the tracked objects in order
+  // Write the payloads into memory from each of the tracked objects in order
   for( uint8_t i = 0; i < EUI_ARR_ELEM(tracked_data); i++ )
   {
-    // we don't want to save immutable data
+    // Don't save immutable (read-only) tracked variables
     if(    tracked_data[i].type != TYPE_CALLBACK 
       && tracked_data[i].type >> 7 != READ_ONLY_FLAG )
     {
       uint8_t *variable_ptr = (uint8_t*)tracked_data[i].ptr.data;
+      
       for( uint16_t j = 0; j < tracked_data[i].size; j++)
       {
         EEPROM.write(eeprom_address, variable_ptr[j] );
@@ -140,8 +143,8 @@ void erase_settings( void )
   // Zero out the eeprom
   for (int i = 0 ; i < EEPROM.length() ; i++) 
   {
-      EEPROM.write(i, 0);
-    }
+    EEPROM.write(i, 0);
+  }
 }
 
 void serial_rx_handler()
