@@ -152,8 +152,10 @@ void test_ingest_unknown_id( void )
     test_pk_ptr->crc_in = 0xfefe;
 
     decode_packet_ExpectAndReturn( 0x00, &test_interface.packet, EUI_PARSER_OK);
-    TEST_ASSERT_EQUAL_INT8( 1 , eui_parse( 0x00, &test_interface ).untracked );
 
+    eui_errors_t status = eui_parse( 0x00, &test_interface );
+
+    // Expect the interface callback to fire with arg EUI_CB_UNTRACKED
     TEST_ASSERT_EQUAL_INT8( 1 , interface_cb_hit );
     TEST_ASSERT_EQUAL_INT8( EUI_CB_UNTRACKED , interface_cb_arg[0] );
 
