@@ -128,8 +128,6 @@ eui_parse( uint8_t inbound_byte, eui_interface_t *p_link )
         }
         else
         {
-            status.untracked = 1;
-
             if( p_link->interface_cb )
             {
                 p_link->interface_cb( EUI_CB_UNTRACKED );
