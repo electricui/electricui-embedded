@@ -69,7 +69,6 @@ enum eui_callback_codes {
  */
 typedef struct {
     unsigned parser     : 2;    ///< Refer to eui_parse_errors
-    unsigned untracked  : 1;    ///< Refer
     unsigned action     : 2;    ///< Refer to eui_action_errors
     unsigned ack        : 1;    ///< Refer to eui_ack_errors
     unsigned query      : 2;    ///< Refer to eui_query_errors
