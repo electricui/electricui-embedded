@@ -1,6 +1,7 @@
 #include "unity.h"
 #include <stdlib.h>
- 
+#include <time.h>
+
 // MODULE UNDER TEST
 #include "eui_utilities.h"
  
@@ -84,7 +85,7 @@ void test_reflection(void)
     }
     temp_crc_2 = temp_crc_1;    //buffer resultant crc
     crc16( temp_crc_2, &temp_crc_1 ); //perform 'reflection attack' by hashing itself
-    TEST_ASSERT_MESSAGE( 0x0000 == temp_crc_1, "Reflection of CRC check (fuzzed inputs)" )
+    TEST_ASSERT_MESSAGE( 0x0000 == temp_crc_1, "Reflection of CRC check (fuzzed inputs)" );
 }
 
 void test_repeated_zeros(void)
@@ -95,7 +96,7 @@ void test_repeated_zeros(void)
         crc16( 0x00, &temp_crc_1 );
     }
     crc16( 0x00, &temp_crc_2 ); //baseline should be different
-    TEST_ASSERT_MESSAGE( temp_crc_1 != temp_crc_2, "Consecutive 0x00 bytes aren't unique" )
+    TEST_ASSERT_MESSAGE( temp_crc_1 != temp_crc_2, "Consecutive 0x00 bytes aren't unique" );
 
     //repeated null bytes should give unique crc after other non-zero bytes
     temp_crc_1 = CRC_DIVISOR;
@@ -108,7 +109,7 @@ void test_repeated_zeros(void)
     {
         crc16( 0x00, &temp_crc_1 );
     }
-    TEST_ASSERT_MESSAGE( temp_crc_1 != temp_crc_2, "Consecutive 0x00 aren't handled after 0x01Af" )
+    TEST_ASSERT_MESSAGE( temp_crc_1 != temp_crc_2, "Consecutive 0x00 aren't handled after 0x01Af" );
 
     //test a 'already warm' crc with repeated 0x00 afterwards
     temp_crc_1 = CRC_DIVISOR;
@@ -122,7 +123,7 @@ void test_repeated_zeros(void)
     {
         crc16( 0x00, &temp_crc_1 );
     }
-    TEST_ASSERT_MESSAGE( temp_crc_1 != temp_crc_2, "Consecutive 0x00 aren't handled after 00-0F ingested" )
+    TEST_ASSERT_MESSAGE( temp_crc_1 != temp_crc_2, "Consecutive 0x00 aren't handled after 00-0F ingested" );
 
     TEST_IGNORE_MESSAGE("Seed attack + consecutive 0x00 test skipped");
 
@@ -136,7 +137,7 @@ void test_repeated_zeros(void)
     {
         crc16( 0x00, &temp_crc_1 );
     }
-    TEST_ASSERT_MESSAGE( temp_crc_1 != temp_crc_2, "Consecutive 0x00 aren't handled after 0xFFFF (attack with seed)" )
+    TEST_ASSERT_MESSAGE( temp_crc_1 != temp_crc_2, "Consecutive 0x00 aren't handled after 0xFFFF (attack with seed)" );
 }
 
 void test_fuzz(void)
@@ -146,7 +147,7 @@ void test_fuzz(void)
     for(uint8_t i = 0x00; i < 64; i++)  //64 random bytes
     {
         crc16( rand() % 256, &temp_crc_1 );
-        TEST_ASSERT_NOT_EQUAL_MESSAGE( temp_crc_1, temp_crc_2, "Fuzzed CRC input has same CRC as previous result" )
+        TEST_ASSERT_NOT_EQUAL_MESSAGE( temp_crc_1, temp_crc_2, "Fuzzed CRC input has same CRC as previous result" );
         temp_crc_2 = temp_crc_1;
     }
 }
