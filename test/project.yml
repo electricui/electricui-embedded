@@ -1,24 +1,15 @@
 ---
-
-# Notes:
-# Sample project C code is not presently written to produce a release artifact.
-# As such, release build options are disabled.
-# This sample, therefore, only demonstrates running a collection of unit tests.
-
+# Electric UI Embedded Library - Ceedling Unit test config
 :project:
   :use_exceptions: FALSE
   :use_test_preprocessor: TRUE
   :use_auxiliary_dependencies: TRUE
   :build_root: build
-#  :release_build: TRUE
+  #  :release_build: TRUE
   :test_file_prefix: test_
-  :which_ceedling: vendor/ceedling
+  :which_ceedling: gem
   :default_tasks:
     - test:all
-
-#:release_build:
-#  :output: MyApp.out
-#  :use_assembly: FALSE
 
 :environment:
 
@@ -28,17 +19,12 @@
 :paths:
   :test:
     - +:test/**
-    - -:test/support
   :source:
     - ../src/**
-  :support:
-    - test/support
+  :libraries: []
 
 :defines:
-  # in order to add common defines:
-  #  1) remove the trailing [] from the :common: section
-  #  2) add entries to the :common: section (e.g. :test: has TEST defined)
-  :commmon: &common_defines []
+  :common: &common_defines []
   :test:
     - *common_defines
     - TEST
@@ -57,7 +43,7 @@
     - :expect_any_args
     - :callback
   :c_calling_conventions:
-          - CALLBACK
+    - CALLBACK
   :treat_as:
     uint8:    HEX8
     uint16:   HEX16
@@ -71,9 +57,6 @@
 
 #:tools:
 # Ceedling defaults to using gcc for compiling, linking, etc.
-# As [:tools] is blank, gcc will be used (so long as it's in your system path)
-# See documentation to configure a given toolchain for use
-
 :tools_test_linker:
   :arguments:
     - -lm
@@ -84,9 +67,6 @@
  :html_report_type: detailed
 
 # LIBRARIES
-# These libraries are automatically injected into the build process. Those specified as
-# common will be used in all types of builds. Otherwise, libraries can be injected in just
-# tests or releases. These options are MERGED with the options in supplemental yaml files.
 :libraries:
   :placement: :end
   :flag: "${1}"  # or "-L ${1}" for example
@@ -98,10 +78,9 @@
 
 :plugins:
   :load_paths:
-    - vendor/ceedling/plugins
+    - "#{Ceedling.load_path}"
   :enabled:
     - stdout_pretty_tests_report
     - module_generator
     - raw_output_report
     - gcov
-...

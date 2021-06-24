@@ -7,6 +7,10 @@
 #ifndef EUI_PRIVATE_H
 #define EUI_PRIVATE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @file electricui_private.h
  * @brief Internal functions and variables
@@ -66,5 +70,10 @@ eui_variable_count_t    dev_tracked_num;
 // eUI variables accessible to developer
 uint8_t     heartbeat;
 uint16_t    board_identifier;
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //end EUI_PRIVATE_H

@@ -71,7 +71,7 @@ void test_find_message_object_internal( void )
     const char * test_message = EUI_INTERNAL_LIB_VER;
     is_internal = 1;
 
-    TEST_ASSERT_NOT_NULL_MESSAGE( find_message_object(test_message, is_internal), "Didn't return correct pointer")
+    TEST_ASSERT_NOT_NULL_MESSAGE( find_message_object(test_message, is_internal), "Didn't return correct pointer");
 }
 
 void test_find_message_object_wrong_internal_flag( void )
@@ -95,11 +95,11 @@ void test_find_message_object_invalid_id( void )
     const char * test_message = "666";
 
     //we expect a null result, there is no "666" message object in either array
-    TEST_ASSERT_NULL_MESSAGE(find_message_object(test_message, is_internal), "Found non-existant euiObject")
+    TEST_ASSERT_NULL_MESSAGE(find_message_object(test_message, is_internal), "Found non-existant euiObject");
     
     //try the internal array branch
     is_internal = 1;
-    TEST_ASSERT_NULL_MESSAGE(find_message_object(test_message, is_internal), "Found non-existant euiObject")
+    TEST_ASSERT_NULL_MESSAGE(find_message_object(test_message, is_internal), "Found non-existant euiObject");
 }
 
 void test_find_message_object_nullptr( void )
