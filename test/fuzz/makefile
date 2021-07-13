@@ -23,9 +23,8 @@ TARGET = afl-eui.out
 SRC_FILES = \
   afl-eui.c \
   $(SOURCE_ROOT)/electricui.c \
-  $(SOURCE_ROOT)/transports/eui_serial_transport.c \
-  $(SOURCE_ROOT)/utilities/eui_crc.c \
-  $(SOURCE_ROOT)/utilities/eui_offset_validation.c \
+  $(SOURCE_ROOT)/transports/eui_binary_transport.c \
+  $(SOURCE_ROOT)/eui_utilities.c
 
 INC_DIRS = -I../src
 SYMBOLS =

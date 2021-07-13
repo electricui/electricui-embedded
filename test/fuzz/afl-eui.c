@@ -31,10 +31,10 @@ int main()
 
     // eUI Setup
     eui_interface_t afl_comms; 
-    afl_comms.output_func = &afl_putc;
-    setup_interface( &afl_comms );
+    afl_comms.output_cb = &afl_putc;
+    eui_setup_interface( &afl_comms );
     EUI_TRACK( afl_msg_store );
-    setup_identifier( "fuzzy", 5 );
+    eui_setup_identifier( "fuzzy", 5 );
 
 
     char *buffer = NULL;
@@ -49,7 +49,7 @@ int main()
 
     for(size_t i = 0; i <= bytes_read; i++)
     {
-        parse_packet( (uint8_t)buffer[i], &afl_comms );
+        eui_parse( (uint8_t)buffer[i], &afl_comms );
     }
   
     free(buffer);
