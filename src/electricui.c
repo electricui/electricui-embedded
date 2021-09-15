@@ -535,7 +535,7 @@ send_tracked_message_id_list( void )
         variables_sent++;
             
         //send messages and clear buffer
-        if( ((sizeof(msgBuffer) - 16/2) <= msg_buffer_position) || (dev_tracked_num - 1 <= i) )
+        if( ((sizeof(msgBuffer) - EUI_MAX_MSGID_SIZE) <= msg_buffer_position) || (dev_tracked_num - 1 <= i) )
         {
             eui_encode_simple(  auto_output(),
                                 &temp_header,
