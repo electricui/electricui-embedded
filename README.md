@@ -27,7 +27,7 @@ See the [website for more information](https://electricui.com/docs/).
 3. For for more detail, [follow the docs](https://electricui.com/docs/hardware/) or example Arduino code which shows the minimum setup and usage examples.
 
 
-# Developing electricui-embedded
+# Developing `electricui-embedded`
 
 ## Editing the library
 
@@ -51,17 +51,9 @@ To generate documentation artifacts (html), call `doxygen Doxyfile` and then ope
 
 Testing uses the [Ceedling](http://www.throwtheswitch.org/ceedling/) (Ruby/rake) based testing framework.
 
-I don't provide Ceedling's vendor files inside this repo, so first runs need to 're-initalise' the test structure.
-
-1. Use the provided `test/setup_tests.sh` script to begin with. 
-	- You might need to add execution permission first. From `/test`, run `chmod +x setup_tests.sh`.
-	- Depending on your Ruby/Gem system configuration things may not work first try. Failing that, manually install `ceedling` with `gem install ceedling`.
-
-2. Run the `setup_tests.sh` script. If you don't have ceedling installed, it will prompt to install the ruby gem.
-
-3. Once setup, run `ceedling` or `ceedling test:all`.
-
-There are also a series of small scripts for other various analysis checks.
+1. This project configures Ceedling to use the system's `ceedling` via gem.
+	- If you don't have it installed, `gem install --user-install ceedling`
+2. Once setup, run `ceedling` or `ceedling test:all`.
 
 ## Coverage Analysis
 
