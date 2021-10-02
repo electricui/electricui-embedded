@@ -6,13 +6,65 @@
 
 #include <string.h>
 #include "electricui.h"
-#include "electricui_private.h"
 #include "eui_utilities.h"
 
-//internal eUI tracked variables
-uint8_t library_version = EUI_LIBRARY_VERSION;
+// static functions
+static eui_message_t *
+find_message_object( const char * search_id, uint8_t is_internal );
 
-eui_message_t internal_msg_store[] = 
+static eui_interface_t *
+auto_interface( void );
+
+static callback_data_out_t
+auto_output( void );
+
+static uint8_t
+handle_packet_action(   eui_interface_t *valid_packet,
+                        eui_header_t    *header,
+                        eui_message_t   *p_msg_obj );
+
+static uint8_t
+handle_packet_ack(  eui_interface_t *valid_packet,
+                    eui_header_t    *header,
+                    eui_message_t   *p_msg_obj );
+
+static uint8_t
+handle_packet_query(    eui_interface_t *valid_packet,
+                        eui_header_t    *header,
+                        eui_message_t   *p_msg_obj );
+
+// Application layer functionality accessed via UI callback
+static void
+announce_dev_msg( void );
+
+static void
+announce_dev_vars( void );
+
+static eui_variable_count_t
+send_tracked_message_id_list( void );
+
+static void
+send_tracked_variables( void );
+
+// Communication Interfaces management
+static eui_interface_t     *p_interface_arr;
+static uint8_t             interface_num;
+static eui_interface_t     *p_interface_last;
+
+// Application developer's managed messages
+static eui_message_t           *p_dev_tracked;
+static eui_variable_count_t    dev_tracked_num;
+
+// eUI variables accessible to developer
+static uint8_t     heartbeat;
+static uint16_t    board_identifier;
+
+
+
+//internal eUI tracked variables
+static uint8_t library_version = EUI_LIBRARY_VERSION;
+
+static eui_message_t internal_msg_store[] = 
 {
     EUI_UINT8(      EUI_INTERNAL_HEARTBEAT,     heartbeat           ),
     EUI_UINT8_RO(   EUI_INTERNAL_LIB_VER,       library_version     ),
@@ -30,7 +82,7 @@ find_tracked_object( const char * search_id )
 }
 
 // Internal search in either variable array
-eui_message_t * 
+static eui_message_t * 
 find_message_object( const char * search_id, uint8_t is_internal )
 {
     eui_message_t *found_obj_ptr = 0;
@@ -66,7 +118,7 @@ find_message_object( const char * search_id, uint8_t is_internal )
     return found_obj_ptr;
 }
 
-eui_interface_t *
+static eui_interface_t *
 auto_interface( void )
 {
     eui_interface_t *p_interface = 0;
@@ -79,7 +131,7 @@ auto_interface( void )
     return p_interface;
 }
 
-callback_data_out_t
+static callback_data_out_t
 auto_output( void )
 {
     eui_interface_t *p_selected_interface = auto_interface();
@@ -149,7 +201,7 @@ eui_parse( uint8_t inbound_byte, eui_interface_t *p_link )
     return status;
 }
 
-uint8_t
+static uint8_t
 handle_packet_action(   eui_interface_t *valid_packet,
                         eui_header_t    *header,
                         eui_message_t   *p_msg_obj )
@@ -205,7 +257,7 @@ handle_packet_action(   eui_interface_t *valid_packet,
     return status;
 }
 
-uint8_t
+static uint8_t
 handle_packet_ack(  eui_interface_t *valid_packet,
                     eui_header_t    *header,
                     eui_message_t   *p_msg_obj )
@@ -233,7 +285,7 @@ handle_packet_ack(  eui_interface_t *valid_packet,
     return status;
 }
 
-uint8_t
+static uint8_t
 handle_packet_query(    eui_interface_t *valid_packet,
                         eui_header_t    *header,
                         eui_message_t   *p_msg_obj )
@@ -492,7 +544,7 @@ eui_setup_identifier( char * uuid, uint8_t bytes )
 
 //application layer callbacks
 
-void
+static void
 announce_dev_msg( void )
 {
     eui_variable_count_t num_writable  = 0;
@@ -509,7 +561,7 @@ announce_dev_msg( void )
                         &num_writable);
 }
 
-eui_variable_count_t
+static eui_variable_count_t
 send_tracked_message_id_list( void )
 {
     eui_variable_count_t variables_sent = 0;
@@ -553,7 +605,7 @@ send_tracked_message_id_list( void )
     return variables_sent;
 }
 
-void
+static void
 send_tracked_variables( void )
 {
     eui_pkt_settings_t      temp_header = { 0 };

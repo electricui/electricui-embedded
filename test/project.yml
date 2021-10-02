@@ -24,13 +24,13 @@
   :libraries: []
 
 :defines:
-  :common: &common_defines []
+  :common: &common_defines
+    - TEST
+    - CMOCK_MEM_DYNAMIC
   :test:
     - *common_defines
-    - TEST
   :test_preprocess:
     - *common_defines
-    - TEST
 
 :cmock:
   :mock_prefix: mock_
