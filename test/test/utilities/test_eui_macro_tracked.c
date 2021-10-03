@@ -178,9 +178,9 @@ void test_array_element_count( void )
 void test_readwrite( void )
 {
     TEST_ASSERT_EQUAL_MEMORY_MESSAGE(   expected_object_array, 
-                                            macro_object_array, 
-                                            sizeof(expected_object_array), 
-                                            "Macro populated array != ground truth array"); 
+                                        macro_object_array, 
+                                        sizeof(expected_object_array), 
+                                        "Macro populated array != ground truth array"); 
 }
 
 void test_readonly( void )
