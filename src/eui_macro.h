@@ -13,7 +13,8 @@
  *
  */
 
-#define EUI_ARR_ELEM(a) (sizeof(a) / sizeof(*a))    //number of elements in array
+// Helper for number of elements in array
+#define EUI_ARR_ELEM(arr) (sizeof(arr) / sizeof(*arr)) // Failed to compile? Ensure the type is an array!   
 
 #define EUI_TRACK( INPUT_ARRAY )    ( eui_setup_tracked(INPUT_ARRAY, EUI_ARR_ELEM(INPUT_ARRAY)) )
 #define EUI_LINK( INTERFACE_ARRAY ) ( eui_setup_interfaces(INTERFACE_ARRAY, EUI_ARR_ELEM(INTERFACE_ARRAY)) )
