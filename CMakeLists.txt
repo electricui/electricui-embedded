@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.6)
 
-SET( PROJECT_VERSION 0.0.8 )
+SET( PROJECT_VERSION 0.9.0 )
 
 project(electricui-embedded)
 

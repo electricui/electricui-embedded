@@ -30,7 +30,7 @@ extern "C" {
     #warning "ElectricUI will not handle data larger than PAYLOAD_SIZE_MAX"
 #endif
 
-#define EUI_LIBRARY_VERSION 8u
+#define EUI_LIBRARY_VERSION 9u
 
 /**
  * @brief Interfaces contain local storage for inbound packets, and pointers for data output callbacks, and state callbacks
