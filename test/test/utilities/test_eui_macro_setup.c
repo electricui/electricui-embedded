@@ -33,8 +33,6 @@ eui_message_t basic_tracked_vars[] = {
     EUI_UINT8( "u8", u8_test ),
 };
 
-eui_interface_t init_macro[] = EUI_INTERFACE( &output_callback );
-
 eui_interface_t init_macro_arr[] = { EUI_INTERFACE( &output_callback ), EUI_INTERFACE( &output_callback )};
 
 // SETUP, TEARDOWN
@@ -53,13 +51,13 @@ void tearDown(void)
 void test_link_setup_macro( void )
 {
     // Using the helper macro to setup the interface
-    eui_setup_interfaces_Expect( &init_macro_arr, 2 );
+    eui_setup_interfaces_Expect( init_macro_arr, 2 );
     EUI_LINK( init_macro_arr );
 }
 
 void test_tracked_setup_macro( void )
 {
     // Using the helper macro to setup the tracked variables
-    eui_setup_tracked_Expect( &basic_tracked_vars[0], 2 );
+    eui_setup_tracked_Expect( basic_tracked_vars, 2 );
     EUI_TRACK( basic_tracked_vars );
 }
