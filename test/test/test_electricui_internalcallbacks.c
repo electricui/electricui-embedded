@@ -118,7 +118,7 @@ void test_send_id_list_callback( void )
                                     send_tracked_message_id_list(), 
                                     "Empty - Tracked id count incorrect" );
 
-    //test mixed order of vars
+    // test mixed order of vars
     eui_message_t mixed_testset[] = {
         EUI_CHAR(       "cw0", test_char ),
         EUI_INT8(       "iw0", test_uint ),
@@ -144,7 +144,7 @@ void test_send_id_list_callback( void )
                                     send_tracked_message_id_list(), 
                                     "Mixed set - Tracked id count incorrect" );
 
-    //test many vars
+    // test many vars
     eui_message_t large_testset[60] = { 0 };
 
     for( uint8_t i = 0; i < 60; i++)
@@ -173,6 +173,91 @@ void test_send_id_list_callback( void )
     TEST_ASSERT_EQUAL_INT_MESSAGE(  total_expected, 
                                     send_tracked_message_id_list(), 
                                     "Large set - Tracked id count incorrect" );
+
+}
+
+// MAX Number of message ID's to attempt to track/handshake with
+#define STRESS_ID_COUNT 30
+
+void test_send_id_list_callback_all( void )
+{
+    // Temp buffer for message ID strings
+    char msgID_strbuf[STRESS_ID_COUNT][EUI_MAX_MSGID_SIZE+1] = { 0 };
+
+    // The 'tracked' variables being managed by eUI
+    eui_message_t track_stressed[STRESS_ID_COUNT] = { 0 };
+
+    // bytes that can fit in a single packet's payload 
+    const uint16_t buffer_size = EUI_MAX_MSGID_SIZE*4;
+
+    // For a msgid length of 1 to max length
+    // for a count of msgids from 1 to STRESS_ID_COUNT
+    // generate a array of tracked variables, and send the 'list function'
+    //      ensure the count of variables sent is correct
+    //      ensure that the messages are broken into new packets as the buffer overflows
+
+    for( uint8_t id_length = 1; id_length < EUI_MAX_MSGID_SIZE; id_length++ )
+    {
+        // Generate a string with n bytes corresponding to this pass of the test
+        // Will be used as the 'template' msgID string in the child loop
+        char msg_id[EUI_MAX_MSGID_SIZE] = { 0 };
+        memset( &msg_id, 'a', id_length);
+        msg_id[id_length + 1] = '\0';
+
+        for( uint8_t id_num = 1; id_num < STRESS_ID_COUNT; id_num++ )
+        {
+            // Clear out our array etc
+            memset( track_stressed, 0, sizeof(track_stressed));
+            memset( msgID_strbuf, 0, sizeof(msgID_strbuf));
+
+            // Walk through the ID strings and see if they fit in the buffer
+            // When they don't, increment the packet count and continue through
+            uint32_t buffer_bytes_used = 0;
+            uint32_t packets_required = 1;
+
+            // Setup a 'tracked variable set' of many variables with the specified dyn length
+            for( uint16_t i = 0; i < id_num; i++)
+            {
+                // eUI only needs pointers to strings, so generate a string in a buffer
+                // and then pass the pointer for that entry
+                strcpy(msgID_strbuf[id_num], msg_id);
+
+                track_stressed[i].id = &msgID_strbuf[id_num][0];
+                track_stressed[i].type = TYPE_CHAR;
+                track_stressed[i].size = 1;
+                track_stressed[i].ptr.data = &test_char;
+
+
+                // Calculate if this message would require an additional packet to fit
+                uint32_t msg_bytes_req = strlen(track_stressed[i].id) + 1;
+
+                if( (buffer_bytes_used + msg_bytes_req) > buffer_size )
+                {
+                    packets_required++;
+                    buffer_bytes_used = 0;
+                }
+
+                // Keep track of bytes required for packet counting check
+                buffer_bytes_used += msg_bytes_req;
+            }
+
+            // Configure eUI with the generated array of variables to track
+            eui_setup_tracked( track_stressed, id_num );
+
+            // Expect a packet to be sent for each set
+            for( uint16_t i = 1; i <= packets_required; i++)
+            {            
+                encode_packet_simple_ExpectAnyArgsAndReturn(0);
+            }
+
+            TEST_ASSERT_EQUAL_INT_MESSAGE(  id_num, 
+                                            send_tracked_message_id_list(), 
+                                            "Bruteforced send-tracked-id returned an incorrect count" );
+
+        } // end 'number of message' iterations
+
+    }   // end id_length iterations
+
 
 }
 

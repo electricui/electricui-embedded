@@ -105,7 +105,7 @@ enum eui_output_errors {
 };
 
 #ifdef EUI_CONF_MANY_VARIABLES
-    #define TYPE_MANY_VARIABLES_SIZED TYPE_UINT8
+    #define TYPE_MANY_VARIABLES_SIZED TYPE_UINT16
     typedef uint16_t eui_variable_count_t;
 #else
     #define TYPE_MANY_VARIABLES_SIZED TYPE_UINT8
