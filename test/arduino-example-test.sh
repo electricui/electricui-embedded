@@ -1,50 +1,20 @@
 #!/bin/bash
 
-# Copyright (c) 2016-2020 Electric UI
+# Copyright (c) 2016-2021 Electric UI
 # MIT Licenced - see LICENCE for details.
 # Compiles each of the Arduino example sketches in electricui-embedded/examples
 
-# Setup the various paths to the installed location, user's sketchbook and the library/board manager cache
-# This is different between Linux, macOS etc, so try and detect where possible.
-bin_path="arduino-builder tool directory"
-user_sketchbook="sketchbook directory"
-user_hidden_path="arduino15 directory"
 
-os_name="unsupported"
+# Update the arduino-cli index and install deps
+arduino-cli core update-index --additional-urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json
+arduino-cli core install arduino:avr
+arduino-cli core install arduino:samd
+arduino-cli core install esp32:esp32 
 
-unameu="$(tr '[:lower:]' '[:upper:]' <<<$(uname))"
-if [[ $unameu == *DARWIN* ]]; then
-	os_name="darwin"
+# Websockets library is a dep for the ESP32 websockets example
+ARDUINO_LIBRARY_ENABLE_UNSAFE_INSTALL=true arduino-cli lib install --git-url https://github.com/Links2004/arduinoWebSockets
 
-	bin_path=/Applications/Arduino.app/Contents/Java
-	user_sketchbook=~/Documents/Arduino
-	user_hidden_path=~/Library/Arduino15
-
-elif [[ $unameu == *LINUX* ]];then
-	os_name="linux"
-
-	bin_path=/opt/arduino
-	user_sketchbook=~/Arduino
-	user_hidden_path=~/.arduino15
-
-elif [[ $unameu == *WIN* || $unameu == MSYS* ]]; then
-	# Should catch cygwin
-	os_name="windows"
-
-	bin_path="todo find correct windows arduino-builder path"
-	user_sketchbook="todo find correct user sketchbook path"
-	user_hidden_path="todo find correct arduino15 path"
-else
-	echo "Aborted, unsupported or unknown environment"
-	return 6
-fi
-
-# Other bits we want paths for
-hardware_path=$bin_path/hardware
-tool_arg=$bin_path/tools-builder
-toolchain=arduino-builder
-
-# Platforms are defined with the platform control string expected by arduino-builder
+# Platforms are defined with the platform control string
 # and then following arguments are sketches which should NOT be tested (blacklist)
 # space-delimiting is used.
 # Add new platforms by appending new target_platform array indices
@@ -53,7 +23,7 @@ target_platforms[0]="arduino:avr:leonardo esp32-ble.ino esp32-websockets.ino blu
 target_platforms[1]="arduino:avr:uno esp32-ble.ino esp32-websockets.ino bluefruit-bleuart.ino" 
 target_platforms[2]="arduino:avr:mega:cpu=atmega2560 esp32-ble.ino esp32-websockets.ino bluefruit-bleuart.ino"
 target_platforms[3]="arduino:samd:mzero_bl persistence-eeprom.ino esp32-ble.ino esp32-websockets.ino bluefruit-bleuart.ino"
-target_platforms[4]="esp32:esp32:esp32thing:FlashFreq=80,UploadSpeed=921600 persistence-eeprom.ino bluefruit-bleuart.ino"
+target_platforms[4]="esp32:esp32:esp32thing persistence-eeprom.ino status-error-callbacks.ino bluefruit-bleuart.ino"
 
 # track test progress
 tests_run=0
@@ -67,6 +37,7 @@ GREEN='\033[0;32m'
 LRED='\033[1;31m'
 BOLD='\033[1m'
 NF='\033[0m' # No Color
+
 
 for platform in "${target_platforms[@]}"
 do
@@ -94,16 +65,9 @@ do
 		if [[ $sketch_valid == 0 ]];
 		then
 			tests_run=$((tests_run+1))
+
 			# Run the build against the platform, capture (and suppress) output
-			result=`$bin_path/$toolchain                       \
-			-hardware $hardware_path                           \
-			-hardware $user_hidden_path/packages               \
-			-tools $tool_arg                                   \
-			-tools $hardware_path/tools/avr                    \
-			-tools $user_hidden_path/packages                  \
-			-libraries $user_sketchbook/libraries              \
-			-libraries ../../                                  \
-			-fqbn ${arr[0]} $sketch 2>&1`
+			result=`arduino-cli compile --fqbn ${arr[0]} --library ../ $sketch 2>&1`
 
 			# Check the build pass/fail status
 			if [ $? -eq 0 ]
@@ -126,6 +90,7 @@ do
 	echo
 
 done
+
 
 echo "Result:  RAN:$tests_run | PASS:$tests_pass | FAIL:$tests_fail"
 
