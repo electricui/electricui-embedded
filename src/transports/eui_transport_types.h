@@ -1,4 +1,4 @@
-/* Copyright (c) 2016-2021 Electric UI
+/* Copyright (c) 2016-2022 Electric UI
  * MIT Licenced - see LICENCE for details.
  *
  * 
