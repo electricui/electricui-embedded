@@ -72,7 +72,7 @@ It will provide a report detailing the occurances of style violations (code smel
 ## Arduino Example Script validation
 
 The `arduino-example-test.sh` provides automated batch compile validation for the example suite, across a range of devices.  
-Assumes a \*nix shell and the Arduino IDE is installed (arduino-builder is used).
+Assumes a \*nix shell and `arduino-cli` is installed.
 
 ## Fuzzing
 
