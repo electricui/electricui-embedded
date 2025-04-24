@@ -1,11 +1,5 @@
-test/build/artifacts
-test/build/gcov
-test/builld/logs 
-test/build/temp
-test/build/test
-test/vendor/
+test/build/*
 test/fuzz/fuzz-outputs
-test/*.plist
 docs/*
 
 # Prerequisites

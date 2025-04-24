@@ -1,13 +1,22 @@
 ---
 # Electric UI Embedded Library - Ceedling Unit test config
 :project:
-  :use_exceptions: FALSE
-  :use_test_preprocessor: TRUE
-  :use_auxiliary_dependencies: TRUE
-  :build_root: build
-  #  :release_build: TRUE
-  :test_file_prefix: test_
   :which_ceedling: gem
+  :ceedling_version: "?"
+
+  :use_exceptions: FALSE
+  :use_test_preprocessor: :all
+  :use_deep_preprocessor: :none # options are :none, :mocks, :tests, or :all
+  :use_backtrace: :none # options are :none, :simple, or :gdb
+  :use_auxiliary_dependencies: TRUE
+
+  # performance options. If your tools start giving mysterious errors, consider
+  # dropping this to 1 to force single-tasking
+  :test_threads: :auto
+  :compile_threads: :auto
+
+  :build_root: build
+  :test_file_prefix: test_
   :default_tasks:
     - test:all
 
@@ -18,7 +27,9 @@
 
 :paths:
   :test:
-    - +:test/**
+    - test/**
+  :include:
+    - ../src/**
   :source:
     - ../src/**
   :libraries: []
@@ -54,22 +65,19 @@
   :includes:
     - <stdint.h>
 
-
-#:tools:
-# Ceedling defaults to using gcc for compiling, linking, etc.
-:tools_test_linker:
-  :arguments:
-    - -lm
-:tools_gcov_linker:
-  :arguments:
-    - -lm
 :gcov:
- :html_report_type: detailed
+  :utilities:
+    - gcovr
+  :reports:
+    - HtmlDetailed
+  :gcovr:
+    :html_medium_threshold: 75
+    :html_high_threshold: 90
 
 # LIBRARIES
 :libraries:
   :placement: :end
-  :flag: "${1}"  # or "-L ${1}" for example
+  :flag: "${1}"
   :common: &common_libraries []
   :test:
     - *common_libraries
@@ -77,10 +85,8 @@
     - *common_libraries
 
 :plugins:
-  :load_paths:
-    - "#{Ceedling.load_path}"
+  :load_paths: []
   :enabled:
-    - stdout_pretty_tests_report
+    - report_tests_pretty_stdout
     - module_generator
-    - raw_output_report
     - gcov
