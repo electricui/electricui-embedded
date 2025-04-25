@@ -223,6 +223,7 @@ parse_decoded_packet( uint8_t byte_in, eui_packet_t *p_link_in )
     {
         case exp_frame_offset:
             // First byte is the first offset
+            p_link_in->crc_in = 0xFFFFu;
             p_link_in->parser.state = exp_header_b1;
         break;
 
