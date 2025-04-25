@@ -37,9 +37,6 @@ handle_packet_query(    eui_interface_t *valid_packet,
 static void
 announce_dev_msg( void );
 
-static void
-announce_dev_vars( void );
-
 static eui_variable_count_t
 send_tracked_message_id_list( void );
 
@@ -58,8 +55,6 @@ static eui_variable_count_t    dev_tracked_num;
 // eUI variables accessible to developer
 static uint8_t     heartbeat;
 static uint16_t    board_identifier;
-
-
 
 //internal eUI tracked variables
 static uint8_t library_version = EUI_LIBRARY_VERSION;

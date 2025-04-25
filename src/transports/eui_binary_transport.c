@@ -176,12 +176,12 @@ decode_packet(uint8_t byte_in, eui_packet_t *p_link_in)
     if( 0x00u == byte_in )
     {
         //reset
-        p_link_in->parser.state = 0u;
+        p_link_in->parser.state = exp_frame_offset;
         p_link_in->crc_in = 0xFFFFu;
     }
     else
     {
-        if( 0x01 < p_link_in->parser.frame_offset )
+        if( 0x01u < p_link_in->parser.frame_offset )
         {
             // One byte closer to the next offset
             p_link_in->parser.frame_offset -= 1u;
