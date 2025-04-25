@@ -50,7 +50,7 @@ void test_cobs_basic_1( void )
     };
 
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE( expected, test_payload, sizeof(expected), "Encoding not valid" );
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong status" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong overhead" );
 }
 
 void test_cobs_basic_2( void )
@@ -77,7 +77,7 @@ void test_cobs_basic_2( void )
     };
 
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE( expected, test_payload, sizeof(expected), "Encoding not valid" );
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong status" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong overhead" );
 }
 
 void test_cobs_basic_3( void )
@@ -108,7 +108,7 @@ void test_cobs_basic_3( void )
     };
 
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE( expected, test_payload, sizeof(expected), "Encoding not valid" );
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong status" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong overhead" );
 }
 
 void test_cobs_basic_4( void )
@@ -139,7 +139,7 @@ void test_cobs_basic_4( void )
     };
 
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE( expected, test_payload, sizeof(expected), "Encoding not valid" );
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong status" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong overhead" );
 }
 
 void test_cobs_basic_5( void )
@@ -170,7 +170,7 @@ void test_cobs_basic_5( void )
     };
 
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE( expected, test_payload, sizeof(expected), "Encoding not valid" );
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong status" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong overhead" );
 }
 
 // Expect 00 FF 01 02 03 ... FD FE 00
@@ -210,7 +210,7 @@ void test_cobs_basic_6( void )
     };
 
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE( expected, test_payload, sizeof(expected), "Encoding not valid" );
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong status" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong overhead" );
 }
 
 // Expect 00 01 FF 01 02 ... FC FD FE 00
@@ -250,7 +250,7 @@ void test_cobs_basic_7( void )
     };
 
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE( expected, test_payload, sizeof(expected), "Encoding not valid" );
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong status" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong overhead" );
 }
 
 // Expect 00 FF 01 02 03 ... FD FE 02 FF 00
@@ -291,7 +291,7 @@ void test_cobs_basic_8( void )
     };
 
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE( expected, test_payload, sizeof(expected), "Encoding not valid" );
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong status" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 1, encode_result, "Encoder returned wrong overhead" );
 }
 
 // Expect 00 FF 02 03 04 ... FE FF 01 01 00
@@ -334,7 +334,7 @@ void test_cobs_basic_9( void )
     };
 
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE( expected, test_payload, sizeof(expected), "Encoding not valid" );
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong status" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong overhead" );
 }
 
 // Expect 00 FE 03 04 05 ... FF 02 01 00
@@ -375,7 +375,7 @@ void test_cobs_basic_10( void )
     };
 
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE( expected, test_payload, sizeof(expected), "Encoding not valid" );
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong status" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong overhead" );
 }
 
 void test_cobs_long( void )
@@ -399,7 +399,7 @@ void test_cobs_long( void )
         test_payload[bytes] = test_val;
     }
 
-    uint8_t encode_result = encode_framing( test_payload, sizeof(test_payload) );
+    uint8_t encode_result = encode_framing( test_payload, sizeof(test_payload)-3 );
     
     //ground-truth
     uint8_t expected[] = { 
@@ -473,9 +473,8 @@ void test_cobs_long( void )
         0x00
     };
 
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 3, encode_result, "Encoder returned wrong overhead" );
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE( expected, test_payload, sizeof(expected), "Encoding not valid" );
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong status" );
-
 }
 
 void test_cobs_realworld( void )
@@ -506,7 +505,7 @@ void test_cobs_realworld( void )
     };
 
     TEST_ASSERT_EQUAL_UINT8_ARRAY_MESSAGE( expected, test_payload, sizeof(expected), "Encoding not valid" );
-    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong status" );
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong overhead" );
 }
 
 /*

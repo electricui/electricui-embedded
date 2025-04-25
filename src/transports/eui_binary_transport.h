@@ -64,7 +64,7 @@ encode_header( eui_header_t *header, uint8_t *buffer );
  *
  * @param buffer Pointer to data to encode
  * @param size Number of bytes to encode
- * @return uint8_t 
+ * @return uint8_t Number of overhead bytes added during encode
  */
 uint8_t
 encode_framing( uint8_t *buffer, uint16_t size );

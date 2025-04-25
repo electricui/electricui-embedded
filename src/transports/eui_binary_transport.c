@@ -69,6 +69,7 @@ encode_header( eui_header_t *header, uint8_t *buffer )
 uint8_t
 encode_framing( uint8_t *buffer, uint16_t buf_size )
 {
+    uint8_t added_overhead = 0;
     uint16_t previous_null = 0;
 
     for( uint16_t i = 1; i < buf_size; i++ )
@@ -85,20 +86,24 @@ encode_framing( uint8_t *buffer, uint16_t buf_size )
             buffer[previous_null] = 0xFFu;
 
             // Ripple the buffer of data back one byte to make room
-            // This 'extra' new byte is now the offset
+            // for an 'extra' byte describing the next offset
             for( uint16_t j = 1; j < (buf_size-i); j++ )
             {
                 buffer[ buf_size-j ] = buffer[ buf_size-j-1 ];
             }
 
-            buffer[i] = 0xEEu;
+            // Placeholder offset in the new framing byte location
+            // The loop will overwrite it, or will do so at the final null-byte
+            buffer[i] = 0xEEu;  
             previous_null = i;
+            buf_size += 1;
+            added_overhead += 1;
         }
     }
 
     buffer[0] = 0x00;
 
-    return 0;
+    return added_overhead;
 }
 
 uint8_t
@@ -146,7 +151,9 @@ encode_packet(  callback_data_out_t out_char,
         
         // Apply Consistent Overhead Byte Stuffing (COBS) for framing/sync
         pk_i += 1;  // +1 to account for null byte at end
-        encode_framing( pk_tmp, pk_i);    
+        // For long non-zero runs, additional overhead bytes are required.
+        // Add the returned 'overhead' bytes (no more than 3 possible) to the packet length
+        pk_i += encode_framing( pk_tmp, pk_i);    
 
         out_char( pk_tmp, pk_i );
     
