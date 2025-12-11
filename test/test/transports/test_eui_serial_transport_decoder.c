@@ -530,3 +530,46 @@ void test_decode_packet_invalid_state( void )
     
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_PARSER_ERROR, decode_result, "Decoder didn't error with malformed state" );
 }
+
+TEST_RANGE([0, 255, 1])
+void test_decode_after_garbage( uint8_t garbage_value )
+{
+    eui_packet_t test_interface = {0};
+    uint8_t inbound_bytes[] = {
+        garbage_value,      // garbage data that framing should ignore 
+        0x00,
+        0x0A,
+        0x01, 0x14, 0x03,   //header
+        0x61, 0x62, 0x63,   //msgid
+        0x2A,               //payload
+        0x64, 0xBA,         //crc
+    };
+
+    uint8_t expected_payload[] = { 
+        0x2A,
+    };
+
+    for( uint16_t rxByte = 0; rxByte < sizeof(inbound_bytes); rxByte++ )
+    {
+        decode_result = decode_packet( inbound_bytes[rxByte], &test_interface );
+    }
+    
+    char msg[64];
+    snprintf(msg, sizeof(msg), "Didn't decode packet. Garbage: 0x%02x", garbage_value);
+
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE( EUI_PARSER_OK, decode_result, msg );
+
+    //check parsed results from data structure directly
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 1, test_interface.header.data_len,    "Unexpected data_length" );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 5, test_interface.header.type,        "Unexpected type"   );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.internal,    "Expected dev msg"  );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.offset,      "Unexpected offset bit"         );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 3, test_interface.header.id_len,      "Msg length err"    );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.response,    "Didn't expect a response bit"  );
+    TEST_ASSERT_EQUAL_INT_MESSAGE( 0, test_interface.header.acknum,      "Unexpected ack number"         );
+
+    TEST_ASSERT_EQUAL_STRING( "abc", test_interface.id_in);
+    TEST_ASSERT_EQUAL_UINT16_MESSAGE( 0, test_interface.offset_in, "Wasn't expecting offset packet" );
+    TEST_ASSERT_EQUAL_UINT8_ARRAY( expected_payload, test_interface.data_in, sizeof(expected_payload) );
+    TEST_ASSERT_EQUAL_UINT16( 0xBA64, test_interface.crc_in );
+}

@@ -5,7 +5,6 @@
   :ceedling_version: "?"
 
   :use_exceptions: FALSE
-  :use_test_preprocessor: :all
   :use_deep_preprocessor: :none # options are :none, :mocks, :tests, or :all
   :use_backtrace: :none # options are :none, :simple, or :gdb
   :use_auxiliary_dependencies: TRUE
@@ -42,6 +41,9 @@
     - *common_defines
   :test_preprocess:
     - *common_defines
+
+:unity:
+  :use_param_tests: TRUE
 
 :cmock:
   :mock_prefix: mock_

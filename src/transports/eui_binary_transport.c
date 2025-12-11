@@ -184,6 +184,7 @@ decode_packet(uint8_t byte_in, eui_packet_t *p_link_in)
     {
         //reset
         p_link_in->parser.state = exp_frame_offset;
+        p_link_in->parser.frame_offset = 0u;
         p_link_in->crc_in = 0xFFFFu;
     }
     else
