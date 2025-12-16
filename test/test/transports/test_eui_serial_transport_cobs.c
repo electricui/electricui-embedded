@@ -12,7 +12,8 @@
 // PRIVATE DATA
 
 // PRIVATE FUNCTIONS
- 
+static void print_buffer(const char* label, uint8_t *buffer, uint16_t len);
+
 // SETUP, TEARDOWN
  
 void setUp(void)
@@ -30,7 +31,9 @@ void tearDown(void)
 // these basic tests follow https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing examples
 void test_cobs_basic_1( void )
 {
-    uint8_t test_payload[] = { 
+    // In-place encoding in library is done with a sufficiently large buffer.
+    // These buffers need the additional room to keep asan happy
+    uint8_t test_payload[16] = { 
         0x00,
         0x00,
 
@@ -38,8 +41,9 @@ void test_cobs_basic_1( void )
 
         0x00,
     };
+    uint16_t data_len = 4;
 
-    uint8_t encode_result = encode_framing( test_payload, sizeof(test_payload) );
+    uint8_t encode_result = encode_framing( test_payload, data_len );
 
     //ground-truth
     uint8_t expected[] = { 
@@ -55,7 +59,7 @@ void test_cobs_basic_1( void )
 
 void test_cobs_basic_2( void )
 {
-    uint8_t test_payload[] = { 
+    uint8_t test_payload[16] = { 
         0x00,
         0x00,
 
@@ -64,8 +68,9 @@ void test_cobs_basic_2( void )
 
         0x00,
     };
+    uint16_t data_len = 5;
 
-    uint8_t encode_result = encode_framing( test_payload, sizeof(test_payload) );
+    uint8_t encode_result = encode_framing( test_payload, data_len );
 
     //ground-truth
     uint8_t expected[] = { 
@@ -82,7 +87,7 @@ void test_cobs_basic_2( void )
 
 void test_cobs_basic_3( void )
 {
-    uint8_t test_payload[] = { 
+    uint8_t test_payload[16] = { 
         0x00,
         0x00,
 
@@ -93,8 +98,9 @@ void test_cobs_basic_3( void )
 
         0x00,
     };
+    uint16_t data_len = 7;
 
-    uint8_t encode_result = encode_framing( test_payload, sizeof(test_payload) );
+    uint8_t encode_result = encode_framing( test_payload, data_len );
 
     //ground-truth
     uint8_t expected[] = { 
@@ -113,7 +119,7 @@ void test_cobs_basic_3( void )
 
 void test_cobs_basic_4( void )
 {
-    uint8_t test_payload[] = { 
+    uint8_t test_payload[16] = { 
         0x00,
         0x00,
 
@@ -124,8 +130,9 @@ void test_cobs_basic_4( void )
 
         0x00,
     };
+    uint16_t data_len = 7;
 
-    uint8_t encode_result = encode_framing( test_payload, sizeof(test_payload) );
+    uint8_t encode_result = encode_framing( test_payload, data_len );
 
     //ground-truth
     uint8_t expected[] = { 
@@ -144,7 +151,7 @@ void test_cobs_basic_4( void )
 
 void test_cobs_basic_5( void )
 {
-    uint8_t test_payload[] = { 
+    uint8_t test_payload[16] = { 
         0x00,
         0x00,
 
@@ -155,8 +162,9 @@ void test_cobs_basic_5( void )
 
         0x00,
     };
+    uint16_t data_len = 7;
 
-    uint8_t encode_result = encode_framing( test_payload, sizeof(test_payload) );
+    uint8_t encode_result = encode_framing( test_payload, data_len );
 
     //ground-truth
     uint8_t expected[] = { 
@@ -176,15 +184,17 @@ void test_cobs_basic_5( void )
 // Expect 00 FF 01 02 03 ... FD FE 00
 void test_cobs_basic_6( void )
 {
-    uint8_t test_payload[ 3 + 0xFE ] = { 0 };
+    uint8_t test_payload[ 300 ] = { 0 };
+    uint16_t data_len = 2;
 
     //write 01 to FE into buffer, leaving the 0x00 and first frame bytes room at the start
     for(uint16_t i = 0; i < 0xFE; i++)
     {
-        test_payload[2+i] = i+1;
+        test_payload[data_len] = i+1;
+        data_len++;
     }
 
-    uint8_t encode_result = encode_framing( test_payload, sizeof(test_payload) );
+    uint8_t encode_result = encode_framing( test_payload, data_len );
    
     //ground-truth
     uint8_t expected[] = { 
@@ -216,15 +226,17 @@ void test_cobs_basic_6( void )
 // Expect 00 01 FF 01 02 ... FC FD FE 00
 void test_cobs_basic_7( void )
 {
-    uint8_t test_payload[ 3 + 0xFF ] = { 0 };
+    uint8_t test_payload[ 300 ] = { 0 };
+    uint16_t data_len = 2;
 
     //write 01 to FE into buffer, leaving the 0x00 and first frame bytes room at the start
     for(uint16_t i = 0; i < 0xFF; i++)
     {
-        test_payload[2+i] = i;
+        test_payload[data_len] = i;
+        data_len++;
     }
     
-    uint8_t encode_result = encode_framing( test_payload, sizeof(test_payload) );
+    uint8_t encode_result = encode_framing( test_payload, data_len );
     
     //ground-truth
     uint8_t expected[] = { 
@@ -256,15 +268,25 @@ void test_cobs_basic_7( void )
 // Expect 00 FF 01 02 03 ... FD FE 02 FF 00
 void test_cobs_basic_8( void )
 {
-    uint8_t test_payload[ 4 + 0xFF ] = { 0 };
+    // Buffer is large enough for data, expansion, keeping asan happy, etc
+    uint8_t test_payload[ 300 ] = { 0 };
 
-    //input data sequence like: 01 02 03 ... FD FE FF
+    // Indices 0 and 1 represent the protocol's expected leading zero, and the position for the initial offset
+    // Indices 2 to 256 will be filled with data, 0x01..0xFF
+    uint16_t input_len = 2;
+
+    // Data sequence like: 01 02 03 ... FD FE FF
     for(uint16_t i = 1; i <= 0xFF; i++)
     {
-        test_payload[1+i] = i;
+        test_payload[input_len] = i;
+        input_len++; 
     }
 
-    uint8_t encode_result = encode_framing( test_payload, sizeof(test_payload) );
+    TEST_ASSERT_EQUAL( 257, input_len );
+
+    // print_buffer("Input", test_payload, input_len);
+    uint8_t encode_result = encode_framing( test_payload, input_len );
+    // print_buffer("Result", test_payload, input_len + encode_result);
 
     //ground-truth
     uint8_t expected[] = { 
@@ -297,17 +319,20 @@ void test_cobs_basic_8( void )
 // Expect 00 FF 02 03 04 ... FE FF 01 01 00
 void test_cobs_basic_9( void )
 {
-    uint8_t test_payload[ 4 + 0xFF ] = { 0 };
+    uint8_t test_payload[ 400 ] = { 0 };
+    uint16_t data_len = 2;
 
     // Input data as: 02 03 04 ... FE FF 00
     for(uint16_t i = 2; i <= 0xFF; i++)
     {
-        test_payload[i] = i;
+        test_payload[data_len] = i;
+        data_len++;
     }
     
     test_payload[0x100] = 0x00;
+    data_len++;
 
-    uint8_t encode_result = encode_framing( test_payload, sizeof(test_payload) );
+    uint8_t encode_result = encode_framing( test_payload, data_len );
 
     //ground-truth
     uint8_t expected[] = { 
@@ -340,15 +365,17 @@ void test_cobs_basic_9( void )
 // Expect 00 FE 03 04 05 ... FF 02 01 00
 void test_cobs_basic_10( void )
 {
-    uint8_t test_payload[ 3 + 0xFF ] = { 0 };
+    uint8_t test_payload[ 300 ] = { 0 };
+    uint16_t data_len = 2;
 
     // input data sequence of 03 04 05 ... FF 00 01
     for(uint16_t i = 0; i < 0xFF; i++)
     {
         test_payload[i+2] = i+3;
+        data_len++;
     }
 
-    uint8_t encode_result = encode_framing( test_payload, sizeof(test_payload) );
+    uint8_t encode_result = encode_framing( test_payload, data_len );
     
     //ground-truth
     uint8_t expected[] = { 
@@ -380,7 +407,10 @@ void test_cobs_basic_10( void )
 
 void test_cobs_long( void )
 {
-    uint8_t test_payload[ 2+825+4 ] = { 0 }; //825B of data should hit 3 ripple insertions
+    uint8_t test_payload[ 1000 ] = { 0 };
+    uint16_t data_len = 2;
+
+    //825B of data should hit 3 ripple insertions
     
     // count 0x10-EF repeatedly over the size of the buffer
     uint8_t test_val = 0x0F;
@@ -396,10 +426,11 @@ void test_cobs_long( void )
             test_val++;
         }
 
-        test_payload[bytes] = test_val;
+        test_payload[data_len] = test_val;
+        data_len++;
     }
 
-    uint8_t encode_result = encode_framing( test_payload, sizeof(test_payload)-3 );
+    uint8_t encode_result = encode_framing( test_payload, data_len );
     
     //ground-truth
     uint8_t expected[] = { 
@@ -479,7 +510,7 @@ void test_cobs_long( void )
 
 void test_cobs_realworld( void )
 {
-    uint8_t test_payload[] = { 
+    uint8_t test_payload[32] = { 
         0x00,
         0x00,
 
@@ -490,8 +521,8 @@ void test_cobs_realworld( void )
 
         0x00,
     };
-
-    uint8_t encode_result = encode_framing( (uint8_t *)&test_payload, sizeof(test_payload) );
+    uint8_t test_length = 12;
+    uint8_t encode_result = encode_framing( test_payload, test_length );
 
     //ground-truth
     uint8_t expected[] = { 
@@ -508,9 +539,22 @@ void test_cobs_realworld( void )
     TEST_ASSERT_EQUAL_UINT8_MESSAGE( 0, encode_result, "Encoder returned wrong overhead" );
 }
 
-/*
-    for( uint16_t i = 0; i < sizeof(test_payload); i++)
+static void print_buffer(const char* label, uint8_t *buffer, uint16_t len)
+{
+    char msg_buffer[2048]; // large enough for max buffer * 3
+    uint16_t offset = 0;
+    
+    offset += snprintf(msg_buffer + offset, sizeof(msg_buffer) - offset, "%s: ", label);
+
+    for( uint16_t i = 0; i < len; i++ )
     {
-        printf("Byte[%d]: %X\n", i, test_payload[i]);
+        // Prevent buffer overrun if payload is huge
+        if(offset > sizeof(msg_buffer) - 5) 
+        {
+            break;
+        } 
+        offset += snprintf(msg_buffer + offset, sizeof(msg_buffer) - offset, "%02X ", buffer[i]);
     }
-*/
+
+    TEST_MESSAGE(msg_buffer);
+}

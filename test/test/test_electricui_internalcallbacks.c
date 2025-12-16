@@ -200,7 +200,7 @@ void test_send_id_list_callback_all( void )
     {
         // Generate a string with n bytes corresponding to this pass of the test
         // Will be used as the 'template' msgID string in the child loop
-        char msg_id[EUI_MAX_MSGID_SIZE] = { 0 };
+        char msg_id[EUI_MAX_MSGID_SIZE + 1] = { 0 };
         memset( &msg_id, 'a', id_length);
         msg_id[id_length + 1] = '\0';
 
@@ -220,9 +220,10 @@ void test_send_id_list_callback_all( void )
             {
                 // eUI only needs pointers to strings, so generate a string in a buffer
                 // and then pass the pointer for that entry
-                strcpy(msgID_strbuf[id_num], msg_id);
+                strcpy(msgID_strbuf[i], msg_id);
+                track_stressed[i].id = msgID_strbuf[i]; 
 
-                track_stressed[i].id = &msgID_strbuf[id_num][0];
+                // track_stressed[i].id = &msgID_strbuf[id_num][0];
                 track_stressed[i].type = TYPE_CHAR;
                 track_stressed[i].size = 1;
                 track_stressed[i].ptr.data = &test_char;

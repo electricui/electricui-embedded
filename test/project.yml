@@ -33,6 +33,17 @@
     - ../src/**
   :libraries: []
 
+:flags:
+  :test:
+    :compile:
+      :*:
+        - -fsanitize=address
+        - -fsanitize=undefined
+        - -g
+    :link:
+      :*:
+        - -fsanitize=address
+        - -fsanitize=undefined
 :defines:
   :common: &common_defines
     - TEST
