@@ -62,7 +62,8 @@ class ble_characteristic_callbacks: public BLECharacteristicCallbacks
 {
   void onWrite(BLECharacteristic *pCharacteristic) 
   {
-    std::string rxValue = pCharacteristic->getValue();
+    // Using 'auto' for std::string on Core v2, and String on Core v3 onward
+    auto rxValue = pCharacteristic->getValue();
 
     if ( rxValue.length() > 0 ) 
     {

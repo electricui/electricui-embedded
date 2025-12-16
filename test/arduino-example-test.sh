@@ -24,6 +24,9 @@ target_platforms[1]="arduino:avr:uno esp32-ble.ino esp32-websockets.ino bluefrui
 target_platforms[2]="arduino:avr:mega:cpu=atmega2560 esp32-ble.ino esp32-websockets.ino bluefruit-bleuart.ino"
 target_platforms[3]="arduino:samd:mzero_bl persistence-eeprom.ino esp32-ble.ino esp32-websockets.ino bluefruit-bleuart.ino"
 target_platforms[4]="esp32:esp32:esp32thing persistence-eeprom.ino status-error-callbacks.ino bluefruit-bleuart.ino"
+target_platforms[5]="esp32:esp32:esp32c6 persistence-eeprom.ino status-error-callbacks.ino bluefruit-bleuart.ino"
+target_platforms[6]="esp32:esp32:esp32c3 persistence-eeprom.ino status-error-callbacks.ino bluefruit-bleuart.ino"
+target_platforms[4]="esp32:esp32:esp32h2 persistence-eeprom.ino status-error-callbacks.ino bluefruit-bleuart.ino esp32-websockets.ino"
 
 # track test progress
 tests_run=0
