@@ -64,7 +64,7 @@ eui_message_t tracked_vars[] =
     EUI_UINT8_RO( "u8ro", example_uint8_readonly ),
 
     // If you want to manually provide the structure, this is what the EUI_UINT8 macro expands into 
-    { .id = "manual_u8", .type = TYPE_INT8, .size = sizeof(example_uint8), {.data = &example_uint8} },
+    { .id = "manual_u8", .type = TYPE_INT8, .size = sizeof(example_uint8), .ptr = {.data = &example_uint8} },
 
     // There are macros for most types available
     EUI_INT8(   "s8",  example_int8   ),
