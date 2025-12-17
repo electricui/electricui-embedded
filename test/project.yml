@@ -49,7 +49,14 @@
     - TEST
     - CMOCK_MEM_DYNAMIC
   :test:
-    - *common_defines
+    :*:
+      - *common_defines
+    :test_eui_serial_transport_encode_large:
+      - *common_defines
+      - PAYLOAD_SIZE_MAX=1023
+    :test_eui_serial_transport_loopback_large:
+      - *common_defines
+      - PAYLOAD_SIZE_MAX=1023
   :test_preprocess:
     - *common_defines
 
