@@ -182,8 +182,11 @@ decode_packet(uint8_t byte_in, eui_packet_t *p_link_in)
     
     if( 0x00u == byte_in )
     {
-        //reset
+        // Reset the parser
         p_link_in->parser.state = exp_frame_offset;
+        p_link_in->parser.id_bytes_in = 0u;
+        p_link_in->parser.data_bytes_in = 0u;
+        p_link_in->parser.frame_long_run = 0u;
         p_link_in->parser.frame_offset = 0u;
         p_link_in->crc_in = 0xFFFFu;
     }
@@ -196,18 +199,29 @@ decode_packet(uint8_t byte_in, eui_packet_t *p_link_in)
         }
         else
         {
-            // Offset has expired, this inbound byte should be the next data framing byte
+            // The framing offset has expired, so the inbound byte is the next framing byte
+            // For 0xFF long runs of non-zero data occur an additional framing byte is added during encode
+            // During decode, the additional framing byte is ignored
+            uint8_t was_ff = p_link_in->parser.frame_long_run;
+            p_link_in->parser.frame_long_run = (0xFFu == byte_in);
+
             p_link_in->parser.frame_offset = byte_in;
-            byte_in = 0x00u; // Replace with pre-COBS byte.
+
+            if( was_ff )
+            {
+                return status;
+            }
+
+            byte_in = 0x00u; // Typical framing offsets are replaced with the pre-COBS 0x00 data
         }
 
         // CRC data up to the packet's CRC
         if( (exp_crc_b1 > (uint8_t)p_link_in->parser.state)
             && (exp_frame_offset < (uint8_t)p_link_in->parser.state) )
         {
-            crc16( byte_in, &(p_link_in->crc_in)) ; 
+            crc16( byte_in, &(p_link_in->crc_in));
         }
-     
+
         status = parse_decoded_packet( byte_in, p_link_in );
     }
 

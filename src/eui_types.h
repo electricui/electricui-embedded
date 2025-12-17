@@ -145,7 +145,7 @@ typedef void (*callback_data_out_t)(uint8_t*, uint16_t);
  * Contains data used during parsing of packets including sizes, type and intent of the packet
  */
 typedef struct {
-    unsigned data_len   : 10;   ///< Length of the payload in bytes. Max 1024 byte payloads supported.
+    unsigned data_len   : 10;   ///< Length of the payload in bytes. Max 1023 byte payloads supported.
     unsigned type       : 4;    ///< Type of the payload - see the eui_type enum.
     unsigned internal   : 1;    ///< True when message is for the internal namespace (heartbeats etc).
     unsigned offset     : 1;    ///< True when packet has offset indicator bytes included.

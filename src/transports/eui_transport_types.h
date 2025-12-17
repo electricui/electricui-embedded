@@ -48,6 +48,7 @@ typedef struct {
     unsigned state          : 4;    ///< parseStates statemachine control flag
     unsigned id_bytes_in    : 4;    ///< Count parsed identifier string bytes
     unsigned data_bytes_in  : 10;   ///< Count parsed payload data bytes
+    unsigned frame_long_run : 1;    ///< Indicates if COBS framing points to inserted byte for a 0xFF-length non-zero run
     uint8_t  frame_offset;          ///< Tracks bytes until the next inbound COBS framing byte
 } eui_parser_state_t;
 
