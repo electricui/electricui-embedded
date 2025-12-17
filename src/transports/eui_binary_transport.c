@@ -239,6 +239,9 @@ parse_decoded_packet( uint8_t byte_in, eui_packet_t *p_link_in )
         case exp_frame_offset:
             // First byte is the first offset
             p_link_in->crc_in = 0xFFFFu;
+#ifndef EUI_CONF_OFFSETS_DISABLED
+            p_link_in->offset_in = 0u;
+#endif
             p_link_in->parser.state = exp_header_b1;
         break;
 
@@ -306,7 +309,15 @@ parse_decoded_packet( uint8_t byte_in, eui_packet_t *p_link_in )
 
         case exp_offset_b2:
             p_link_in->offset_in     |= (uint16_t)((uint16_t)byte_in << 8u);
-            p_link_in->parser.state  = exp_data;
+            if( p_link_in->header.data_len )
+            {
+                p_link_in->parser.state = exp_data;
+            }
+            else
+            {
+                // If the payload is empty, CRC is next
+                p_link_in->parser.state = exp_crc_b1;
+            }
         break;
 #endif
         
